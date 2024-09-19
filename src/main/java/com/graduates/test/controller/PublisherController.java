@@ -17,20 +17,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/publisher")
 public class PublisherController {
-
     private PublisherService publisherService;
-
     @Autowired
     public PublisherController(PublisherService publisherService) {
         this.publisherService = publisherService;
     }
 
-
-//    @PostMapping
-//    public ResponseEntity<String> createPublisherDetails(@RequestBody Publisher publisher) {
-//    String result = publisherService.createPublisher(publisher);
-//    return ResponseEntity.ok(result);
-//}
 
     @PostMapping
     public ResponseEntity<Object> createPublisherDetails(

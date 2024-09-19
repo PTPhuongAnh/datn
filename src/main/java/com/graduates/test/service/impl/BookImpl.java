@@ -8,6 +8,7 @@ import com.graduates.test.resposity.CategoryResposity;
 import com.graduates.test.resposity.ImageResposity;
 import com.graduates.test.resposity.PublisherResposity;
 import com.graduates.test.service.BookService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -99,8 +100,10 @@ public class BookImpl implements BookService {
         response.setDescription(book.getDescription());
         response.setCategoryName(book.getCategory().getNameCategory());
         response.setPublisherName(book.getPublisher().getNamePublisher());
+        response.setQuantity(book.getQuantity());
+        response.setPrice(book.getPrice());
         response.setImageUrls(imageUrls);
-//        response.setStatus(true); // Gán status = true vì sách được tìm thấy
+
 
         return response;
     }
@@ -114,12 +117,17 @@ public class BookImpl implements BookService {
         }
     }
 
-public Page<Book> getList(String nameBook, String author, String category, String publisher, int page, int size) {
+public Page<Book> getList(String nameBook, String author, String category, String publisher, Integer quantity, Integer price, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
     return bookCategoryResposity.searchBooks(nameBook, author, category, publisher, pageable);
 }
 
-private void deleteOldImages(Book book) {
+//    @Override
+//    public Book updateBook(Integer id, String nameBook, String author, String description, Integer quantity, Integer price, Integer categoryId, Integer publisherId, List<MultipartFile> images) throws IOException {
+//        return null;
+//    }
+
+    private void deleteOldImages(Book book) {
     List<ImageBook> oldImages = imageResposity.findByBook(book);
     for (ImageBook image : oldImages) {
         File file = new File(bookUploadDir + File.separator + image.getImage_url());
@@ -139,7 +147,7 @@ private void updateBookImages(Book book, List<MultipartFile> newImages) throws I
 }
 
 //
-public Book updateBook(Integer id, String nameBook, String author, String description, Integer categoryId, Integer publisherId, List<MultipartFile> images) throws ResourceNotFoundException, IOException {
+public Book updateBook(Integer id, String nameBook, String author, String description, Integer categoryId, Integer publisherId,Integer quantity, Integer price, List<MultipartFile> images) throws ResourceNotFoundException, IOException {
     // Tìm sách theo ID
     Book book = bookCategoryResposity.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sách với ID: " + id));
@@ -149,8 +157,9 @@ public Book updateBook(Integer id, String nameBook, String author, String descri
     if (author != null) book.setAuthor(author);
     if (description != null) book.setDescription(description);
     if (categoryId != null) book.setCategory(new Category(categoryId)); // Gán thể loại
-    if (publisherId != null) book.setPublisher(new Publisher(publisherId)); // Gán nhà xuất bản
-
+    if (publisherId != null) book.setPublisher(new Publisher(publisherId)); // Gán nhà xuất bảnif
+    if(quantity !=null) book.setQuantity(quantity);
+    if(price !=null) book.setQuantity(price);
     // Cập nhật ảnh sách nếu có
     if (images != null && !images.isEmpty()) {
         updateBookImages(book, images);

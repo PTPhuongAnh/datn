@@ -66,11 +66,13 @@ public class BookController {
             @RequestParam(value = "description",required = true) String description,
             @RequestParam(value = "idCategory",required = false) Integer idCategory,
             @RequestParam(value = "idPublisher",required = false) Integer idPublisher,
-            @RequestParam( "images") List<MultipartFile> images) {
+            @RequestParam(value="quantity", required = false) Integer quantity,
+            @RequestParam(value = "price", required = false) Integer price,
+            @RequestParam(value = "images", required = true) List<MultipartFile> images) {
         if (nameBook == null || nameBook.trim().isEmpty()) {
             return ResponseHandler.responeBuilder(
                     "Book name is required",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.OK,
                     false,
                     null
             );
@@ -78,7 +80,7 @@ public class BookController {
         if (author == null || author.trim().isEmpty()) {
             return ResponseHandler.responeBuilder(
                     "Author is required",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.OK,
                     false,
                     null
             );
@@ -86,15 +88,16 @@ public class BookController {
         if (description == null || description.trim().isEmpty()) {
             return ResponseHandler.responeBuilder(
                     "Description is required",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.OK,
                     false,
                     null
             );
         }
+
         if (idCategory == null) {
             return ResponseHandler.responeBuilder(
                     "Category ID is required",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.OK,
                     false,
                     null
             );
@@ -102,15 +105,31 @@ public class BookController {
         if (idPublisher == null) {
             return ResponseHandler.responeBuilder(
                     "Publisher ID is required",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.OK,
                     false,
                     null
             );
         }
-        if (images == null || images.isEmpty()) {
+
+        if(quantity==null){
+            return ResponseHandler.responeBuilder(
+                    "Quantity is required",
+                    HttpStatus.OK,
+                    false,
+                    null
+            );
+        }
+        if(price==null){
+            return ResponseHandler.responeBuilder(
+                    "Price is required",
+                    HttpStatus.OK,
+                    false,null
+            );
+        }
+        if (images == null || images.isEmpty() || images.size()==1) {
             return ResponseHandler.responeBuilder(
                     "At least one image is required",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.OK,
                     false,
                     null
             );
@@ -123,7 +142,8 @@ public class BookController {
         book.setDescription(description);
         book.setCategory(new Category(idCategory)); // Khởi tạo đối tượng Category với id
         book.setPublisher(new Publisher(idPublisher)); // Khởi tạo đối tượng Publisher với id
-
+        book.setQuantity(quantity);
+        book.setPrice(price);
         try {
             // Gọi service để lưu sách cùng với các ảnh//dòng này đang trả dữ liệu về
 
@@ -161,6 +181,8 @@ public ResponseEntity<?> updateBook(
         @RequestParam( value = "description",required = true) String description,
         @RequestParam(value = "idCategory",required = false) Integer idCategory,
         @RequestParam(value = "idPublisher",required = false) Integer idPublisher,
+        @RequestParam(value="quantity", required = false) Integer quantity,
+        @RequestParam(value = "price", required = false) Integer price,
         @RequestParam("images") List<MultipartFile> images) {
     if (nameBook == null || nameBook.trim().isEmpty()) {
         return ResponseHandler.responeBuilder(
@@ -202,6 +224,22 @@ public ResponseEntity<?> updateBook(
                 null
         );
     }
+
+    if(quantity==null){
+        return ResponseHandler.responeBuilder(
+                "Quantity is required",
+                HttpStatus.OK,
+                false,
+                null
+        );
+    }
+    if(price==null){
+        return ResponseHandler.responeBuilder(
+                "Price is required",
+                HttpStatus.OK,
+                false,null
+        );
+    }
     if (images == null || images.isEmpty()) {
         return ResponseHandler.responeBuilder(
                 "At least one image is required",
@@ -213,7 +251,7 @@ public ResponseEntity<?> updateBook(
 
     try {
         // Gọi service để cập nhật sách và ảnh
-        Book updatedBook = bookService.updateBook(id, nameBook, author, description, idCategory, idPublisher, images);
+        Book updatedBook = bookService.updateBook(id, nameBook, author, description,idCategory, idPublisher, quantity,price,images);
 
         // Chuyển đổi thành BookResponse
         BookRespone response = convertToBookResponse(updatedBook);
@@ -268,8 +306,13 @@ public ResponseEntity<?> updateBook(
         response.setNameBook(book.getNameBook());
         response.setAuthor(book.getAuthor());
         response.setDescription(book.getDescription());
+
         response.setCategoryName(book.getCategory().getNameCategory());
        response.setPublisherName(book.getPublisher().getNamePublisher());
+       response.setQuantity(book.getQuantity());
+       response.setPrice(book.getPrice());
+        response.setCreateAt(book.getCreateAt()); // Set createAt
+        response.setUpdateAt(book.getUpdateAt()); // Se
 //        if (book.getCategory() != null) {
 //            response.setCategoryName(book.getCategory().getNameCategory());
 //        }
@@ -318,10 +361,12 @@ public ResponseEntity<?> updateBook(
             @RequestParam(value = "author", required = false) String author,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "publisher", required = false) String publisher,
+            @RequestParam(value = "quantity" ,required = false)Integer quantity,
+            @RequestParam(value = "price",required = false) Integer price,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Page<Book> bookPage = bookService.getList(nameBook, author, category, publisher, page, size);
+        Page<Book> bookPage = bookService.getList(nameBook, author, category, publisher,quantity,price, page, size);
 
         if (bookPage.isEmpty()) {
             return ResponseHandler.responeBuilder("No books found", HttpStatus.OK, false, null);

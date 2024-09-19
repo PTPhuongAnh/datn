@@ -15,7 +15,14 @@ private String addressPublisher;
 private LocalDateTime createAt;
 private LocalDateTime updateAt;
 
-    public Publisher(int idPublisher, String namePublisher, String addressPublisher) {
+//    public Publisher(int idPublisher, String namePublisher, String addressPublisher) {
+//        this.idPublisher = idPublisher;
+//        this.namePublisher = namePublisher;
+//        this.addressPublisher = addressPublisher;
+//    }
+
+
+    public Publisher(Integer idPublisher, String namePublisher, String addressPublisher) {
         this.idPublisher = idPublisher;
         this.namePublisher = namePublisher;
         this.addressPublisher = addressPublisher;

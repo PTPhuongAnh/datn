@@ -2,6 +2,7 @@ package com.graduates.test.service;
 
 import com.graduates.test.model.Book;
 import com.graduates.test.dto.BookRespone;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,9 +19,9 @@ public interface BookService {
     Optional<BookRespone> getBookById(int  idBook);
     String getBookUploadDir();
 
-    Page<Book> getList(String nameBook, String author, String category, String publisher, int page, int size);
+    Page<Book> getList(String nameBook, String author, String category, String publisher, Integer quantity, Integer price, int page, int size);
 
-    Book updateBook(Integer id, String nameBook, String author, String description, Integer categoryId, Integer publisherId, List<MultipartFile> images) throws IOException;
+    Book updateBook(Integer id, String nameBook, String author, String description,Integer categoryId, Integer publisherId,  Integer quantity, Integer price,List<MultipartFile> images) throws IOException;
 
 
 }
