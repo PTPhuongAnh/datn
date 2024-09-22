@@ -59,89 +59,39 @@ public class BookController {
     }
 
     //thêm sách
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> addBookWithImages(
             @RequestParam(value = "nameBook",required = true) String nameBook,
             @RequestParam(value = "author",required = true) String author,
-            @RequestParam(value = "description",required = true) String description,
+            @RequestParam(value = "description_short",required = false) String description_short,
+            @RequestParam(value = "description_long",required = false) String description_long,
+            @RequestParam(value = "size", required = false) String size,
+            @RequestParam(value = "year_publisher", required = false) String year_publisher,
+            @RequestParam(value = "page_number",required = false) String page_number,
+            @RequestParam(value = "barcode",required = false)String barcode,
             @RequestParam(value = "idCategory",required = false) Integer idCategory,
             @RequestParam(value = "idPublisher",required = false) Integer idPublisher,
+            @RequestParam(value = "idDistributor",required = false) Integer idDistributor,
             @RequestParam(value="quantity", required = false) Integer quantity,
             @RequestParam(value = "price", required = false) Integer price,
             @RequestParam(value = "images", required = true) List<MultipartFile> images) {
-        if (nameBook == null || nameBook.trim().isEmpty()) {
-            return ResponseHandler.responeBuilder(
-                    "Book name is required",
-                    HttpStatus.OK,
-                    false,
-                    null
-            );
-        }
-        if (author == null || author.trim().isEmpty()) {
-            return ResponseHandler.responeBuilder(
-                    "Author is required",
-                    HttpStatus.OK,
-                    false,
-                    null
-            );
-        }
-        if (description == null || description.trim().isEmpty()) {
-            return ResponseHandler.responeBuilder(
-                    "Description is required",
-                    HttpStatus.OK,
-                    false,
-                    null
-            );
-        }
 
-        if (idCategory == null) {
-            return ResponseHandler.responeBuilder(
-                    "Category ID is required",
-                    HttpStatus.OK,
-                    false,
-                    null
-            );
-        }
-        if (idPublisher == null) {
-            return ResponseHandler.responeBuilder(
-                    "Publisher ID is required",
-                    HttpStatus.OK,
-                    false,
-                    null
-            );
-        }
-
-        if(quantity==null){
-            return ResponseHandler.responeBuilder(
-                    "Quantity is required",
-                    HttpStatus.OK,
-                    false,
-                    null
-            );
-        }
-        if(price==null){
-            return ResponseHandler.responeBuilder(
-                    "Price is required",
-                    HttpStatus.OK,
-                    false,null
-            );
-        }
-        if (images == null || images.isEmpty() || images.size()==1) {
-            return ResponseHandler.responeBuilder(
-                    "At least one image is required",
-                    HttpStatus.OK,
-                    false,
-                    null
-            );
-        }
+  //      bookService.validateBookInputs(nameBook, author, description, idCategory, idPublisher, quantity, price, images);
 
         // Khởi tạo đối tượng Book từ các tham số nhận được
         Book book = new Book();
         book.setNameBook(nameBook);
         book.setAuthor(author);
-        book.setDescription(description);
+      //
+        book.setDescription_short(description_short);
+        book.setDescription_long(description_long);
+        book.setSize(size);
+        book.setYear_publisher(year_publisher);
+        book.setPage_number(page_number);
+        book.setBarcode(barcode);
         book.setCategory(new Category(idCategory)); // Khởi tạo đối tượng Category với id
         book.setPublisher(new Publisher(idPublisher)); // Khởi tạo đối tượng Publisher với id
+        book.setDistributor(new Distributor(idDistributor));
         book.setQuantity(quantity);
         book.setPrice(price);
         try {
@@ -152,16 +102,11 @@ public class BookController {
             bookService.createBook(book, images);
 
             return ResponseHandler.responeBuilder(
-//                    "Book added successfully with ID: " + savedBook.getIdBook(),
-//                    HttpStatus.OK,
-//                    true,
-//                    savedBook
                     "Book added successfully ",
                     HttpStatus.OK,
                     true, null
 
             );
-            // return ResponseEntity.ok("Book added successfully with ID: " + savedBook.getIdBook());
         } catch (IOException e) {
             return ResponseHandler.responeBuilder(
                     "Error adding book",
@@ -169,7 +114,7 @@ public class BookController {
                     false,
                     null
             );
-            //  return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding book");
+
         }
     }
 
@@ -178,80 +123,24 @@ public ResponseEntity<?> updateBook(
         @PathVariable Integer id,
         @RequestParam( value = "nameBook", required = true) String nameBook,
         @RequestParam( value = "author",required = true) String author,
-        @RequestParam( value = "description",required = true) String description,
+        @RequestParam(value = "description_short",required = false) String description_short,
+        @RequestParam(value = "description_long",required = false) String description_long,
+        @RequestParam(value = "size", required = false) String size,
+        @RequestParam(value = "year_publisher", required = false) String year_publisher,
+        @RequestParam(value = "page_number",required = false) String page_number,
+        @RequestParam(value = "barcode",required = false)String barcode,
         @RequestParam(value = "idCategory",required = false) Integer idCategory,
         @RequestParam(value = "idPublisher",required = false) Integer idPublisher,
+        @RequestParam(value = "idDistributor",required = false) Integer idDistributor,
         @RequestParam(value="quantity", required = false) Integer quantity,
         @RequestParam(value = "price", required = false) Integer price,
         @RequestParam("images") List<MultipartFile> images) {
-    if (nameBook == null || nameBook.trim().isEmpty()) {
-        return ResponseHandler.responeBuilder(
-                "Book name is required",
-                HttpStatus.BAD_REQUEST,
-                false,
-                null
-        );
-    }
-    if (author == null || author.trim().isEmpty()) {
-        return ResponseHandler.responeBuilder(
-                "Author is required",
-                HttpStatus.BAD_REQUEST,
-                false,
-                null
-        );
-    }
-    if (description == null || description.trim().isEmpty()) {
-        return ResponseHandler.responeBuilder(
-                "Description is required",
-                HttpStatus.BAD_REQUEST,
-                false,
-                null
-        );
-    }
-    if (idCategory == null) {
-        return ResponseHandler.responeBuilder(
-                "Category ID is required",
-                HttpStatus.BAD_REQUEST,
-                false,
-                null
-        );
-    }
-    if (idPublisher == null) {
-        return ResponseHandler.responeBuilder(
-                "Publisher ID is required",
-                HttpStatus.BAD_REQUEST,
-                false,
-                null
-        );
-    }
+  //    bookService.validateBookInputs(nameBook, author, description, idCategory, idPublisher, quantity, price, images);
 
-    if(quantity==null){
-        return ResponseHandler.responeBuilder(
-                "Quantity is required",
-                HttpStatus.OK,
-                false,
-                null
-        );
-    }
-    if(price==null){
-        return ResponseHandler.responeBuilder(
-                "Price is required",
-                HttpStatus.OK,
-                false,null
-        );
-    }
-    if (images == null || images.isEmpty()) {
-        return ResponseHandler.responeBuilder(
-                "At least one image is required",
-                HttpStatus.BAD_REQUEST,
-                false,
-                null
-        );
-    }
 
     try {
         // Gọi service để cập nhật sách và ảnh
-        Book updatedBook = bookService.updateBook(id, nameBook, author, description,idCategory, idPublisher, quantity,price,images);
+        Book updatedBook = bookService.updateBook(id, nameBook, author, description_short,description_long,size,year_publisher,page_number,barcode,idCategory, idPublisher,idDistributor, quantity,price,images);
 
         // Chuyển đổi thành BookResponse
         BookRespone response = convertToBookResponse(updatedBook);
@@ -273,13 +162,7 @@ public ResponseEntity<?> updateBook(
                 null
         );
     } catch (IOException e) {
-     //   return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        return ResponseHandler.responeBuilder(
-                "Error updating book",
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                false,
-                null
-        );
+        throw new RuntimeException(e);
     }
 }
 
@@ -300,19 +183,28 @@ public ResponseEntity<?> updateBook(
         List<String> imageUrls = book.getImageBooks().stream()
                 .map(image -> baseUrl + encodeURIComponent(image.getImage_url()))
                 .collect(Collectors.toList());
-
         BookRespone response = new BookRespone();
         response.setIdBook(book.getIdBook());
         response.setNameBook(book.getNameBook());
         response.setAuthor(book.getAuthor());
-        response.setDescription(book.getDescription());
-
+        response.setDescription_short(book.getDescription_short());
+        response.setDescription_long(book.getDescription_long());
+        response.setSize(book.getSize());
+        response.setYear_publisher(book.getYear_publisher());
+        response.setPage_number(book.getPage_number());
+        response.setBarcode(book.getBarcode());
         response.setCategoryName(book.getCategory().getNameCategory());
-       response.setPublisherName(book.getPublisher().getNamePublisher());
-       response.setQuantity(book.getQuantity());
-       response.setPrice(book.getPrice());
-        response.setCreateAt(book.getCreateAt()); // Set createAt
-        response.setUpdateAt(book.getUpdateAt()); // Se
+        response.setPublisherName(book.getPublisher().getNamePublisher());
+        response.setDistributorName(book.getDistributor().getNameDistributor());
+        response.setQuantity(book.getQuantity());
+        response.setPrice(book.getPrice());
+        response.setCreateAt(book.getCreateAt());
+        response.setUpdateAt(book.getUpdateAt());
+        response.setImageUrls(imageUrls);
+
+
+        return response;
+
 //        if (book.getCategory() != null) {
 //            response.setCategoryName(book.getCategory().getNameCategory());
 //        }
@@ -320,8 +212,8 @@ public ResponseEntity<?> updateBook(
 //        if (book.getPublisher() != null) {
 //            response.setPublisherName(book.getPublisher().getNamePublisher());
 //        }
-        response.setImageUrls(imageUrls);
-        return response;
+       // response.setImageUrls(imageUrls);
+       // return response;
     }
 
 
@@ -331,42 +223,27 @@ public ResponseEntity<?> updateBook(
         return bookResponse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    //   get danh sách
-//    @GetMapping("/list")
-//    public ResponseEntity<?> getList(
-//            @RequestParam(value = "nameBook", required = false) String nameBook,
-//            @RequestParam(value = "author", required = false) String author,
-//            @RequestParam(value = "category", required = false) String category,
-//            @RequestParam(value = "publisher", required = false) String publisher) {
-//
-//        List<BookRespone> books = bookService.getList(nameBook, author, category, publisher);
-//
-//        if (books.isEmpty()) {
-//            return ResponseHandler.responeBuilder("No books found", HttpStatus.OK, false, null);
-//            //  return ResponseEntity.ok(Collections.singletonMap("status", false));
-//            //   return ResponseEntity.ok(new BookRespone(false)); // Trả về status = false nếu không tìm thấy sách
-//        } else {
-////            books.forEach(book -> book.setStatus(true));
-////            return ResponseEntity.ok(books); // Trả về danh sách sách với status = true
-//
-//            return ResponseHandler.responeBuilder("Books found", HttpStatus.OK, true, books);
-//        }
-//
-//    }
 
 
     @GetMapping("/list")
     public ResponseEntity<?> getList(
             @RequestParam(value = "nameBook", required = false) String nameBook,
             @RequestParam(value = "author", required = false) String author,
+            @RequestParam(value = "description_short",required = false) String description_short,
+            @RequestParam(value = "description_long",required = false) String description_long,
+            @RequestParam(value = "size", required = false) String size,
+            @RequestParam(value = "year_publisher", required = false) String year_publisher,
+            @RequestParam(value = "page_number",required = false) String page_number,
+            @RequestParam(value = "barcode",required = false)String barcode,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "publisher", required = false) String publisher,
+            @RequestParam(value = "distributor", required = false) String distributor,
             @RequestParam(value = "quantity" ,required = false)Integer quantity,
             @RequestParam(value = "price",required = false) Integer price,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam(value = "sizes", defaultValue = "10") int sizes) {
 
-        Page<Book> bookPage = bookService.getList(nameBook, author, category, publisher,quantity,price, page, size);
+        Page<Book> bookPage = bookService.getList( nameBook,  author,  description_short,  description_long,  size,  year_publisher,  page_number,  barcode,  quantity, price,  category,  publisher,  distributor,  page, sizes);
 
         if (bookPage.isEmpty()) {
             return ResponseHandler.responeBuilder("No books found", HttpStatus.OK, false, null);

@@ -15,13 +15,14 @@ public interface BookService {
     //BookRespone updateBook(Integer idBook, BookUpdate book);
 
     void deleteBook(String idBook);
+
     List<BookRespone> getAllBooks();
-    Optional<BookRespone> getBookById(int  idBook);
+
+    Optional<BookRespone> getBookById(int idBook);
+
     String getBookUploadDir();
 
-    Page<Book> getList(String nameBook, String author, String category, String publisher, Integer quantity, Integer price, int page, int size);
+    Page<Book> getList(String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer quantity, Integer price, String category, String publisher, String distributor, int page, int sizes);
 
-    Book updateBook(Integer id, String nameBook, String author, String description,Integer categoryId, Integer publisherId,  Integer quantity, Integer price,List<MultipartFile> images) throws IOException;
-
-
+    Book updateBook(Integer id, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer idCategory, Integer idPublisher, Integer idDistributor, Integer quantity, Integer price, List<MultipartFile> images) throws IOException;
 }

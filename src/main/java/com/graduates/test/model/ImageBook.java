@@ -1,8 +1,10 @@
 package com.graduates.test.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
+@Data
 @Entity
 @Table(name = "image_book")
 public class ImageBook {
@@ -16,6 +18,7 @@ public class ImageBook {
 
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+
 
     public ImageBook(int idImageBook, String image_url) {
         this.idImageBook = idImageBook;

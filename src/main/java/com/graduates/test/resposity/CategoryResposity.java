@@ -6,5 +6,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CategoryResposity extends JpaRepository <Category,Integer>{
 
-//    Category findById(int idCategory);
 }

@@ -67,20 +67,21 @@ public class CategoryController {
     }
 
     //thêm category
-    @PostMapping
-    public ResponseEntity<Object> createCategoryDetails(
+    @PostMapping("/create")
+    public ResponseEntity<?> createCategoryDetails(
             @RequestParam(value = "nameCategory", required = true) String nameCategory,
             @RequestParam(value = "image", required = true) MultipartFile file
     ) {
 
         try {
             if (nameCategory == null || nameCategory.trim().isEmpty()) {
-                return ResponseHandler.responeBuilder("Category name is required", HttpStatus.BAD_REQUEST, false, null);
+                return ResponseHandler.responeBuilder("Category name is required", HttpStatus.OK
+                        , false, null);
             }
 
             // Kiểm tra xem file có bị thiếu hay không
             if (file == null || file.isEmpty()) {
-                return ResponseHandler.responeBuilder("Image file is required", HttpStatus.BAD_REQUEST, false, null);
+                return ResponseHandler.responeBuilder("Image file is required", HttpStatus.OK, false, null);
             }
 
             // Lưu hình ảnh và lấy đường dẫn hình ảnh
@@ -99,6 +100,8 @@ public class CategoryController {
 
         } catch (Exception e) {
             // Xử lý các ngoại lệ khác nếu có
+            System.out.println("Error creating category: " + e.getMessage());
+            e.printStackTrace();
             return ResponseHandler.responeBuilder("An error occurred while creating the category", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
         }
     }

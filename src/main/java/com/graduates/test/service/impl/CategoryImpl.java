@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -89,6 +86,7 @@ public class CategoryImpl implements CategoryService {
         Pageable pageable = PageRequest.of(page, size);
         return categoryResposity.findAll(pageable);
     }
+
     @Override
     public String saveImage(MultipartFile file) {
         if (file.isEmpty()) {
@@ -103,8 +101,8 @@ public class CategoryImpl implements CategoryService {
             }
 
             // Tạo tên tệp duy nhất để tránh xung đột
-            String originalFileName =file.getOriginalFilename();
-            String fileName =originalFileName;
+            String originalFileName = file.getOriginalFilename();
+            String fileName = System.currentTimeMillis() + "_" + originalFileName;  // Sử dụng timestamp để tạo tên file duy nhất
             Path filePath = path.resolve(fileName);
 
             // Sao chép tệp vào thư mục đích
@@ -115,11 +113,14 @@ public class CategoryImpl implements CategoryService {
 
             return fileName;
 
+        } catch (FileAlreadyExistsException e) {
+            throw new RuntimeException("File already exists: " + e.getMessage(), e);
         } catch (IOException e) {
             // Ném lỗi nếu có vấn đề trong quá trình lưu trữ
             throw new RuntimeException("Failed to store image file", e);
         }
     }
+
 
     //kiểm tra idcate co tồn tại book
     public boolean isCategoryUsed(Integer idCategory) {

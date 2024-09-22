@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +61,7 @@ public class BookImpl implements BookService {
 
 
 
+
     @Override
     public void deleteBook(String idBook) {
 
@@ -97,11 +100,19 @@ public class BookImpl implements BookService {
         response.setIdBook(book.getIdBook());
         response.setNameBook(book.getNameBook());
         response.setAuthor(book.getAuthor());
-        response.setDescription(book.getDescription());
+        response.setDescription_short(book.getDescription_short());
+        response.setDescription_long(book.getDescription_long());
+        response.setSize(book.getSize());
+        response.setYear_publisher(book.getYear_publisher());
+        response.setPage_number(book.getPage_number());
+        response.setBarcode(book.getBarcode());
         response.setCategoryName(book.getCategory().getNameCategory());
         response.setPublisherName(book.getPublisher().getNamePublisher());
+        response.setDistributorName(book.getDistributor().getNameDistributor());
         response.setQuantity(book.getQuantity());
         response.setPrice(book.getPrice());
+        response.setCreateAt(book.getCreateAt());
+        response.setUpdateAt(book.getUpdateAt());
         response.setImageUrls(imageUrls);
 
 
@@ -117,15 +128,16 @@ public class BookImpl implements BookService {
         }
     }
 
-public Page<Book> getList(String nameBook, String author, String category, String publisher, Integer quantity, Integer price, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return bookCategoryResposity.searchBooks(nameBook, author, category, publisher, pageable);
+public Page<Book> getList(String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer quantity,Integer price, String category, String publisher, String distributor, int page, int sizes) {
+    Pageable pageable = PageRequest.of(page, sizes);
+    return bookCategoryResposity.searchBooks(nameBook, author, category, publisher, distributor,pageable);
 }
 
 //    @Override
-//    public Book updateBook(Integer id, String nameBook, String author, String description, Integer quantity, Integer price, Integer categoryId, Integer publisherId, List<MultipartFile> images) throws IOException {
+//    public Book updateBook(Integer id, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer idCategory, Integer idPublisher, Integer idDistributor, Integer quantity, Integer price, List<MultipartFile> images) {
 //        return null;
 //    }
+
 
     private void deleteOldImages(Book book) {
     List<ImageBook> oldImages = imageResposity.findByBook(book);
@@ -146,8 +158,11 @@ private void updateBookImages(Book book, List<MultipartFile> newImages) throws I
     saveBookImages(book, newImages);
 }
 
-//
-public Book updateBook(Integer id, String nameBook, String author, String description, Integer categoryId, Integer publisherId,Integer quantity, Integer price, List<MultipartFile> images) throws ResourceNotFoundException, IOException {
+//    @Override
+//    public Book updateBook(Integer id, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer idCategory, Integer idPublisher, Integer idDistributor, Integer quantity, Integer price, List<MultipartFile> images) {
+//        return null;
+//    }
+   public Book updateBook(Integer id, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer quantity, Integer price,Integer categoryId, Integer publisherId,Integer distributorId, List<MultipartFile> images) throws ResourceNotFoundException,IOException {
     // Tìm sách theo ID
     Book book = bookCategoryResposity.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sách với ID: " + id));
@@ -155,11 +170,17 @@ public Book updateBook(Integer id, String nameBook, String author, String descri
     // Cập nhật thông tin sách
     if (nameBook != null) book.setNameBook(nameBook);
     if (author != null) book.setAuthor(author);
-    if (description != null) book.setDescription(description);
+    if (description_short != null) book.setDescription_short(description_short);
+    if(description_long !=null) book.setDescription_long(description_long);
+    if(size!=null) book.setSize(size);
+    if(year_publisher!=null) book.setYear_publisher(year_publisher);
+    if(page_number!=null) book.setPage_number(page_number);
+    if(barcode!=null) book.setBarcode(barcode);
     if (categoryId != null) book.setCategory(new Category(categoryId)); // Gán thể loại
-    if (publisherId != null) book.setPublisher(new Publisher(publisherId)); // Gán nhà xuất bảnif
+    if (publisherId != null) book.setPublisher(new Publisher(publisherId)); // Gán nhà xuất
+       if (distributorId != null) book.setDistributor(new Distributor(distributorId)); // Gán nhà xuất bảnif
     if(quantity !=null) book.setQuantity(quantity);
-    if(price !=null) book.setQuantity(price);
+    if(price !=null) book.setPrice(price);
     // Cập nhật ảnh sách nếu có
     if (images != null && !images.isEmpty()) {
         updateBookImages(book, images);
@@ -200,6 +221,35 @@ public Book updateBook(Integer id, String nameBook, String author, String descri
                 System.err.println("Error saving image: " + e.getMessage());
                 throw e;
             }
+        }
+    }
+
+
+    public void validateBookInputs(String nameBook, String author, String description, Integer idCategory,
+                                   Integer idPublisher, Integer quantity, Integer price, List<MultipartFile> images) {
+        if (nameBook == null || nameBook.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book name is required");
+        }
+        if (author == null || author.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Author is required");
+        }
+        if (description == null || description.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description is required");
+        }
+        if (idCategory == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category ID is required");
+        }
+        if (idPublisher == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Publisher ID is required");
+        }
+        if (quantity == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity is required");
+        }
+        if (price == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price is required");
+        }
+        if (images == null || images.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one image is required");
         }
     }
 

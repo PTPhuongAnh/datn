@@ -2,8 +2,10 @@ package com.graduates.test.model;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import lombok.Data;
 
 import java.time.LocalDateTime;
+@Data
 @Entity
 @Table(name = "publisher")
 public class Publisher {
@@ -12,20 +14,19 @@ public class Publisher {
 private Integer idPublisher;
 private String namePublisher;
 private String addressPublisher;
+    private String phonePublisher;
+    private String emailPublisher;
+
 private LocalDateTime createAt;
 private LocalDateTime updateAt;
 
-//    public Publisher(int idPublisher, String namePublisher, String addressPublisher) {
-//        this.idPublisher = idPublisher;
-//        this.namePublisher = namePublisher;
-//        this.addressPublisher = addressPublisher;
-//    }
 
-
-    public Publisher(Integer idPublisher, String namePublisher, String addressPublisher) {
+    public Publisher(Integer idPublisher, String namePublisher, String addressPublisher, String phonePublisher, String emailPublisher) {
         this.idPublisher = idPublisher;
         this.namePublisher = namePublisher;
         this.addressPublisher = addressPublisher;
+        this.phonePublisher = phonePublisher;
+        this.emailPublisher = emailPublisher;
     }
 
     public Publisher() {
@@ -35,11 +36,22 @@ private LocalDateTime updateAt;
         this.idPublisher = idPublisher;
     }
 
-    public int getIdPublisher() {
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = LocalDateTime.now();
+        this.updateAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateAt = LocalDateTime.now();
+    }
+
+    public Integer getIdPublisher() {
         return idPublisher;
     }
 
-    public void setIdPublisher(int idPublisher) {
+    public void setIdPublisher(Integer idPublisher) {
         this.idPublisher = idPublisher;
     }
 
@@ -58,16 +70,23 @@ private LocalDateTime updateAt;
     public void setAddressPublisher(String addressPublisher) {
         this.addressPublisher = addressPublisher;
     }
-    @PrePersist
-    protected void onCreate() {
-        this.createAt = LocalDateTime.now();
-        this.updateAt = LocalDateTime.now();
+
+    public String getPhonePublisher() {
+        return phonePublisher;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updateAt = LocalDateTime.now();
+    public void setPhonePublisher(String phonePublisher) {
+        this.phonePublisher = phonePublisher;
     }
+
+    public String getEmailPublisher() {
+        return emailPublisher;
+    }
+
+    public void setEmailPublisher(String emailPublisher) {
+        this.emailPublisher = emailPublisher;
+    }
+
     public LocalDateTime getCreateAt() {
         return createAt;
     }
@@ -75,4 +94,6 @@ private LocalDateTime updateAt;
     public LocalDateTime getUpdateAt() {
         return updateAt;
     }
+
+
 }

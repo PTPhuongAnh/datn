@@ -5,19 +5,23 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+import lombok.Data;
+@Data
 @Entity
 @Table(name = "book")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_book")
+   @Column(name = "id_book")
     private int idBook;
     private String nameBook;
    private String author;
-
-//    private String image;
-    private String description;
+    private String description_short;
+    private String description_long;
+    private String size;
+    private String year_publisher;
+    private String page_number;
+    private String barcode;
     private int quantity;
     private int price;
     private LocalDateTime createAt;
@@ -28,39 +32,41 @@ public class Book {
     @ManyToOne // Xác định rằng nhiều sách có thể thuộc về một nhà xuất bản
     @JoinColumn(name = "id_publisher") // Cột liên kết với Publisher
     private Publisher publisher;
-//    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL) 
-//    @OneToMany(mappedBy = "book")
- //   @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<ImageBook> images; // Danh sách hình ảnh liên quan đến sách
+    @ManyToOne
+    @JoinColumn(name = "id_distributor")
+    private Distributor distributor;
 @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageBook> imageBooks = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = LocalDateTime.now();
+        this.updateAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateAt = LocalDateTime.now();
+    }
+
     public Book() {
     }
 
-    public Book(int idBook) {
-        this.idBook = idBook;
-    }
-
-//    public Book(int idBook, String nameBook, String author, String description, Category category, Publisher publisher) {
-//        this.idBook = idBook;
-//        this.nameBook = nameBook;
-//        this.author = author;
-//
-//        this.description = description;
-//        this.category = category;
-//        this.publisher = publisher;
-//    }
-
-
-    public Book(int idBook, String nameBook, String author, String description,  Category category, Publisher publisher, int quantity, int price,List<ImageBook> imageBooks) {
+    public Book(int idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, int quantity, int price, Category category, Publisher publisher, Distributor distributor, List<ImageBook> imageBooks) {
         this.idBook = idBook;
         this.nameBook = nameBook;
         this.author = author;
-        this.description = description;
+        this.description_short = description_short;
+        this.description_long = description_long;
+        this.size = size;
+        this.year_publisher = year_publisher;
+        this.page_number = page_number;
+        this.barcode = barcode;
         this.quantity = quantity;
         this.price = price;
         this.category = category;
         this.publisher = publisher;
+        this.distributor = distributor;
         this.imageBooks = imageBooks;
     }
 
@@ -88,59 +94,52 @@ public class Book {
         this.author = author;
     }
 
-
-
-    public String getDescription() {
-        return description;
+    public String getDescription_short() {
+        return description_short;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescription_short(String description_short) {
+        this.description_short = description_short;
     }
 
-    public LocalDateTime getCreateAt() {
-        return createAt;
+    public String getDescription_long() {
+        return description_long;
     }
 
-
-
-    public LocalDateTime getUpdateAt() {
-        return updateAt;
+    public void setDescription_long(String description_long) {
+        this.description_long = description_long;
     }
 
-    @PrePersist
-    protected void onCreate() {
-        this.createAt = LocalDateTime.now();
-        this.updateAt = LocalDateTime.now();
+    public String getSize() {
+        return size;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updateAt = LocalDateTime.now();
+    public void setSize(String size) {
+        this.size = size;
     }
 
-    public Category getCategory() {
-        return category;
+    public String getYear_publisher() {
+        return year_publisher;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setYear_publisher(String year_publisher) {
+        this.year_publisher = year_publisher;
     }
 
-    public Publisher getPublisher() {
-        return publisher;
+    public String getPage_number() {
+        return page_number;
     }
 
-    public void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
+    public void setPage_number(String page_number) {
+        this.page_number = page_number;
     }
 
-    public List<ImageBook> getImageBooks() {
-        return imageBooks;
+    public String getBarcode() {
+        return barcode;
     }
 
-    public void setImageBooks(List<ImageBook> imageBooks) {
-        this.imageBooks = imageBooks;
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
     }
 
     public int getQuantity() {
@@ -159,11 +158,43 @@ public class Book {
         this.price = price;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setUpdateAt(LocalDateTime updateAt) {
-        this.updateAt = updateAt;
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
+    public Distributor getDistributor() {
+        return distributor;
+    }
+
+    public void setDistributor(Distributor distributor) {
+        this.distributor = distributor;
+    }
+
+    public List<ImageBook> getImageBooks() {
+        return imageBooks;
+    }
+
+    public void setImageBooks(List<ImageBook> imageBooks) {
+        this.imageBooks = imageBooks;
+    }
+
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
     }
 }

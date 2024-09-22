@@ -24,23 +24,22 @@ public class PublisherController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<Object> createPublisherDetails(
+    @PostMapping("/create")
+    public ResponseEntity<?> createPublisherDetails(
             @RequestParam(value = "namePublisher", required = true) String namePublisher,
-            @RequestParam(value = "addressPublisher", required = true) String addressPublisher
+            @RequestParam(value = "addressPublisher", required = true) String addressPublisher,
+            @RequestParam(value = "phonePublisher", required = true) String phonePublisher,
+            @RequestParam(value = "emailPublisher", required = true) String emailPublisher
+
     ) {
-        if (namePublisher == null || namePublisher.trim().isEmpty()) {
-            return ResponseHandler.responeBuilder("Publisher name is required", HttpStatus.BAD_REQUEST, false, null);
-        }
-        if (addressPublisher == null || addressPublisher.trim().isEmpty()) {
-            return ResponseHandler.responeBuilder("Publisher address is required", HttpStatus.BAD_REQUEST, false, null);
-        }
+
         try {
             // Tạo đối tượng Publisher
             Publisher publisher = new Publisher();
             publisher.setNamePublisher(namePublisher);
             publisher.setAddressPublisher(addressPublisher);
-
+            publisher.setEmailPublisher(emailPublisher);
+            publisher.setPhonePublisher(phonePublisher);
             // Tạo nhà xuất bản mới
             String result = publisherService.createPublisher(publisher);
 
@@ -57,14 +56,11 @@ public class PublisherController {
     public ResponseEntity<Object> updatePublisherDetails(
             @PathVariable("idPublisher") Integer idPublisher,
             @RequestParam(value = "namePublisher", required = true) String namePublisher,
-            @RequestParam(value = "addressPublisher", required = true) String addressPublisher
+            @RequestParam(value = "addressPublisher", required = true) String addressPublisher,
+            @RequestParam(value = "phonePublisher", required = true) String phonePublisher,
+            @RequestParam(value = "emailPublisher", required = true) String emailPublisher
     ) {
-        if (namePublisher == null || namePublisher.trim().isEmpty()) {
-            return ResponseHandler.responeBuilder("Publisher name is required", HttpStatus.BAD_REQUEST, false, null);
-        }
-        if (addressPublisher == null || addressPublisher.trim().isEmpty()) {
-            return ResponseHandler.responeBuilder("Publisher address is required", HttpStatus.BAD_REQUEST, false, null);
-        }
+
         try {
             // Tìm kiếm và kiểm tra nhà xuất bản hiện tại
             Publisher existingPublisher = publisherService.findById(idPublisher);
@@ -76,7 +72,8 @@ public class PublisherController {
             // Cập nhật các thông tin từ các tham số được cung cấp
             if (namePublisher != null) existingPublisher.setNamePublisher(namePublisher);
             if (addressPublisher != null) existingPublisher.setAddressPublisher(addressPublisher);
-
+            if(phonePublisher!=null) existingPublisher.setPhonePublisher(phonePublisher);
+            if(emailPublisher!=null) existingPublisher.setEmailPublisher(emailPublisher);
             // Gọi service để cập nhật nhà xuất bản
             String result = publisherService.updatePublisher(existingPublisher);
 
@@ -99,13 +96,13 @@ public class PublisherController {
         }
     }
 
-    @GetMapping()
+    @GetMapping("/list")
     public ResponseEntity<List<Publisher>> getAllCategory() {
         return ResponseEntity.ok(publisherService.getAllPublisher());
     }
 
     @GetMapping("/{idPublisher}")
-    public ResponseEntity<Object> getPublisherDetails(@PathVariable("idPublisher") Integer idPublisher) {
+    public ResponseEntity<?> getPublisherDetails(@PathVariable("idPublisher") Integer idPublisher) {
         try {
             Publisher publisher = publisherService.getPublisher(idPublisher);
 

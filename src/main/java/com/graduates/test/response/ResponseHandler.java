@@ -12,9 +12,6 @@ public class ResponseHandler {
     )
     {
         Map<String, Object> respone=new HashMap<>();
-//        respone.put("status",isSuccess);
-//        respone.put("message",message);
-//        respone.put("data", responeObject);
         respone.put("success", isSuccess);
         respone.put("message", message);
         respone.put("status", status);
