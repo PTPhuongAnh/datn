@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import lombok.Data;
 @Data
 @Entity
@@ -13,7 +16,7 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
    @Column(name = "id_book")
-    private int idBook;
+    private Integer idBook;
     private String nameBook;
    private String author;
     private String description_short;
@@ -22,8 +25,8 @@ public class Book {
     private String year_publisher;
     private String page_number;
     private String barcode;
-    private int quantity;
-    private int price;
+    private Integer quantity;
+    private Integer price;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     @ManyToOne // Xác định rằng có nhiều sách có thể thuộc một thể loại (Category)
@@ -35,8 +38,12 @@ public class Book {
     @ManyToOne
     @JoinColumn(name = "id_distributor")
     private Distributor distributor;
-@OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageBook> imageBooks = new ArrayList<>();
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CartDetail> cartDetails = new HashSet<>();
+    public Book(Integer bookId) {
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -52,7 +59,7 @@ public class Book {
     public Book() {
     }
 
-    public Book(int idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, int quantity, int price, Category category, Publisher publisher, Distributor distributor, List<ImageBook> imageBooks) {
+    public Book(Integer idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer quantity, Integer price, Category category, Publisher publisher, Distributor distributor, List<ImageBook> imageBooks) {
         this.idBook = idBook;
         this.nameBook = nameBook;
         this.author = author;
@@ -70,11 +77,11 @@ public class Book {
         this.imageBooks = imageBooks;
     }
 
-    public int getIdBook() {
+    public Integer getIdBook() {
         return idBook;
     }
 
-    public void setIdBook(int idBook) {
+    public void setIdBook(Integer idBook) {
         this.idBook = idBook;
     }
 
@@ -142,7 +149,7 @@ public class Book {
         this.barcode = barcode;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
@@ -150,7 +157,7 @@ public class Book {
         this.quantity = quantity;
     }
 
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 

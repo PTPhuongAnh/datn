@@ -1,42 +1,20 @@
-package com.graduates.test.model;
+package com.graduates.test.dto;
 
-import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import lombok.Data;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 import java.time.LocalDateTime;
-@Data
-@Entity
-@Table(name = "publisher")
-public class Publisher {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-private Integer idPublisher;
-private String namePublisher;
-private String addressPublisher;
+
+public class PublisherRespone {
+    private Integer idPublisher;
+    private String namePublisher;
+    private String addressPublisher;
     private String phonePublisher;
     private String emailPublisher;
 
-private LocalDateTime createAt;
-private LocalDateTime updateAt;
+    private LocalDateTime createAt;
+    private LocalDateTime updateAt;
     private boolean deleted=false;
-
-
-    public Publisher(Integer idPublisher, String namePublisher, String addressPublisher, String phonePublisher, String emailPublisher) {
-        this.idPublisher = idPublisher;
-        this.namePublisher = namePublisher;
-        this.addressPublisher = addressPublisher;
-        this.phonePublisher = phonePublisher;
-        this.emailPublisher = emailPublisher;
-    }
-
-    public Publisher() {
-    }
-
-    public Publisher(Integer idPublisher) {
-        this.idPublisher = idPublisher;
-    }
-
     @PrePersist
     protected void onCreate() {
         this.createAt = LocalDateTime.now();
@@ -46,6 +24,9 @@ private LocalDateTime updateAt;
     @PreUpdate
     protected void onUpdate() {
         this.updateAt = LocalDateTime.now();
+    }
+
+    public PublisherRespone() {
     }
 
     public Integer getIdPublisher() {
@@ -92,12 +73,12 @@ private LocalDateTime updateAt;
         return createAt;
     }
 
-    public LocalDateTime getUpdateAt() {
-        return updateAt;
-    }
-
     public void setCreateAt(LocalDateTime createAt) {
         this.createAt = createAt;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
     }
 
     public void setUpdateAt(LocalDateTime updateAt) {

@@ -20,5 +20,9 @@ public interface CategoryService {
     String saveImage(MultipartFile file);
     String getUploadDir();
 
-    Page<Category> getAllCategories(int page, int size);
+  //  Page<Category> getAllCategories(int page, int size);
+
+
+    void markCategoryAsDeleted(Integer idCategory);
+    Page<Category> getList(String nameCategory, int page, int sizes);
 }

@@ -23,6 +23,9 @@ public class BookRespone {
     private String distributorName;
     private Integer quantity;
     private Integer price;
+    private Integer categoryId;
+    private Integer publisherId;
+    private Integer distributorId;
 
     private List<String> imageUrls;
 
@@ -33,7 +36,7 @@ public class BookRespone {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 
-    public BookRespone(Integer idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, String categoryName, String publisherName,String distributorName, Integer quantity, Integer price, List<String> imageUrls) {
+    public BookRespone(Integer idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, String categoryName, String publisherName, String distributorName, Integer quantity, Integer price, Integer categoryId, Integer publisherId, Integer distributorId, List<String> imageUrls) {
         this.idBook = idBook;
         this.nameBook = nameBook;
         this.author = author;
@@ -45,13 +48,14 @@ public class BookRespone {
         this.barcode = barcode;
         this.categoryName = categoryName;
         this.publisherName = publisherName;
-        this.distributorName=distributorName;
+        this.distributorName = distributorName;
         this.quantity = quantity;
         this.price = price;
+        this.categoryId = categoryId;
+        this.publisherId = publisherId;
+        this.distributorId = distributorId;
         this.imageUrls = imageUrls;
     }
-
-
 
     @PrePersist
     protected void onCreate() {
@@ -198,5 +202,29 @@ public class BookRespone {
 
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Integer getPublisherId() {
+        return publisherId;
+    }
+
+    public void setPublisherId(Integer publisherId) {
+        this.publisherId = publisherId;
+    }
+
+    public Integer getDistributorId() {
+        return distributorId;
+    }
+
+    public void setDistributorId(Integer distributorId) {
+        this.distributorId = distributorId;
     }
 }

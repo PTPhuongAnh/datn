@@ -1,0 +1,232 @@
+package com.graduates.test.controller;
+
+import com.graduates.test.dto.BookRespone;
+import com.graduates.test.dto.LoginDto;
+import com.graduates.test.dto.UserResponseDTO;
+import com.graduates.test.model.Address;
+import com.graduates.test.model.Book;
+import com.graduates.test.model.Role;
+import com.graduates.test.model.UserEntity;
+import com.graduates.test.response.ResponseHandler;
+import com.graduates.test.resposity.RoleRespository;
+import com.graduates.test.resposity.UserResposity;
+import com.graduates.test.service.UserService;
+import com.graduates.test.service.impl.CustomUserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/user/auth")
+public class AuthorController {
+    private AuthenticationManager authenticationManager;
+    private UserResposity userResposity;
+    private RoleRespository roleRespository;
+    private PasswordEncoder passwordEncoder;
+    private UserService userService;
+
+    public AuthorController(AuthenticationManager authenticationManager, UserResposity userResposity, RoleRespository roleRespository, PasswordEncoder passwordEncoder, UserService userService) {
+        this.authenticationManager = authenticationManager;
+        this.userResposity = userResposity;
+        this.roleRespository = roleRespository;
+        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
+    }
+
+
+//    @PostMapping("register")
+//    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto){
+//        if(userResposity.existsByUsername(registerDto.getUsername())){
+//            return new ResponseEntity<>("username is taken", HttpStatus.OK);
+//        }
+//        UserEntity user=new UserEntity();
+//        user.setUsername(registerDto.getUsername());
+//        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+//        Role roles=roleRespository.findByName("USER").get();
+//        user.setRoles(Collections.singletonList(roles));
+//        userResposity.save(user);
+//
+//        return new ResponseEntity<>("user register success",HttpStatus.OK);
+//    }
+
+    @PostMapping("/register")
+
+    public ResponseEntity<?> register(
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam("email") String email,
+            @RequestParam("fullname") String fullname,
+            @RequestParam("dob") String dob,
+            @RequestParam("phone") String phone,
+            @RequestParam("street") String street,
+            @RequestParam("city") String city
+    ) {
+
+        // Tạo UserEntity
+        UserEntity user = new UserEntity();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        Role roles = roleRespository.findByName("USER"). get();
+        user.setRoles(Collections.singletonList(roles));
+        user.setEmail(email);
+        user.setFullname(fullname);
+        user.setDob(dob);
+        user.setPhone(phone);
+
+        // Tạo Address và gán vào user
+        Address address = new Address();
+        address.setStreetAddress(street);
+        address.setCityAddress(city);
+
+        user.setAddress(address);
+
+        // Lưu vào database qua JPA repository
+        userResposity.save(user);
+
+        // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+        return ResponseHandler.responeBuilder("User register successfully", HttpStatus.OK, true, null);
+    }
+    @PostMapping("admin/register")
+
+    public ResponseEntity<?> register1(
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam("email") String email,
+            @RequestParam("fullname") String fullname,
+            @RequestParam("dob") String dob,
+            @RequestParam("phone") String phone,
+            @RequestParam("street") String street,
+            @RequestParam("city") String city
+    ) {
+
+        // Tạo UserEntity
+        UserEntity user = new UserEntity();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        Role roles = roleRespository.findByName("ADMIN").get();
+        user.setRoles(Collections.singletonList(roles));
+        user.setEmail(email);
+        user.setFullname(fullname);
+        user.setDob(dob);
+        user.setPhone(phone);
+
+        // Tạo Address và gán vào user
+        Address address = new Address();
+        address.setStreetAddress(street);
+        address.setCityAddress(city);
+
+        user.setAddress(address);
+
+        // Lưu vào database qua JPA repository
+        userResposity.save(user);
+
+        // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+        return ResponseHandler.responeBuilder("User register successfully", HttpStatus.OK, true, null);
+    }
+
+    @PostMapping("/login1")
+    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
+                loginDto.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return new ResponseEntity<>("User sigin success", HttpStatus.OK);
+
+
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(
+            @RequestParam("username") String username,
+            @RequestParam("password") String password) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Ép kiểu thành CustomUserDetails
+            CustomUserDetails loggedInUser = (CustomUserDetails) authentication.getPrincipal();
+
+            // Trả về thông tin người dùng và vai trò của họ
+            UserEntity userEntity = loggedInUser.getUserEntity();
+
+            // Chuyển đổi sang DTO
+            UserResponseDTO responseDTO = convertToDTO(userEntity);
+
+            return ResponseHandler.responeBuilder("User login successfully", HttpStatus.OK, true, responseDTO);
+        } catch (BadCredentialsException e) {
+            return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("An error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private UserResponseDTO convertToDTO(UserEntity userEntity) {
+        UserResponseDTO response = new UserResponseDTO();
+        response.setIdUser(userEntity.getIdUser());
+        response.setUsername(userEntity.getUsername());
+        response.setEmail(userEntity.getEmail());
+        response.setFullname(userEntity.getFullname());
+        response.setDob(userEntity.getDob());
+        response.setPhone(userEntity.getPhone());
+
+        // Lấy địa chỉ từ thực thể User
+        if (userEntity.getAddress() != null) {
+            response.setAddress(userEntity.getAddress().getStreetAddress() + ", " +
+                    userEntity.getAddress().getCityAddress()
+            );
+        } else {
+            response.setAddress(null); // Nếu không có địa chỉ
+        }
+
+        // Lấy danh sách vai trò của người dùng
+        List<String> roles = userEntity.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+        response.setRoles(roles);
+
+        return response;
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> getList(
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "fullname", required = false) String fullname,
+            @RequestParam(value = "dob", required = false) String dob,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "address", required = false) String address, // Địa chỉ ghép
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "sizes", defaultValue = "10") int sizes) {
+
+        // Giả sử bạn có một phương thức trong userService để lấy danh sách người dùng theo các tham số lọc
+        Page<UserEntity> userPage = userService.searchUser(username, email, fullname, dob, phone, address, page, sizes);
+
+        // Chuyển đổi danh sách người dùng thành DTO
+        List<UserResponseDTO> userDTOs = userPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        // Tạo phản hồi với thông tin phân trang
+        Map<String, Object> response = new HashMap<>();
+        response.put("users", userDTOs);
+        response.put("currentPage", userPage.getNumber());
+        response.put("totalItems", userPage.getTotalElements());
+        response.put("totalPages", userPage.getTotalPages());
+
+     //   return ResponseEntity.ok(response);
+        return ResponseHandler.responeBuilder("user found", HttpStatus.OK, true, response);
+    }
+}

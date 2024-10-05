@@ -28,4 +28,6 @@ Page<Book> searchBooks(
 
     boolean existsByCategory_IdCategory(Integer categoryId);
     boolean existsByPublisher_IdPublisher(Integer publisherId);
+
+    boolean existsByDistributor_IdDistributor(Integer idDistributor);
 }

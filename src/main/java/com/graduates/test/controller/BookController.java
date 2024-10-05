@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,6 +61,7 @@ public class BookController {
 
     //thêm sách
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addBookWithImages(
             @RequestParam(value = "nameBook",required = true) String nameBook,
             @RequestParam(value = "author",required = true) String author,
@@ -118,54 +120,65 @@ public class BookController {
         }
     }
 
-@PutMapping("/{id}")
+
+@PutMapping("/{idBook}")
+@PreAuthorize("hasRole('ADMIN')")
 public ResponseEntity<?> updateBook(
-        @PathVariable Integer id,
-        @RequestParam( value = "nameBook", required = true) String nameBook,
-        @RequestParam( value = "author",required = true) String author,
-        @RequestParam(value = "description_short",required = false) String description_short,
-        @RequestParam(value = "description_long",required = false) String description_long,
-        @RequestParam(value = "size", required = false) String size,
-        @RequestParam(value = "year_publisher", required = false) String year_publisher,
-        @RequestParam(value = "page_number",required = false) String page_number,
-        @RequestParam(value = "barcode",required = false)String barcode,
-        @RequestParam(value = "idCategory",required = false) Integer idCategory,
-        @RequestParam(value = "idPublisher",required = false) Integer idPublisher,
-        @RequestParam(value = "idDistributor",required = false) Integer idDistributor,
-        @RequestParam(value="quantity", required = false) Integer quantity,
-        @RequestParam(value = "price", required = false) Integer price,
+        @PathVariable("idBook") Integer idBook,
+        @RequestParam(value = "nameBook") String nameBook,
+        @RequestParam(value = "author") String author,
+        @RequestParam(value = "description_short") String description_short,
+        @RequestParam(value = "description_long") String description_long,
+        @RequestParam(value = "size") String size,
+        @RequestParam(value = "year_publisher") String year_publisher,
+        @RequestParam(value = "page_number") String page_number,
+        @RequestParam(value = "barcode") String barcode,
+        @RequestParam(value = "idCategory") Integer idCategory,
+        @RequestParam(value = "idPublisher") Integer idPublisher,
+        @RequestParam(value = "idDistributor") Integer idDistributor,
+        @RequestParam(value = "quantity") Integer quantity,
+        @RequestParam(value = "price") Integer price,
         @RequestParam("images") List<MultipartFile> images) {
-  //    bookService.validateBookInputs(nameBook, author, description, idCategory, idPublisher, quantity, price, images);
 
-
+    // Gọi service để cập nhật sách và ảnh
     try {
-        // Gọi service để cập nhật sách và ảnh
-        Book updatedBook = bookService.updateBook(id, nameBook, author, description_short,description_long,size,year_publisher,page_number,barcode,idCategory, idPublisher,idDistributor, quantity,price,images);
+        // Có thể thêm kiểm tra đầu vào ở đây
+        // bookService.validateBookInputs(nameBook, author, description_short, idCategory, idPublisher, quantity, price, images);
 
-        // Chuyển đổi thành BookResponse
-        BookRespone response = convertToBookResponse(updatedBook);
+        BookRespone updatedBook = bookService.updateBook(idBook, nameBook, author, description_short,
+                description_long, size, year_publisher, page_number, barcode, idCategory, idPublisher,
+                idDistributor, quantity, price, images);
 
-       // return ResponseEntity.ok(response);
+        System.out.println("Updating book with ID: " + idBook);
+        System.out.println("Images: " + images.size());
+        System.out.println("Quantity: " + quantity);
+        System.out.println("Price: " + price);
+
         return ResponseHandler.responeBuilder(
                 "Book updated successfully",
                 HttpStatus.OK,
                 true,
-                response
+                updatedBook
         );
 
     } catch (ResourceNotFoundException e) {
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        System.out.println("Error: " + e.getMessage());
         return ResponseHandler.responeBuilder(
                 "Book not found",
                 HttpStatus.NOT_FOUND,
                 false,
                 null
         );
-    } catch (IOException e) {
-        throw new RuntimeException(e);
+    } catch (Exception e) {
+        System.out.println("Unexpected error: " + e.getMessage());
+        return ResponseHandler.responeBuilder(
+                "An unexpected error occurred",
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                false,
+                null
+        );
     }
 }
-
     private String encodeURIComponent(String value) {
         try {
             return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
@@ -205,15 +218,7 @@ public ResponseEntity<?> updateBook(
 
         return response;
 
-//        if (book.getCategory() != null) {
-//            response.setCategoryName(book.getCategory().getNameCategory());
-//        }
-//
-//        if (book.getPublisher() != null) {
-//            response.setPublisherName(book.getPublisher().getNamePublisher());
-//        }
-       // response.setImageUrls(imageUrls);
-       // return response;
+
     }
 
 

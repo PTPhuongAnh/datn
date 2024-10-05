@@ -2,23 +2,19 @@ package com.graduates.test.controller;
 
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.Category;
-import com.graduates.test.model.CategoryRespone;
+import com.graduates.test.dto.CategoryRespone;
 import com.graduates.test.response.ResponseHandler;
-import com.graduates.test.resposity.CategoryResposity;
 import com.graduates.test.service.CategoryService;
-import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +53,7 @@ public class CategoryController {
                     "Category details found",
                     HttpStatus.OK,
                     true,
-                    category
+                    responseDTO
             );
         } catch (Exception e) {
             return ResponseHandler.responeBuilder("An error occurred while retrieving the category", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
@@ -68,6 +64,7 @@ public class CategoryController {
 
     //thêm category
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createCategoryDetails(
             @RequestParam(value = "nameCategory", required = true) String nameCategory,
             @RequestParam(value = "image", required = true) MultipartFile file
@@ -131,6 +128,7 @@ public class CategoryController {
 
 
     @PutMapping("/{idCategory}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> updateCategoryDetails(
             @PathVariable("idCategory") Integer idCategory,
             @RequestParam(value = "nameCategory", required = true) String nameCategory,
@@ -192,6 +190,9 @@ public class CategoryController {
         response.setIdCategory(category.getIdCategory());
         response.setNameCategory(category.getNameCategory());
         response.setImageUrl(imageUrl);
+        response.setCreateAt(category.getCreateAt());
+        response.setUpdateAt(category.getUpdateAt());
+        response.setDeleted(category.isDeleted());
 
         return response;
     }
@@ -204,27 +205,15 @@ public class CategoryController {
         }
     }
 
-    //    @GetMapping("/list")
-//    public ResponseEntity<?> getCategoryList() {
-//        List<Category> categories = categoryService.getAllCategory();
-//
-//        if (categories.isEmpty()) {
-//            return ResponseHandler.responeBuilder("No categories found", HttpStatus.OK, false, null);
-//        } else {
-//            List<CategoryRespone> categoryResponses = categories.stream()
-//                    .map(this::convertToCategoryResponse)
-//                    .collect(Collectors.toList());
-//            return ResponseHandler.responeBuilder("Categories found", HttpStatus.OK, true, categoryResponses);
-//        }
-//    }
+
     @GetMapping("/list")
     public ResponseEntity<?> getCategoryList(
-//            @RequestParam(value = "nameCategory", required = false) String nameBook,
+           @RequestParam(value = "nameCategory", required = false) String nameCategory,
 //            @RequestParam(value = "autho", required = false) String author,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Page<Category> categoryPage = categoryService.getAllCategories(page, size);
+        Page<Category> categoryPage = categoryService.getList(nameCategory,page, size);
 
         if (categoryPage.isEmpty()) {
             return ResponseHandler.responeBuilder("No categories found", HttpStatus.OK, false, null);
@@ -244,10 +233,20 @@ public class CategoryController {
         }
     }
     @DeleteMapping("/{idCategory}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Integer idCategory) {
+    @PreAuthorize("hasRole('ADMIN')")
+//    public ResponseEntity<?> deleteCategory(@PathVariable Integer idCategory) {
+//        try {
+//            categoryService.deleteCategory(idCategory);
+//            return ResponseHandler.responeBuilder("Category deleted successfully.",HttpStatus.OK,true,null);
+//        } catch (IllegalStateException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        }
+//    }
+
+    public ResponseEntity<?> deleteCategory(@PathVariable("idCategory") Integer idCategory) {
         try {
-            categoryService.deleteCategory(idCategory);
-            return ResponseHandler.responeBuilder("Category deleted successfully.",HttpStatus.OK,true,null);
+            categoryService.markCategoryAsDeleted(idCategory);
+            return ResponseHandler.responeBuilder("Category deleted successfully.", HttpStatus.OK, true, null);
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

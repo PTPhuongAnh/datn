@@ -1,16 +1,25 @@
 package com.graduates.test.controller;
 
+import com.graduates.test.dto.CategoryRespone;
+import com.graduates.test.dto.DistributorRespone;
 import com.graduates.test.exception.ResourceNotFoundException;
+import com.graduates.test.model.Category;
 import com.graduates.test.model.Distributor;
 import com.graduates.test.model.Publisher;
 import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.service.DistributorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/distributor")
 public class DistributorController {
@@ -24,6 +33,7 @@ public class DistributorController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createDistributorDetails(
             @RequestParam(value = "nameDistributor", required = true) String nameDistributor,
             @RequestParam(value = "address", required = true) String address,
@@ -51,6 +61,7 @@ public class DistributorController {
         }
     }
     @PutMapping("/{idDistributor}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateDistributorDetails(
             @PathVariable("idDistributor") Integer idDistributor,
             @RequestParam(value = "nameDistributor", required = true) String nameDistributor,
@@ -85,18 +96,74 @@ public class DistributorController {
     }
 
     @DeleteMapping("/{idDistributor}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteDistributor(@PathVariable Integer idDistributor) {
         try {
-            distributorService.deleteDistributor(idDistributor);
+            distributorService.markDistributorAsDeleted(idDistributor);
             return ResponseHandler.responeBuilder("publisher deleted successfully.",HttpStatus.OK,true,null);
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
+//    public ResponseEntity<?> deleteCategory(@PathVariable("idCategory") Integer idCategory) {
+//        try {
+//            categoryService.markCategoryAsDeleted(idCategory);
+//            return ResponseHandler.responeBuilder("Category deleted successfully.", HttpStatus.OK, true, null);
+//        } catch (IllegalStateException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        }
+//    }
+
+//    @GetMapping("/list")
+//    public ResponseEntity<List<Distributor>> getAllCategory() {
+//        return ResponseEntity.ok(distributorService.getAllDistributor());
+//    }
+
+
     @GetMapping("/list")
-    public ResponseEntity<List<Distributor>> getAllCategory() {
-        return ResponseEntity.ok(distributorService.getAllDistributor());
+    public ResponseEntity<?> getDistributorList(
+            @RequestParam(value = "nameDistributor", required = false) String nameDistributor,
+           @RequestParam(value = "address", required = false) String address,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Page<Distributor> distributorsPage = distributorService.getList(nameDistributor,address,page, size);
+
+        if (distributorsPage.isEmpty()) {
+            return ResponseHandler.responeBuilder("No distributor found", HttpStatus.OK, false, null);
+        } else {
+            List<DistributorRespone> distributorRespones = distributorsPage.getContent().stream()
+                    .map(this::convertDistributorResponse)
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("categories", distributorRespones);
+            response.put("currentPage", distributorsPage.getNumber());
+            response.put("totalItems", distributorsPage.getTotalElements());
+            response.put("totalPages", distributorsPage.getTotalPages());
+            //   response.put("currentPage", categoryPage.getNumber());
+
+            return ResponseHandler.responeBuilder("Distributor found", HttpStatus.OK, true, response);
+        }
+    }
+
+
+    private DistributorRespone convertDistributorResponse(Distributor distributor) {
+      //  String baseUrl = "http://localhost:8080/category/image/";
+      //  String imageUrl = baseUrl + encodeURIComponent(category.getImage());
+
+        DistributorRespone response = new DistributorRespone();
+        response.setIdDistributor(distributor.getIdDistributor());
+        response.setNameDistributor(distributor.getNameDistributor());
+        response.setAddress(distributor.getAddress());
+        response.setPhone(distributor.getPhone());
+        response.setAddress(distributor.getAddress());
+     //   response.setImageUrl(imageUrl);
+        response.setCreateAt(distributor.getCreateAt());
+        response.setUpdateAt(distributor.getUpdateAt());
+        response.setDeleted(distributor.isDeleted());
+        return response;
     }
 
     @GetMapping("/{idPublisher}")

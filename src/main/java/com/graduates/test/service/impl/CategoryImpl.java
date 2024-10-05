@@ -1,6 +1,7 @@
 package com.graduates.test.service.impl;
 
 import com.graduates.test.exception.ResourceNotFoundException;
+import com.graduates.test.model.Book;
 import com.graduates.test.model.Category;
 import com.graduates.test.resposity.BookCategoryResposity;
 import com.graduates.test.resposity.CategoryResposity;
@@ -70,6 +71,7 @@ public class CategoryImpl implements CategoryService {
 
 
 
+
     @Override
     public Category getCategory(Integer idCategory) {
         return categoryResposity.findById(idCategory)
@@ -121,6 +123,10 @@ public class CategoryImpl implements CategoryService {
         }
     }
 
+    public List<Category> getActiveCategories() {
+        return categoryResposity.findByDeletedFalse(); // Lấy danh sách category chưa bị xóa
+    }
+
 
     //kiểm tra idcate co tồn tại book
     public boolean isCategoryUsed(Integer idCategory) {
@@ -129,10 +135,29 @@ public class CategoryImpl implements CategoryService {
 
     @Override
     public String deleteCategory(Integer idCategory) {
+        return null;
+    }
+    public void markCategoryAsDeleted(Integer idCategory) {
         if (isCategoryUsed(idCategory)) {
             throw new IllegalStateException("Cannot delete category. It is used in one or more books.");
         }
-       categoryResposity.deleteById(idCategory);
-        return "Category deleted successfully.";
+
+        Optional<Category> categoryOptional = categoryResposity.findById(idCategory);
+        if (!categoryOptional.isPresent()) {
+            throw new IllegalStateException("Category not found.");
+        }
+
+        Category category = categoryOptional.get();
+        category.setDeleted(true); // Đánh dấu là đã bị xóa
+        categoryResposity.save(category); // Lưu thay đổi
+    }
+    public Page<Category> getList(String nameCategory, int page, int sizes) {
+        Pageable pageable = PageRequest.of(page, sizes);
+//        return categoryResposity.searchCategory(nameCategory,pageable);
+        if (nameCategory != null && !nameCategory.isEmpty()) {
+            return categoryResposity.findByNameCategoryContaining(nameCategory, pageable);
+        } else {
+            return categoryResposity.findAllByDeletedFalse(pageable);
+        }
     }
 }

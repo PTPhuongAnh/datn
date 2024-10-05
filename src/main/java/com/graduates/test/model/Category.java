@@ -15,6 +15,7 @@ public class Category {
     private String image;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+    private boolean deleted = false;
 
     public Category( String nameCategory,String image) {
 
@@ -67,15 +68,27 @@ public class Category {
         return createAt;
     }
 
-//    public void setCreateAt(LocalDateTime createAt) {
-//        this.createAt = createAt;
-//    }
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
+    }
 
     public LocalDateTime getUpdateAt() {
         return updateAt;
     }
 
-//    public void setUpdateAt(LocalDateTime updateAt) {
-//        this.updateAt = updateAt;
-//    }
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
+    }
+
+    public void setIdCategory(Integer idCategory) {
+        this.idCategory = idCategory;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 }

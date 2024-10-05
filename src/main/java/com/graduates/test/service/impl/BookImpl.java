@@ -3,12 +3,8 @@ package com.graduates.test.service.impl;
 import com.graduates.test.dto.BookRespone;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
-import com.graduates.test.resposity.BookCategoryResposity;
-import com.graduates.test.resposity.CategoryResposity;
-import com.graduates.test.resposity.ImageResposity;
-import com.graduates.test.resposity.PublisherResposity;
+import com.graduates.test.resposity.*;
 import com.graduates.test.service.BookService;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -42,18 +38,25 @@ public class BookImpl implements BookService {
     private CategoryResposity categoryRepository;
 
     private PublisherResposity publisherRepository;
+    private DistributorResposity distributorResposity;
 
 
 
     private ImageResposity imageResposity;
 
-
- public BookImpl(BookCategoryResposity bookCategoryResposity, CategoryResposity categoryRepository, PublisherResposity publisherRepository, ImageResposity imageResposity) {
-     this.bookCategoryResposity = bookCategoryResposity;
-     this.categoryRepository = categoryRepository;
-     this.publisherRepository = publisherRepository;
-     this.imageResposity = imageResposity;
- }
+    public BookImpl(BookCategoryResposity bookCategoryResposity, CategoryResposity categoryRepository, PublisherResposity publisherRepository, DistributorResposity distributorResposity, ImageResposity imageResposity) {
+        this.bookCategoryResposity = bookCategoryResposity;
+        this.categoryRepository = categoryRepository;
+        this.publisherRepository = publisherRepository;
+        this.distributorResposity = distributorResposity;
+        this.imageResposity = imageResposity;
+    }
+// public BookImpl(BookCategoryResposity bookCategoryResposity, CategoryResposity categoryRepository, PublisherResposity publisherRepository, ImageResposity imageResposity) {
+//     this.bookCategoryResposity = bookCategoryResposity;
+//     this.categoryRepository = categoryRepository;
+//     this.publisherRepository = publisherRepository;
+//     this.imageResposity = imageResposity;
+// }
 
     public String getBookUploadDir() {
         return bookUploadDir;
@@ -153,44 +156,68 @@ public Page<Book> getList(String nameBook, String author, String description_sho
 private void updateBookImages(Book book, List<MultipartFile> newImages) throws IOException {
     // Xóa ảnh cũ
     deleteOldImages(book);
-
     // Lưu ảnh mới
     saveBookImages(book, newImages);
 }
 
-//    @Override
-//    public Book updateBook(Integer id, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer idCategory, Integer idPublisher, Integer idDistributor, Integer quantity, Integer price, List<MultipartFile> images) {
-//        return null;
-//    }
-   public Book updateBook(Integer id, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer quantity, Integer price,Integer categoryId, Integer publisherId,Integer distributorId, List<MultipartFile> images) throws ResourceNotFoundException,IOException {
-    // Tìm sách theo ID
-    Book book = bookCategoryResposity.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sách với ID: " + id));
+//
 
-    // Cập nhật thông tin sách
-    if (nameBook != null) book.setNameBook(nameBook);
-    if (author != null) book.setAuthor(author);
-    if (description_short != null) book.setDescription_short(description_short);
-    if(description_long !=null) book.setDescription_long(description_long);
-    if(size!=null) book.setSize(size);
-    if(year_publisher!=null) book.setYear_publisher(year_publisher);
-    if(page_number!=null) book.setPage_number(page_number);
-    if(barcode!=null) book.setBarcode(barcode);
-    if (categoryId != null) book.setCategory(new Category(categoryId)); // Gán thể loại
-    if (publisherId != null) book.setPublisher(new Publisher(publisherId)); // Gán nhà xuất
-       if (distributorId != null) book.setDistributor(new Distributor(distributorId)); // Gán nhà xuất bảnif
-    if(quantity !=null) book.setQuantity(quantity);
-    if(price !=null) book.setPrice(price);
-    // Cập nhật ảnh sách nếu có
-    if (images != null && !images.isEmpty()) {
-        updateBookImages(book, images);
-    }else {
-        throw new IOException("At least one image is required");
+
+    public BookRespone updateBook(Integer idBook, String nameBook, String author, String description_short,
+                                  String description_long, String size, String year_publisher, String page_number,
+                                  String barcode, Integer categoryId,
+                                  Integer publisherId, Integer distributorId,Integer quantity, Integer price, List<MultipartFile> images)
+            throws ResourceNotFoundException, IOException {
+        // Tìm sách theo ID
+        Book book = bookCategoryResposity.findById(idBook)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sách với ID: " + idBook));
+
+        // Cập nhật thông tin sách
+        if (nameBook != null) book.setNameBook(nameBook);
+        if (author != null) book.setAuthor(author);
+        if (description_short != null) book.setDescription_short(description_short);
+        if (description_long != null) book.setDescription_long(description_long);
+        if (size != null) book.setSize(size);
+        if (year_publisher != null) book.setYear_publisher(year_publisher);
+        if (page_number != null) book.setPage_number(page_number);
+        if (barcode != null) book.setBarcode(barcode);
+
+        // Cập nhật category, publisher, và distributor
+        if (categoryId != null) {
+            Optional<Category> category = categoryRepository.findById(categoryId);
+            category.ifPresentOrElse(book::setCategory,
+                    () -> { throw new ResourceNotFoundException("Không tìm thấy thể loại với ID: " + categoryId); });
+        }
+
+        if (publisherId != null) {
+            Optional<Publisher> publisher = publisherRepository.findById(publisherId);
+            publisher.ifPresentOrElse(book::setPublisher,
+                    () -> { throw new ResourceNotFoundException("Không tìm thấy nhà xuất với ID: " + publisherId); });
+        }
+
+        if (distributorId != null) {
+            Optional<Distributor> distributor = distributorResposity.findById(distributorId);
+            distributor.ifPresentOrElse(book::setDistributor,
+                    () -> { throw new ResourceNotFoundException("Không tìm thấy nhà phân phối với ID: " + distributorId); });
+        }
+
+        // Cập nhật số lượng và giá
+        if (quantity != null) book.setQuantity(quantity);
+        if (price != null) book.setPrice(price);
+
+        // Cập nhật ảnh sách nếu có
+        if (images != null && !images.isEmpty()) {
+            updateBookImages(book, images);
+        } else {
+            throw new IOException("At least one image is required");
+        }
+
+        // Lưu sách đã cập nhật vào cơ sở dữ liệu
+        Book updatedBook = bookCategoryResposity.save(book);
+
+        // Chuyển đổi sang BookRespone và trả về
+        return convertToBookResponse(updatedBook);
     }
-
-    // Lưu sách đã cập nhật vào cơ sở dữ liệu
-    return bookCategoryResposity.save(book);
-}
 
     private void saveBookImages(Book savedBook, List<MultipartFile> images) throws IOException {
         File uploadDir = new File(bookUploadDir);

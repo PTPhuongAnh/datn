@@ -1,15 +1,11 @@
-package com.graduates.test.model;
+package com.graduates.test.dto;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 import java.time.LocalDateTime;
-@Data
-@Entity
-@Table(name = "distributor")
-public class Distributor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+public class DistributorRespone {
     private Integer idDistributor;
 
     private String nameDistributor;
@@ -32,19 +28,8 @@ public class Distributor {
         this.updateAt = LocalDateTime.now();
     }
 
-    public Distributor(Integer idDistributor, String nameDistributor, String address, String phone, String email) {
-        this.idDistributor = idDistributor;
-        this.nameDistributor = nameDistributor;
-        this.address = address;
-        this.phone = phone;
-        this.email = email;
-    }
 
-    public Distributor() {
-    }
-
-    public Distributor(Integer idDistributor) {
-        this.idDistributor = idDistributor;
+    public DistributorRespone() {
     }
 
     public Integer getIdDistributor() {
