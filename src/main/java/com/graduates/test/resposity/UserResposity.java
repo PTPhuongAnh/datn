@@ -13,18 +13,23 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
     Optional<UserEntity> findByUsername(String username);
     Boolean existsByUsername(String username);
 
-    @Query("SELECT u FROM UserEntity u WHERE " +
-            "(:username IS NULL OR u.username LIKE %:username%) AND " +
+
+
+    @Query("SELECT u FROM UserEntity u " +
+            "JOIN u.address a " + // Thực hiện phép nối với Address
+            "WHERE (:username IS NULL OR u.username LIKE %:username%) AND " +
             "(:email IS NULL OR u.email LIKE %:email%) AND " +
             "(:fullname IS NULL OR u.fullname LIKE %:fullname%) AND " +
             "(:dob IS NULL OR u.dob = :dob) AND " +
-            "(:phone IS NULL OR u.phone LIKE %:phone%)  "
-            )
-    Page<UserEntity> searchUser(
-            @Param("username") String username,
-            @Param("email") String email,
-            @Param("fullname") String fullname,
-            @Param("dob") String dob,
-            @Param("phone") String phone,
-            Pageable pageable);
+            "(:phone IS NULL OR u.phone LIKE %:phone%) AND " +
+            "(:street IS NULL OR a.street LIKE %:street%) AND " + // Thêm điều kiện cho street
+            "(:city IS NULL OR a.city LIKE %:city%)") // Thêm điều kiện cho city
+    Page<UserEntity> searchUser(@Param("username") String username,
+                               @Param("email") String email,
+                               @Param("fullname") String fullname,
+                               @Param("dob") String dob,
+                               @Param("phone") String phone,
+                               @Param("street") String street,
+                               @Param("city") String city,
+                               Pageable pageable);
 }

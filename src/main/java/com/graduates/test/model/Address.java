@@ -12,8 +12,8 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idAddress;
-    private String streetAddress;
-    private String cityAddress;
+    private String street;
+    private String city;
     @OneToOne(mappedBy = "address")
     private UserEntity user; // Mối quan hệ ngược lại với User
     private LocalDateTime createAt;
@@ -37,20 +37,36 @@ public class Address {
         this.idAddress = idAddress;
     }
 
-    public String getStreetAddress() {
-        return streetAddress;
+    public String getStreet() {
+        return street;
     }
 
-    public void setStreetAddress(String streetAddress) {
-        this.streetAddress = streetAddress;
+    public void setStreet(String street) {
+        this.street = street;
     }
 
-    public String getCityAddress() {
-        return cityAddress;
+    public String getCity() {
+        return city;
     }
 
-    public void setCityAddress(String cityAddress) {
-        this.cityAddress = cityAddress;
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 
     public UserEntity getUser() {

@@ -54,4 +54,7 @@ public class CustomUserDetails implements UserDetails {
     public UserEntity getUserEntity() {
         return userEntity;
     }
+    public Integer getId() {
+        return userEntity.getIdUser(); // Giả sử bạn có phương thức này trong UserEntity
+    }
 }

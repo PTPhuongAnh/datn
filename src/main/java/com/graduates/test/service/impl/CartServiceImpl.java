@@ -1,28 +1,38 @@
 package com.graduates.test.service.impl;
 
+import com.graduates.test.dto.CartResponse;
 import com.graduates.test.model.Book;
 import com.graduates.test.model.Cart;
 import com.graduates.test.model.CartDetail;
 import com.graduates.test.model.UserEntity;
 import com.graduates.test.resposity.BookCategoryResposity;
+import com.graduates.test.resposity.CartDetailRepository;
 import com.graduates.test.resposity.CartRepository;
 import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class CartServiceImpl implements CartService {
     @Autowired
     private CartRepository cartRepository;
     private BookCategoryResposity bookRepository;
     private UserResposity userResposity;
+    private CartDetailRepository cartDetailRepository;
 
-    public CartServiceImpl(CartRepository cartRepository, BookCategoryResposity bookRepository, UserResposity userResposity) {
+    public CartServiceImpl(CartRepository cartRepository, BookCategoryResposity bookRepository, UserResposity userResposity, CartDetailRepository cartDetailRepository) {
         this.cartRepository = cartRepository;
         this.bookRepository = bookRepository;
         this.userResposity = userResposity;
+        this.cartDetailRepository = cartDetailRepository;
     }
 
     @Override
@@ -75,9 +85,47 @@ public class CartServiceImpl implements CartService {
         userResposity.save(user); // Cập nhật lại người dùng với giỏ hàng mới
     }
 
+    @Override
+    public List<Cart> findByUser_idUser(Integer userId) {
+        return null;
+    }
 
     @Override
-    public Optional<Cart> getCartByUserId(Integer userId) {
-        return userResposity.findById(userId).map(UserEntity::getCart);
+    public List<CartResponse> getCartByUserId(Integer userId) {
+        List<Cart> carts = cartRepository.findByUser_IdUser(userId);
+        return carts.stream()
+                .flatMap(cart -> cart.getCartDetails().stream()
+                        .map(this::convertToCartResponse)) // Chuyển đổi từng CartDetail sang CartResponse
+                .collect(Collectors.toList());
     }
+
+    private CartResponse convertToCartResponse(CartDetail cartDetail) {
+        Book book = cartDetail.getBook();
+        List<String> imageUrls = getImageUrlsFromBook(book);
+        return new CartResponse(
+                book.getIdBook(),
+                book.getNameBook(),
+                book.getAuthor(),
+                book.getDescription_short(),
+                cartDetail.getQuantity(),
+                cartDetail.getPrice(),
+                imageUrls
+        );
+    }
+
+    private List<String> getImageUrlsFromBook(Book book) {
+        String baseUrl = "http://localhost:8080/book/image/";
+        return book.getImageBooks().stream()
+                .map(image -> baseUrl + encodeURIComponent(image.getImage_url()))
+                .collect(Collectors.toList());
+    }
+
+    private String encodeURIComponent(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

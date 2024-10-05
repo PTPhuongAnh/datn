@@ -3,12 +3,15 @@ package com.graduates.test.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table(name = "cart_detail")
 public class CartDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id; // Id của CartDetail
 
     @ManyToOne
@@ -22,6 +25,9 @@ public class CartDetail {
     private int quantity; // Số lượng của sách
 
     private double price; // Giá của sách
+
+    private LocalDateTime createAt;
+    private LocalDateTime updateAt;
 
     public CartDetail() {}
 
@@ -70,5 +76,31 @@ public class CartDetail {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
+    }
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = LocalDateTime.now();
+        this.updateAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateAt = LocalDateTime.now();
     }
 }

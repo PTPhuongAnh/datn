@@ -78,7 +78,7 @@ public class AuthorController {
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-        Role roles = roleRespository.findByName("USER"). get();
+        Role roles = roleRespository.findByName("ROLE_USER"). get();
         user.setRoles(Collections.singletonList(roles));
         user.setEmail(email);
         user.setFullname(fullname);
@@ -87,8 +87,8 @@ public class AuthorController {
 
         // Tạo Address và gán vào user
         Address address = new Address();
-        address.setStreetAddress(street);
-        address.setCityAddress(city);
+        address.setStreet(street);
+        address.setCity(city);
 
         user.setAddress(address);
 
@@ -115,7 +115,7 @@ public class AuthorController {
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-        Role roles = roleRespository.findByName("ADMIN").get();
+        Role roles = roleRespository.findByName("ROLE_ADMIN").get();
         user.setRoles(Collections.singletonList(roles));
         user.setEmail(email);
         user.setFullname(fullname);
@@ -124,8 +124,8 @@ public class AuthorController {
 
         // Tạo Address và gán vào user
         Address address = new Address();
-        address.setStreetAddress(street);
-        address.setCityAddress(city);
+        address.setStreet(street);
+        address.setCity(city);
 
         user.setAddress(address);
 
@@ -184,8 +184,8 @@ public class AuthorController {
 
         // Lấy địa chỉ từ thực thể User
         if (userEntity.getAddress() != null) {
-            response.setAddress(userEntity.getAddress().getStreetAddress() + ", " +
-                    userEntity.getAddress().getCityAddress()
+            response.setAddress(userEntity.getAddress().getStreet() + ", " +
+                    userEntity.getAddress().getCity()
             );
         } else {
             response.setAddress(null); // Nếu không có địa chỉ
@@ -207,12 +207,13 @@ public class AuthorController {
             @RequestParam(value = "fullname", required = false) String fullname,
             @RequestParam(value = "dob", required = false) String dob,
             @RequestParam(value = "phone", required = false) String phone,
-            @RequestParam(value = "address", required = false) String address, // Địa chỉ ghép
-            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "street", required = false) String street,
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "sizes", defaultValue = "10") int sizes) {
 
         // Giả sử bạn có một phương thức trong userService để lấy danh sách người dùng theo các tham số lọc
-        Page<UserEntity> userPage = userService.searchUser(username, email, fullname, dob, phone, address, page, sizes);
+        Page<UserEntity> userPage = userService.searchUser(username, email, fullname, dob, phone, street,city, page, sizes);
 
         // Chuyển đổi danh sách người dùng thành DTO
         List<UserResponseDTO> userDTOs = userPage.getContent().stream()

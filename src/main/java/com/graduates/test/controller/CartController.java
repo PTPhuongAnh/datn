@@ -1,14 +1,23 @@
 package com.graduates.test.controller;
 
-import com.graduates.test.dto.AddToCartRequest;
+import com.graduates.test.dto.CartResponse;
+import com.graduates.test.model.Book;
 import com.graduates.test.model.Cart;
+import com.graduates.test.model.CartDetail;
+import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.service.CartService;
+import com.graduates.test.service.impl.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cart")
@@ -16,29 +25,31 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    @PostMapping("/add/{userId}/{bookId}/{quantity}")
-    public ResponseEntity<String> addToCart(
-            @PathVariable Integer userId,
+
+    @PostMapping("/add/{bookId}/{quantity}")
+    public ResponseEntity<?> addToCart(
             @PathVariable Integer bookId,
-            @PathVariable int quantity) {
+            @PathVariable int quantity,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Integer userId = userDetails.getUserEntity().getIdUser(); // Lấy ID người dùng từ thông tin xác thực
+
         try {
             cartService.addToCart(userId, bookId, quantity);
-            return ResponseEntity.ok("Book added to cart successfully.");
+            return ResponseHandler.responeBuilder("Book added to cart successfully.", HttpStatus.OK, true, null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            System.out.println("Unexpected error: " + e.getMessage());
+            return ResponseHandler.responeBuilder("Book added to cart fail", HttpStatus.NOT_FOUND, false, null);
         }
     }
 
+
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Cart> getCartByUserId(@PathVariable Integer userId) {
-        Optional<Cart> cartOptional = cartService.getCartByUserId(userId);
-        if (cartOptional.isPresent()) {
-            return ResponseEntity.ok(cartOptional.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<List<CartResponse>> getCartByUserId(@PathVariable Integer userId) {
+        List<CartResponse> cartResponses = cartService.getCartByUserId(userId);
+        return ResponseEntity.ok(cartResponses);
     }
-    }
+}
 
 
 

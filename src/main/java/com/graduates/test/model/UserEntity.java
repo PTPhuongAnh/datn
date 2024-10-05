@@ -14,6 +14,7 @@ import java.util.List;
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_user")
     private  Integer idUser;
     private String username;
     private String password;
@@ -22,7 +23,7 @@ public class UserEntity {
     private String dob;
     private String phone;
     @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinTable(name = "user_roles",joinColumns =@JoinColumn(name = "user_id",referencedColumnName = "idUser" ),
+    @JoinTable(name = "user_roles",joinColumns =@JoinColumn(name = "user_id",referencedColumnName = "id_user" ),
     inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "idRoles"))
     private List<Role> roles= new ArrayList<>();
     private LocalDateTime createAt;
