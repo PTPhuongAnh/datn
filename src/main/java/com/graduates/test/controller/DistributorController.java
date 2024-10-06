@@ -53,11 +53,11 @@ public class DistributorController {
             String result = distributorService.createDistributor(distributor);
 
             // Trả về phản hồi thành công với thông điệp từ service
-            return ResponseHandler.responeBuilder(result, HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder(HttpStatus.OK, true, result);
 
         } catch (Exception e) {
             // Xử lý các lỗi không dự đoán trước
-            return ResponseHandler.responeBuilder("An error occurred while creating the distributor", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false,"An error occurred while creating the distributor" );
         }
     }
     @PutMapping("/{idDistributor}")
@@ -75,7 +75,7 @@ public class DistributorController {
             Distributor existingPublisher = distributorService.findById(idDistributor);
             if (existingPublisher == null) {
                 // Nhà xuất bản không tồn tại
-                return ResponseHandler.responeBuilder("Publisher not found", HttpStatus.NOT_FOUND, false, null);
+                return ResponseHandler.responeBuilder( HttpStatus.NOT_FOUND, false, "Publisher not found");
             }
 
             // Cập nhật các thông tin từ các tham số được cung cấp
@@ -87,11 +87,11 @@ public class DistributorController {
             String result = distributorService.updateDistributor(existingPublisher);
 
             // Trả về phản hồi thành công
-            return ResponseHandler.responeBuilder(result, HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, result);
 
         } catch (Exception e) {
             // Xử lý lỗi và trả về mã lỗi 500
-            return ResponseHandler.responeBuilder("Error updating distributor", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, "Error updating distributor");
         }
     }
 
@@ -100,25 +100,13 @@ public class DistributorController {
     public ResponseEntity<?> deleteDistributor(@PathVariable Integer idDistributor) {
         try {
             distributorService.markDistributorAsDeleted(idDistributor);
-            return ResponseHandler.responeBuilder("publisher deleted successfully.",HttpStatus.OK,true,null);
+            return ResponseHandler.responeBuilder(HttpStatus.OK,true,"publisher deleted successfully.");
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
         }
     }
 
-//    public ResponseEntity<?> deleteCategory(@PathVariable("idCategory") Integer idCategory) {
-//        try {
-//            categoryService.markCategoryAsDeleted(idCategory);
-//            return ResponseHandler.responeBuilder("Category deleted successfully.", HttpStatus.OK, true, null);
-//        } catch (IllegalStateException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        }
-//    }
 
-//    @GetMapping("/list")
-//    public ResponseEntity<List<Distributor>> getAllCategory() {
-//        return ResponseEntity.ok(distributorService.getAllDistributor());
-//    }
 
 
     @GetMapping("/list")
@@ -131,7 +119,7 @@ public class DistributorController {
         Page<Distributor> distributorsPage = distributorService.getList(nameDistributor,address,page, size);
 
         if (distributorsPage.isEmpty()) {
-            return ResponseHandler.responeBuilder("No distributor found", HttpStatus.OK, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, false, "No distributor found");
         } else {
             List<DistributorRespone> distributorRespones = distributorsPage.getContent().stream()
                     .map(this::convertDistributorResponse)
@@ -144,14 +132,12 @@ public class DistributorController {
             response.put("totalPages", distributorsPage.getTotalPages());
             //   response.put("currentPage", categoryPage.getNumber());
 
-            return ResponseHandler.responeBuilder("Distributor found", HttpStatus.OK, true, response);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
         }
     }
 
 
     private DistributorRespone convertDistributorResponse(Distributor distributor) {
-      //  String baseUrl = "http://localhost:8080/category/image/";
-      //  String imageUrl = baseUrl + encodeURIComponent(category.getImage());
 
         DistributorRespone response = new DistributorRespone();
         response.setIdDistributor(distributor.getIdDistributor());
@@ -160,9 +146,10 @@ public class DistributorController {
         response.setPhone(distributor.getPhone());
         response.setAddress(distributor.getAddress());
      //   response.setImageUrl(imageUrl);
+        response.setEmail(distributor.getEmail());
         response.setCreateAt(distributor.getCreateAt());
         response.setUpdateAt(distributor.getUpdateAt());
-        response.setDeleted(distributor.isDeleted());
+     //   response.setDeleted(distributor.isDeleted());
         return response;
     }
 
@@ -173,15 +160,15 @@ public class DistributorController {
             Distributor distributor= distributorService.getDistributor(idDistributor);
 
             // Trả về thông tin nhà xuất bản nếu tìm thấy
-            return ResponseHandler.responeBuilder("success", HttpStatus.OK, true, distributor);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, distributor);
 
         } catch (ResourceNotFoundException e) {
             // Xử lý trường hợp nhà xuất bản không tồn tại
-            return ResponseHandler.responeBuilder(e.getMessage(), HttpStatus.NOT_FOUND, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.NOT_FOUND, false, e.getMessage());
 
         } catch (Exception e) {
             // Xử lý các lỗi không dự đoán trước
-            return ResponseHandler.responeBuilder("An error occurred while retrieving the publisher", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while retrieving the publisher");
         }
     }
 

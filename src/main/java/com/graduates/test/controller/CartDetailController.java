@@ -16,10 +16,10 @@ public class CartDetailController {
     public ResponseEntity<?> removeProductFromCart(@PathVariable Integer cartDetailId) {
         boolean isRemoved = cartDetailService.removeProductFromCart(cartDetailId);
         if (isRemoved) {
-            return ResponseHandler.responeBuilder("Product removed from cart successfully.",HttpStatus.OK,true,null);
+            return ResponseHandler.responeBuilder(HttpStatus.OK,true,null);
         } else {
 
-            return ResponseHandler.responeBuilder("Product not found in cart",HttpStatus.OK,true,null);
+            return ResponseHandler.responeBuilder(HttpStatus.OK,false,null);
         }
     }
 

@@ -46,20 +46,6 @@ public class AuthorController {
     }
 
 
-//    @PostMapping("register")
-//    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto){
-//        if(userResposity.existsByUsername(registerDto.getUsername())){
-//            return new ResponseEntity<>("username is taken", HttpStatus.OK);
-//        }
-//        UserEntity user=new UserEntity();
-//        user.setUsername(registerDto.getUsername());
-//        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-//        Role roles=roleRespository.findByName("USER").get();
-//        user.setRoles(Collections.singletonList(roles));
-//        userResposity.save(user);
-//
-//        return new ResponseEntity<>("user register success",HttpStatus.OK);
-//    }
 
     @PostMapping("/register")
 
@@ -96,7 +82,7 @@ public class AuthorController {
         userResposity.save(user);
 
         // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
-        return ResponseHandler.responeBuilder("User register successfully", HttpStatus.OK, true, null);
+        return ResponseHandler.responeBuilder( HttpStatus.OK, true, null);
     }
     @PostMapping("admin/register")
 
@@ -133,7 +119,7 @@ public class AuthorController {
         userResposity.save(user);
 
         // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
-        return ResponseHandler.responeBuilder("User register successfully", HttpStatus.OK, true, null);
+        return ResponseHandler.responeBuilder( HttpStatus.OK, true, null);
     }
 
     @PostMapping("/login1")
@@ -165,11 +151,11 @@ public class AuthorController {
             // Chuyển đổi sang DTO
             UserResponseDTO responseDTO = convertToDTO(userEntity);
 
-            return ResponseHandler.responeBuilder("User login successfully", HttpStatus.OK, true, responseDTO);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, responseDTO);
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
+            return  ResponseHandler.responeBuilder( HttpStatus.OK,false,null);
         } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR,false,null);
         }
     }
 
@@ -228,6 +214,41 @@ public class AuthorController {
         response.put("totalPages", userPage.getTotalPages());
 
      //   return ResponseEntity.ok(response);
-        return ResponseHandler.responeBuilder("user found", HttpStatus.OK, true, response);
+        return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
     }
+
+//    @GetMapping("/list")
+//    public ResponseEntity<?> getList(
+//            @RequestParam(value = "username", required = false) String username,
+//            @RequestParam(value = "email", required = false) String email,
+//            @RequestParam(value = "fullname", required = false) String fullname,
+//            @RequestParam(value = "dob", required = false) String dob,
+//            @RequestParam(value = "phone", required = false) String phone,
+//            @RequestParam(value = "street", required = false) String street,
+//            @RequestParam(value = "city", required = false) String city,
+//            @RequestParam(value = "page", defaultValue = "0") int page,
+//            @RequestParam(value = "sizes", defaultValue = "10") int sizes) {
+//
+//        // Giả sử bạn có một phương thức trong userService để lấy danh sách người dùng theo các tham số lọc
+//        Page<UserEntity> userPage = userService.searchUser(username, email, fullname, dob, phone, street, city, page, sizes);
+//
+//        // Chuyển đổi danh sách người dùng thành DTO
+//        List<UserResponseDTO> userDTOs = userPage.getContent().stream()
+//                .map(this::convertToDTO)
+//                .collect(Collectors.toList());
+//
+//        // Tạo phản hồi với thông tin phân trang
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("users", userDTOs);
+//        response.put("currentPage", userPage.getNumber());
+//        response.put("totalItems", userPage.getTotalElements());
+//        response.put("totalPages", userPage.getTotalPages());
+//
+//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
+//    }
+
+//    private UserResponseDTO convertToDTO(UserEntity user) {
+//        // Chuyển đổi UserEntity thành UserResponseDTO
+//        return new UserResponseDTO(user.getUsername(), user.getEmail(), user.getFullname());
+//    }
 }

@@ -36,19 +36,24 @@ public class CartController {
 
         try {
             cartService.addToCart(userId, bookId, quantity);
-            return ResponseHandler.responeBuilder("Book added to cart successfully.", HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, null);
         } catch (Exception e) {
             System.out.println("Unexpected error: " + e.getMessage());
-            return ResponseHandler.responeBuilder("Book added to cart fail", HttpStatus.NOT_FOUND, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, false, null);
         }
     }
 
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<CartResponse>> getCartByUserId(@PathVariable Integer userId) {
+    public ResponseEntity<?> getCartByUserId(@PathVariable Integer userId) {
         List<CartResponse> cartResponses = cartService.getCartByUserId(userId);
-        return ResponseEntity.ok(cartResponses);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,cartResponses);
     }
+
+//    public ResponseEntity<List<CartResponse>> getCartByUserId(@PathVariable Integer userId) {
+//        List<CartResponse> cartResponses = cartService.getCartByUserId(userId);
+//        return ResponseHandler.responeBuilder(HttpStatus.OK,true,cartResponses);
+//    }
 }
 
 

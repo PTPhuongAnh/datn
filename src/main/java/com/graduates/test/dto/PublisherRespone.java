@@ -14,7 +14,7 @@ public class PublisherRespone {
 
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
-    private boolean deleted=false;
+  //  private boolean deleted=false;
     @PrePersist
     protected void onCreate() {
         this.createAt = LocalDateTime.now();
@@ -85,11 +85,11 @@ public class PublisherRespone {
         this.updateAt = updateAt;
     }
 
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
+//    public boolean isDeleted() {
+//        return deleted;
+//    }
+//
+//    public void setDeleted(boolean deleted) {
+//        this.deleted = deleted;
+//    }
 }

@@ -11,10 +11,10 @@ public class CategoryRespone {
     private String imageUrl;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
-    private boolean deleted = false;
-    private long imageSize; // Kích thước ảnh (tính bằng bytes)
-    private String imageDimensions; // Kích thước ảnh (ví dụ: "1024x768")
-    private String imageType;
+ //   private boolean deleted = false;
+//    private long imageSize; // Kích thước ảnh (tính bằng bytes)
+//    private String imageDimensions; // Kích thước ảnh (ví dụ: "1024x768")
+//    private String imageType;
     @PrePersist
     protected void onCreate() {
         this.createAt = LocalDateTime.now();
@@ -53,35 +53,35 @@ public class CategoryRespone {
         return updateAt;
     }
 
-    public long getImageSize() {
-        return imageSize;
-    }
+//    public long getImageSize() {
+//        return imageSize;
+//    }
+//
+//    public void setImageSize(long imageSize) {
+//        this.imageSize = imageSize;
+//    }
+//
+//    public String getImageDimensions() {
+//        return imageDimensions;
+//    }
+//
+//    public void setImageDimensions(String imageDimensions) {
+//        this.imageDimensions = imageDimensions;
+//    }
+//
+//    public String getImageType() {
+//        return imageType;
+//    }
+//
+//    public void setImageType(String imageType) {
+//        this.imageType = imageType;
+//    }
 
-    public void setImageSize(long imageSize) {
-        this.imageSize = imageSize;
-    }
-
-    public String getImageDimensions() {
-        return imageDimensions;
-    }
-
-    public void setImageDimensions(String imageDimensions) {
-        this.imageDimensions = imageDimensions;
-    }
-
-    public String getImageType() {
-        return imageType;
-    }
-
-    public void setImageType(String imageType) {
-        this.imageType = imageType;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
+//    public boolean isDeleted() {
+//        return deleted;
+//    }
+//
+//    public void setDeleted(boolean deleted) {
+//        this.deleted = deleted;
+//    }
 }

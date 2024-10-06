@@ -29,7 +29,7 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
                                @Param("fullname") String fullname,
                                @Param("dob") String dob,
                                @Param("phone") String phone,
-                               @Param("street") String street,
-                               @Param("city") String city,
+                                @Param("street") String street,
+                                @Param("city") String city,
                                Pageable pageable);
 }

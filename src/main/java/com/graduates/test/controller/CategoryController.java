@@ -42,7 +42,6 @@ public class CategoryController {
         try {
             if (category == null) {
                 return ResponseHandler.responeBuilder(
-                        "Category not found",
                         HttpStatus.NOT_FOUND,
                         false,
                         null
@@ -50,13 +49,12 @@ public class CategoryController {
             }
             CategoryRespone responseDTO = convertToCategoryResponse(category);
             return ResponseHandler.responeBuilder(
-                    "Category details found",
                     HttpStatus.OK,
                     true,
                     responseDTO
             );
         } catch (Exception e) {
-            return ResponseHandler.responeBuilder("An error occurred while retrieving the category", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, null);
 
         }
 
@@ -72,13 +70,13 @@ public class CategoryController {
 
         try {
             if (nameCategory == null || nameCategory.trim().isEmpty()) {
-                return ResponseHandler.responeBuilder("Category name is required", HttpStatus.OK
-                        , false, null);
+                return ResponseHandler.responeBuilder( HttpStatus.OK
+                        , false, "Tên category là bắt buộc");
             }
 
             // Kiểm tra xem file có bị thiếu hay không
             if (file == null || file.isEmpty()) {
-                return ResponseHandler.responeBuilder("Image file is required", HttpStatus.OK, false, null);
+                return ResponseHandler.responeBuilder( HttpStatus.OK, false, null);
             }
 
             // Lưu hình ảnh và lấy đường dẫn hình ảnh
@@ -93,13 +91,13 @@ public class CategoryController {
             String result = categoryService.createCategory(category);
 
             // Trả về phản hồi thành công với thông điệp từ service
-            return ResponseHandler.responeBuilder(result, HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, result);
 
         } catch (Exception e) {
             // Xử lý các ngoại lệ khác nếu có
             System.out.println("Error creating category: " + e.getMessage());
             e.printStackTrace();
-            return ResponseHandler.responeBuilder("An error occurred while creating the category", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, null);
         }
     }
 
@@ -137,12 +135,12 @@ public class CategoryController {
 
         try {
             if (nameCategory == null || nameCategory.trim().isEmpty()) {
-                return ResponseHandler.responeBuilder("Category name is required", HttpStatus.BAD_REQUEST, false, null);
+                return ResponseHandler.responeBuilder( HttpStatus.BAD_REQUEST, false, null);
             }
 
             // Kiểm tra xem file có bị thiếu hay không
             if (file == null || file.isEmpty()) {
-                return ResponseHandler.responeBuilder("Image file is required", HttpStatus.BAD_REQUEST, false, null);
+                return ResponseHandler.responeBuilder( HttpStatus.BAD_REQUEST, false, null);
             }
 
             // Kiểm tra xem idCategory có tồn tại hay không
@@ -156,15 +154,15 @@ public class CategoryController {
             String result = categoryService.updateCategory(idCategory, nameCategory, file);
 
             // Trả về phản hồi thành công với thông điệp từ service
-            return ResponseHandler.responeBuilder(result, HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, result);
 
         } catch (ResourceNotFoundException e) {
             // Xử lý trường hợp danh mục không tồn tại
-            return ResponseHandler.responeBuilder(e.getMessage(), HttpStatus.NOT_FOUND, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.NOT_FOUND, false, e.getMessage());
 
         } catch (Exception e) {
             // Xử lý các ngoại lệ khác nếu có
-            return ResponseHandler.responeBuilder("An error occurred while updating the category", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while updating the category");
         }
     }
 
@@ -192,8 +190,7 @@ public class CategoryController {
         response.setImageUrl(imageUrl);
         response.setCreateAt(category.getCreateAt());
         response.setUpdateAt(category.getUpdateAt());
-        response.setDeleted(category.isDeleted());
-
+      //  response.setDeleted(category.isDeleted());
         return response;
     }
 
@@ -216,7 +213,7 @@ public class CategoryController {
         Page<Category> categoryPage = categoryService.getList(nameCategory,page, size);
 
         if (categoryPage.isEmpty()) {
-            return ResponseHandler.responeBuilder("No categories found", HttpStatus.OK, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, false, "No categories found");
         } else {
             List<CategoryRespone> categoryResponses = categoryPage.getContent().stream()
                     .map(this::convertToCategoryResponse)
@@ -229,26 +226,19 @@ public class CategoryController {
             response.put("totalPages", categoryPage.getTotalPages());
             //   response.put("currentPage", categoryPage.getNumber());
 
-            return ResponseHandler.responeBuilder("Categories found", HttpStatus.OK, true, response);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
         }
     }
     @DeleteMapping("/{idCategory}")
     @PreAuthorize("hasRole('ADMIN')")
-//    public ResponseEntity<?> deleteCategory(@PathVariable Integer idCategory) {
-//        try {
-//            categoryService.deleteCategory(idCategory);
-//            return ResponseHandler.responeBuilder("Category deleted successfully.",HttpStatus.OK,true,null);
-//        } catch (IllegalStateException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        }
-//    }
+
 
     public ResponseEntity<?> deleteCategory(@PathVariable("idCategory") Integer idCategory) {
         try {
             categoryService.markCategoryAsDeleted(idCategory);
-            return ResponseHandler.responeBuilder("Category deleted successfully.", HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, null);
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
         }
     }
 }

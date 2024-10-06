@@ -14,16 +14,14 @@ public class UserImpl implements UserService {
     @Autowired
     private UserResposity userRepository;
 
-//    @Override
-//    public Page<UserEntity> searchUser(String username, String email, String fullname, String dob, String phone, int page, int sizes) {
-//        Pageable pageable = PageRequest.of(page, sizes);
-//        return userRepository.searchUser(username, email, fullname, dob, phone,  pageable);
-//    }
+
 
 
     @Override
     public Page<UserEntity> searchUser(String username, String email, String fullname, String dob, String phone, String street, String city, int page, int sizes) {
         Pageable pageable = PageRequest.of(page, sizes);
-        return  userRepository.searchUser(username, email, fullname, dob, phone,street,phone,  pageable);
+        return userRepository.searchUser(username, email, fullname, dob, phone, street,city,pageable);
     }
+
+
 }

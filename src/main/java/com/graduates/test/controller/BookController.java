@@ -104,14 +104,12 @@ public class BookController {
             bookService.createBook(book, images);
 
             return ResponseHandler.responeBuilder(
-                    "Book added successfully ",
                     HttpStatus.OK,
                     true, null
 
             );
         } catch (IOException e) {
             return ResponseHandler.responeBuilder(
-                    "Error adding book",
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     false,
                     null
@@ -155,7 +153,6 @@ public ResponseEntity<?> updateBook(
         System.out.println("Price: " + price);
 
         return ResponseHandler.responeBuilder(
-                "Book updated successfully",
                 HttpStatus.OK,
                 true,
                 updatedBook
@@ -164,7 +161,6 @@ public ResponseEntity<?> updateBook(
     } catch (ResourceNotFoundException e) {
         System.out.println("Error: " + e.getMessage());
         return ResponseHandler.responeBuilder(
-                "Book not found",
                 HttpStatus.NOT_FOUND,
                 false,
                 null
@@ -172,7 +168,6 @@ public ResponseEntity<?> updateBook(
     } catch (Exception e) {
         System.out.println("Unexpected error: " + e.getMessage());
         return ResponseHandler.responeBuilder(
-                "An unexpected error occurred",
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 false,
                 null
@@ -251,7 +246,7 @@ public ResponseEntity<?> updateBook(
         Page<Book> bookPage = bookService.getList( nameBook,  author,  description_short,  description_long,  size,  year_publisher,  page_number,  barcode,  quantity, price,  category,  publisher,  distributor,  page, sizes);
 
         if (bookPage.isEmpty()) {
-            return ResponseHandler.responeBuilder("No books found", HttpStatus.OK, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, false, null);
         } else {
 //            List<BookRespone> bookResponses = bookPage.getContent().stream()
 //                    .map(bookService::convertToBookResponse)
@@ -265,7 +260,7 @@ public ResponseEntity<?> updateBook(
             response.put("totalItems", bookPage.getTotalElements());
             response.put("totalPages", bookPage.getTotalPages());
 
-            return ResponseHandler.responeBuilder("Books found", HttpStatus.OK, true, response);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
         }
     }
     }

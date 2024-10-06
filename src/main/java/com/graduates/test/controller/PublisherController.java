@@ -53,11 +53,11 @@ public class PublisherController {
             String result = publisherService.createPublisher(publisher);
 
             // Trả về phản hồi thành công với thông điệp từ service
-            return ResponseHandler.responeBuilder(result, HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder(HttpStatus.OK, true, result);
 
         } catch (Exception e) {
             // Xử lý các lỗi không dự đoán trước
-            return ResponseHandler.responeBuilder("An error occurred while creating the publisher", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while creating the publisher");
         }
     }
 
@@ -76,7 +76,7 @@ public class PublisherController {
             Publisher existingPublisher = publisherService.findById(idPublisher);
             if (existingPublisher == null) {
                 // Nhà xuất bản không tồn tại
-                return ResponseHandler.responeBuilder("Publisher not found", HttpStatus.NOT_FOUND, false, null);
+                return ResponseHandler.responeBuilder( HttpStatus.NOT_FOUND, false, "Publisher not found");
             }
 
             // Cập nhật các thông tin từ các tham số được cung cấp
@@ -88,11 +88,11 @@ public class PublisherController {
             String result = publisherService.updatePublisher(existingPublisher);
 
             // Trả về phản hồi thành công
-            return ResponseHandler.responeBuilder(result, HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, result);
 
         } catch (Exception e) {
             // Xử lý lỗi và trả về mã lỗi 500
-            return ResponseHandler.responeBuilder("Error updating publisher", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, "Error updating publisher");
         }
     }
 
@@ -101,25 +101,12 @@ public class PublisherController {
     public ResponseEntity<?> deletePublisher(@PathVariable Integer idPublisher) {
         try {
             publisherService.markPublisherAsDeleted(idPublisher);
-            return ResponseHandler.responeBuilder("publisher deleted successfully.",HttpStatus.OK,true,null);
+            return ResponseHandler.responeBuilder(HttpStatus.OK,true,"publisher deleted successfully.");
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
         }
     }
-//    @DeleteMapping("/{idDistributor}")
-//    public ResponseEntity<?> deleteDistributor(@PathVariable Integer idDistributor) {
-//        try {
-//            distributorService.markDistributorAsDeleted(idDistributor);
-//            return ResponseHandler.responeBuilder("publisher deleted successfully.",HttpStatus.OK,true,null);
-//        } catch (IllegalStateException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        }
-//    }
 
-//    @GetMapping("/list")
-//    public ResponseEntity<List<Publisher>> getAllCategory() {
-//        return ResponseEntity.ok(publisherService.getAllPublisher());
-//    }
 
     @GetMapping("/list")
     public ResponseEntity<?> getPublisherList(
@@ -131,7 +118,7 @@ public class PublisherController {
         Page<Publisher> publishersPage = publisherService.getList(namePublisher,addressPublisher,page, size);
 
         if (publishersPage.isEmpty()) {
-            return ResponseHandler.responeBuilder("No publisher found", HttpStatus.OK, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, false, "No publisher found");
         } else {
             List<PublisherRespone> publisherRespones = publishersPage.getContent().stream()
                     .map(this::convertPublisherResponse)
@@ -144,7 +131,7 @@ public class PublisherController {
             response.put("totalPages", publishersPage.getTotalPages());
             //   response.put("currentPage", categoryPage.getNumber());
 
-            return ResponseHandler.responeBuilder("Distributor found", HttpStatus.OK, true, response);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
         }}
     private PublisherRespone convertPublisherResponse(Publisher publisher) {
         //  String baseUrl = "http://localhost:8080/category/image/";
@@ -157,9 +144,10 @@ public class PublisherController {
         response.setPhonePublisher(publisher.getPhonePublisher());
       //  response.setAddressPublisher(distributor.getAddress());
         //   response.setImageUrl(imageUrl);
+        response.setEmailPublisher(publisher.getEmailPublisher());
         response.setCreateAt(publisher.getCreateAt());
         response.setUpdateAt(publisher.getUpdateAt());
-        response.setDeleted(publisher.isDeleted());
+    //    response.setDeleted(publisher.isDeleted());
         return response;
     }
 
@@ -169,15 +157,15 @@ public class PublisherController {
             Publisher publisher = publisherService.getPublisher(idPublisher);
 
             // Trả về thông tin nhà xuất bản nếu tìm thấy
-            return ResponseHandler.responeBuilder("success", HttpStatus.OK, true, publisher);
+            return ResponseHandler.responeBuilder( HttpStatus.OK, true, publisher);
 
         } catch (ResourceNotFoundException e) {
             // Xử lý trường hợp nhà xuất bản không tồn tại
-            return ResponseHandler.responeBuilder(e.getMessage(), HttpStatus.NOT_FOUND, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.NOT_FOUND, false, e.getMessage());
 
         } catch (Exception e) {
             // Xử lý các lỗi không dự đoán trước
-            return ResponseHandler.responeBuilder("An error occurred while retrieving the publisher", HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while retrieving the publisher");
         }
     }
 }
