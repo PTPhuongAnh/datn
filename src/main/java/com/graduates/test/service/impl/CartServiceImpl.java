@@ -5,12 +5,14 @@ import com.graduates.test.model.Book;
 import com.graduates.test.model.Cart;
 import com.graduates.test.model.CartDetail;
 import com.graduates.test.model.UserEntity;
+import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.resposity.BookCategoryResposity;
 import com.graduates.test.resposity.CartDetailRepository;
 import com.graduates.test.resposity.CartRepository;
 import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -49,6 +51,13 @@ public class CartServiceImpl implements CartService {
         }
 
         UserEntity user = optionalUser.get();
+        Book book = optionalBook.get();
+
+        // Kiểm tra xem số lượng sách có lớn hơn 0 không
+        if (book.getQuantity() <= 0) {
+            throw new Exception("Không thể thêm vào giỏ hàng. Sản phẩm hiện không còn hàng.");
+        }
+
         Cart cart = user.getCart();
 
         // Nếu người dùng chưa có giỏ hàng, tạo mới giỏ hàng
@@ -58,8 +67,6 @@ public class CartServiceImpl implements CartService {
             user.setCart(cart); // Thiết lập giỏ hàng cho người dùng
         }
 
-        Book book = optionalBook.get();
-
         // Kiểm tra xem sách đã có trong giỏ hàng chưa
         boolean bookExistsInCart = cart.getCartDetails().stream()
                 .anyMatch(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()));
@@ -68,11 +75,26 @@ public class CartServiceImpl implements CartService {
             // Nếu sách đã có, cập nhật số lượng
             cart.getCartDetails().forEach(cartDetail -> {
                 if (cartDetail.getBook().getIdBook().equals(book.getIdBook())) {
-                    cartDetail.setQuantity(cartDetail.getQuantity() + quantity);
+                    int newQuantity = cartDetail.getQuantity() + quantity;
+
+                    // Kiểm tra xem tổng số lượng mới có vượt quá số lượng trong kho không
+                    if (newQuantity > book.getQuantity()) {
+                        try {
+                            throw new Exception("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    cartDetail.setQuantity(newQuantity);
                 }
             });
         } else {
-            // Nếu sách chưa có, tạo chi tiết giỏ hàng mới
+            // Nếu sách chưa có, kiểm tra số lượng muốn thêm
+            if (quantity > book.getQuantity()) {
+                throw new Exception("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!");
+            }
+            // Tạo chi tiết giỏ hàng mới
             CartDetail cartDetail = new CartDetail(cart, book, quantity);
             cart.addCartDetail(cartDetail);
         }

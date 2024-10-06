@@ -5,6 +5,7 @@ import com.graduates.test.model.Book;
 import com.graduates.test.model.Cart;
 import com.graduates.test.model.CartDetail;
 import com.graduates.test.response.ResponseHandler;
+import com.graduates.test.service.BookService;
 import com.graduates.test.service.CartService;
 import com.graduates.test.service.impl.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class CartController {
     @Autowired
     private CartService cartService;
+    private BookService bookService;
 
 
     @PostMapping("/add/{bookId}/{quantity}")
@@ -34,12 +36,25 @@ public class CartController {
 
         Integer userId = userDetails.getUserEntity().getIdUser(); // Lấy ID người dùng từ thông tin xác thực
 
+
+
         try {
             cartService.addToCart(userId, bookId, quantity);
-            return ResponseHandler.responeBuilder( HttpStatus.OK, true, null);
+            return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
         } catch (Exception e) {
-            System.out.println("Unexpected error: " + e.getMessage());
-            return ResponseHandler.responeBuilder( HttpStatus.OK, false, null);
+            String errorMessage = e.getMessage();
+
+            if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
+                // Nếu lỗi là do số lượng muốn thêm vượt quá số lượng trong kho
+                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+            } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
+                // Nếu lỗi là do sản phẩm không còn hàng
+                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+            } else {
+                // Các lỗi khác
+                System.out.println("Unexpected error: " + errorMessage);
+                return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
+            }
         }
     }
 
@@ -50,10 +65,6 @@ public class CartController {
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,cartResponses);
     }
 
-//    public ResponseEntity<List<CartResponse>> getCartByUserId(@PathVariable Integer userId) {
-//        List<CartResponse> cartResponses = cartService.getCartByUserId(userId);
-//        return ResponseHandler.responeBuilder(HttpStatus.OK,true,cartResponses);
-//    }
 }
 
 
