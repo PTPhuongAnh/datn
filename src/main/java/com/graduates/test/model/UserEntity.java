@@ -34,6 +34,15 @@ public class UserEntity {
 //    private Cart cart; // Mối quan hệ một-một với Cart
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart; // Mối quan hệ với Cart
+
+
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<Order> orders; // Liên kết với các Order
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Order> orders = new ArrayList<>();  // Quan hệ 1-nhiều với Order
+
     public LocalDateTime getCreateAt() {
         return createAt;
     }

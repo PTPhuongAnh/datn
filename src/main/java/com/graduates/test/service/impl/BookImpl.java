@@ -51,12 +51,7 @@ public class BookImpl implements BookService {
         this.distributorResposity = distributorResposity;
         this.imageResposity = imageResposity;
     }
-// public BookImpl(BookCategoryResposity bookCategoryResposity, CategoryResposity categoryRepository, PublisherResposity publisherRepository, ImageResposity imageResposity) {
-//     this.bookCategoryResposity = bookCategoryResposity;
-//     this.categoryRepository = categoryRepository;
-//     this.publisherRepository = publisherRepository;
-//     this.imageResposity = imageResposity;
-// }
+
 
     public String getBookUploadDir() {
         return bookUploadDir;

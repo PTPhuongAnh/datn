@@ -1,9 +1,6 @@
 package com.graduates.test.controller;
 
 import com.graduates.test.dto.CartResponse;
-import com.graduates.test.model.Book;
-import com.graduates.test.model.Cart;
-import com.graduates.test.model.CartDetail;
 import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.service.BookService;
 import com.graduates.test.service.CartService;
@@ -59,10 +56,20 @@ public class CartController {
     }
 
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getCartByUserId(@PathVariable Integer userId) {
+
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getCartByUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // Lấy ID người dùng từ thông tin xác thực
+        Integer userId = userDetails.getUserEntity().getIdUser();
+
+        // Lấy giỏ hàng của người dùng hiện tại
         List<CartResponse> cartResponses = cartService.getCartByUserId(userId);
-        return ResponseHandler.responeBuilder(HttpStatus.OK,true,cartResponses);
+
+        // Trả về response
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, cartResponses);
     }
 
 }

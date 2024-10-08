@@ -27,6 +27,9 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartDetail> cartDetails = new ArrayList<>();
 
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    private List<Order> orders = new ArrayList<>(); //
+
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     @PrePersist
@@ -110,5 +113,28 @@ public class Cart {
 
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public void addOrderToCart(Cart cart, Order order) {
+        cart.getOrders().add(order); // Thêm order vào cart
+        order.setCart(cart); // Thiết lập liên kết trong order
+    }
+
+
+    public void addOrder(Order order) {
+        orders.add(order);
+        order.setCart(this); // Thiết lập liên kết hai chiều
+    }
+
+    public double getTotalAmount() {
+        return cartDetails.stream()
+                .mapToDouble(cartDetail -> cartDetail.getBook().getPrice() * cartDetail.getQuantity())
+                .sum();
+    }
+
+    public int getTotalQuantity() {
+        return cartDetails.stream()
+                .mapToInt(CartDetail::getQuantity)
+                .sum();
     }
 }

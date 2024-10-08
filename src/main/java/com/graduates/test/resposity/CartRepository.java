@@ -5,6 +5,7 @@ import com.graduates.test.model.CartDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<Cart, Integer> {
    // List<CartDetail> findByUserId(Integer userId);
@@ -20,4 +21,7 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
 
   //  List<Cart> findByUser_Id(Integer userId);
   List<Cart> findByUser_IdUser(Integer idUser);
+  //Optional<Cart> findByUserId(Integer userId);
+   // Optional<Object> findByUserId(Integer userId);
+  Optional<Cart> findByUserIdUser(Integer userId);
 }

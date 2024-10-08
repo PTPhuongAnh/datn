@@ -103,4 +103,6 @@ public class CartDetail {
     protected void onUpdate() {
         this.updateAt = LocalDateTime.now();
     }
+
+
 }
