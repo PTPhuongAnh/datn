@@ -55,7 +55,7 @@ public class CartServiceImpl implements CartService {
 
         // Kiểm tra xem số lượng sách có lớn hơn 0 không
         if (book.getQuantity() <= 0) {
-            throw new Exception("Không thể thêm vào giỏ hàng. Sản phẩm hiện không còn hàng.");
+            throw new IllegalArgumentException("Không thể thêm vào giỏ hàng. Sản phẩm hiện không còn hàng.");
         }
 
         Cart cart = user.getCart();
@@ -79,11 +79,9 @@ public class CartServiceImpl implements CartService {
 
                     // Kiểm tra xem tổng số lượng mới có vượt quá số lượng trong kho không
                     if (newQuantity > book.getQuantity()) {
-                        try {
-                            throw new Exception("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!");
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+
+                            throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!");
+
                     }
 
                     cartDetail.setQuantity(newQuantity);
@@ -92,7 +90,7 @@ public class CartServiceImpl implements CartService {
         } else {
             // Nếu sách chưa có, kiểm tra số lượng muốn thêm
             if (quantity > book.getQuantity()) {
-                throw new Exception("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!");
+                throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!");
             }
             // Tạo chi tiết giỏ hàng mới
             CartDetail cartDetail = new CartDetail(cart, book, quantity);
