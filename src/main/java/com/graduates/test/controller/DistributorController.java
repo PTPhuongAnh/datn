@@ -33,7 +33,6 @@ public class DistributorController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createDistributorDetails(
             @RequestParam(value = "nameDistributor", required = true) String nameDistributor,
             @RequestParam(value = "address", required = true) String address,
@@ -61,7 +60,6 @@ public class DistributorController {
         }
     }
     @PutMapping("/{idDistributor}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateDistributorDetails(
             @PathVariable("idDistributor") Integer idDistributor,
             @RequestParam(value = "nameDistributor", required = true) String nameDistributor,
@@ -96,7 +94,6 @@ public class DistributorController {
     }
 
     @DeleteMapping("/{idDistributor}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteDistributor(@PathVariable Integer idDistributor) {
         try {
             distributorService.markDistributorAsDeleted(idDistributor);

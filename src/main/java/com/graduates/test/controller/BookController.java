@@ -61,7 +61,6 @@ public class BookController {
 
     //thêm sách
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addBookWithImages(
             @RequestParam(value = "nameBook",required = true) String nameBook,
             @RequestParam(value = "author",required = true) String author,
@@ -120,7 +119,6 @@ public class BookController {
 
 
 @PutMapping("/{idBook}")
-@PreAuthorize("hasRole('ADMIN')")
 public ResponseEntity<?> updateBook(
         @PathVariable("idBook") Integer idBook,
         @RequestParam(value = "nameBook") String nameBook,
@@ -248,9 +246,7 @@ public ResponseEntity<?> updateBook(
         if (bookPage.isEmpty()) {
             return ResponseHandler.responeBuilder( HttpStatus.OK, false, null);
         } else {
-//            List<BookRespone> bookResponses = bookPage.getContent().stream()
-//                    .map(bookService::convertToBookResponse)
-//                    .collect(Collectors.toList());
+
             List<BookRespone> bookResponses = bookPage.getContent().stream()
                     .map(book -> convertToBookResponse(book))
                     .collect(Collectors.toList());

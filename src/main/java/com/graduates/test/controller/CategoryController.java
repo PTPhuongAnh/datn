@@ -62,7 +62,6 @@ public class CategoryController {
 
     //thêm category
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createCategoryDetails(
             @RequestParam(value = "nameCategory", required = true) String nameCategory,
             @RequestParam(value = "image", required = true) MultipartFile file
@@ -126,7 +125,6 @@ public class CategoryController {
 
 
     @PutMapping("/{idCategory}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> updateCategoryDetails(
             @PathVariable("idCategory") Integer idCategory,
             @RequestParam(value = "nameCategory", required = true) String nameCategory,
@@ -230,9 +228,6 @@ public class CategoryController {
         }
     }
     @DeleteMapping("/{idCategory}")
-    @PreAuthorize("hasRole('ADMIN')")
-
-
     public ResponseEntity<?> deleteCategory(@PathVariable("idCategory") Integer idCategory) {
         try {
             categoryService.markCategoryAsDeleted(idCategory);

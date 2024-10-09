@@ -33,7 +33,6 @@ public class PublisherController {
 
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createPublisherDetails(
             @RequestParam(value = "namePublisher", required = true) String namePublisher,
             @RequestParam(value = "addressPublisher", required = true) String addressPublisher,
@@ -62,7 +61,6 @@ public class PublisherController {
     }
 
     @PutMapping("/{idPublisher}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> updatePublisherDetails(
             @PathVariable("idPublisher") Integer idPublisher,
             @RequestParam(value = "namePublisher", required = true) String namePublisher,
@@ -97,7 +95,6 @@ public class PublisherController {
     }
 
     @DeleteMapping("/{idPublisher}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deletePublisher(@PathVariable Integer idPublisher) {
         try {
             publisherService.markPublisherAsDeleted(idPublisher);

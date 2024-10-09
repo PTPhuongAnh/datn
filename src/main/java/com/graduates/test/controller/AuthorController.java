@@ -46,7 +46,6 @@ public class AuthorController {
     }
 
 
-
     @PostMapping("/register")
 
     public ResponseEntity<?> register(
@@ -64,7 +63,7 @@ public class AuthorController {
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-        Role roles = roleRespository.findByName("ROLE_USER"). get();
+        Role roles = roleRespository.findByName("ROLE_USER").get();
         user.setRoles(Collections.singletonList(roles));
         user.setEmail(email);
         user.setFullname(fullname);
@@ -82,8 +81,9 @@ public class AuthorController {
         userResposity.save(user);
 
         // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
-        return ResponseHandler.responeBuilder( HttpStatus.OK, true, null);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
     }
+
     @PostMapping("admin/register")
 
     public ResponseEntity<?> register1(
@@ -119,7 +119,7 @@ public class AuthorController {
         userResposity.save(user);
 
         // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
-        return ResponseHandler.responeBuilder( HttpStatus.OK, true, null);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
     }
 
     @PostMapping("/login1")
@@ -151,11 +151,11 @@ public class AuthorController {
             // Chuyển đổi sang DTO
             UserResponseDTO responseDTO = convertToDTO(userEntity);
 
-            return ResponseHandler.responeBuilder( HttpStatus.OK, true, responseDTO);
+            return ResponseHandler.responeBuilder(HttpStatus.OK, true, responseDTO);
         } catch (BadCredentialsException e) {
-            return  ResponseHandler.responeBuilder( HttpStatus.OK,false,null);
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false, null);
         } catch (Exception e) {
-            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR,false,null);
+            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, null);
         }
     }
 
@@ -199,7 +199,7 @@ public class AuthorController {
             @RequestParam(value = "sizes", defaultValue = "10") int sizes) {
 
         // Giả sử bạn có một phương thức trong userService để lấy danh sách người dùng theo các tham số lọc
-        Page<UserEntity> userPage = userService.searchUser(username, email, fullname, dob, phone, street,city, page, sizes);
+        Page<UserEntity> userPage = userService.searchUser(username, email, fullname, dob, phone, street, city, page, sizes);
 
         // Chuyển đổi danh sách người dùng thành DTO
         List<UserResponseDTO> userDTOs = userPage.getContent().stream()
@@ -213,42 +213,13 @@ public class AuthorController {
         response.put("totalItems", userPage.getTotalElements());
         response.put("totalPages", userPage.getTotalPages());
 
-     //   return ResponseEntity.ok(response);
-        return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
+        //   return ResponseEntity.ok(response);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
     }
 
-//    @GetMapping("/list")
-//    public ResponseEntity<?> getList(
-//            @RequestParam(value = "username", required = false) String username,
-//            @RequestParam(value = "email", required = false) String email,
-//            @RequestParam(value = "fullname", required = false) String fullname,
-//            @RequestParam(value = "dob", required = false) String dob,
-//            @RequestParam(value = "phone", required = false) String phone,
-//            @RequestParam(value = "street", required = false) String street,
-//            @RequestParam(value = "city", required = false) String city,
-//            @RequestParam(value = "page", defaultValue = "0") int page,
-//            @RequestParam(value = "sizes", defaultValue = "10") int sizes) {
-//
-//        // Giả sử bạn có một phương thức trong userService để lấy danh sách người dùng theo các tham số lọc
-//        Page<UserEntity> userPage = userService.searchUser(username, email, fullname, dob, phone, street, city, page, sizes);
-//
-//        // Chuyển đổi danh sách người dùng thành DTO
-//        List<UserResponseDTO> userDTOs = userPage.getContent().stream()
-//                .map(this::convertToDTO)
-//                .collect(Collectors.toList());
-//
-//        // Tạo phản hồi với thông tin phân trang
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("users", userDTOs);
-//        response.put("currentPage", userPage.getNumber());
-//        response.put("totalItems", userPage.getTotalElements());
-//        response.put("totalPages", userPage.getTotalPages());
-//
-//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
-//    }
-
-//    private UserResponseDTO convertToDTO(UserEntity user) {
-//        // Chuyển đổi UserEntity thành UserResponseDTO
-//        return new UserResponseDTO(user.getUsername(), user.getEmail(), user.getFullname());
-//    }
+    @GetMapping("/{userId}/roles")
+    public ResponseEntity<?> getUserRoles(@PathVariable Integer userId) {
+        List<String> roles = userService.getRolesByUserId(userId);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,roles);
+    }
 }

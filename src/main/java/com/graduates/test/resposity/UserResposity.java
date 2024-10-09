@@ -14,6 +14,8 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
     Boolean existsByUsername(String username);
 
 
+//    @Query("SELECT ur.role.name FROM  ur WHERE ur.user.id = :userId")
+//    String findRoleByUserId(@Param("userId") Integer userId);
 
     @Query("SELECT u FROM UserEntity u " +
             "JOIN u.address a " + // Thực hiện phép nối với Address

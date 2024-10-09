@@ -25,50 +25,70 @@ public class CartController {
     private BookService bookService;
 
 
-    @PostMapping("/add/{bookId}/{quantity}")
-    public ResponseEntity<?> addToCart(
-            @PathVariable Integer bookId,
-            @PathVariable int quantity,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+//    @PostMapping("/add/{bookId}/{quantity}")
+//    public ResponseEntity<?> addToCart(
+//            @PathVariable Integer bookId,
+//            @PathVariable int quantity,
+//            @AuthenticationPrincipal CustomUserDetails userDetails) {
+//
+//        Integer userId = userDetails.getUserEntity().getIdUser(); // Lấy ID người dùng từ thông tin xác thực
+//
+//
+//
+//        try {
+//            cartService.addToCart(userId, bookId, quantity);
+//            return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
+//        } catch (Exception e) {
+//            String errorMessage = e.getMessage();
+//
+//            if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
+//                // Nếu lỗi là do số lượng muốn thêm vượt quá số lượng trong kho
+//                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+//            } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
+//                // Nếu lỗi là do sản phẩm không còn hàng
+//                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+//            } else {
+//                // Các lỗi khác
+//                System.out.println("Unexpected error: " + errorMessage);
+//                return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
+//            }
+//        }
+@PostMapping("/add/{bookId}/{quantity}")
+public ResponseEntity<?> addToCart(
+        @PathVariable Integer bookId,
+        @PathVariable int quantity,
+        @RequestParam Integer userId) {
 
-        Integer userId = userDetails.getUserEntity().getIdUser(); // Lấy ID người dùng từ thông tin xác thực
+    try {
+        // Sử dụng userId được gửi từ FE
+        cartService.addToCart(userId, bookId, quantity);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
+    } catch (Exception e) {
+        String errorMessage = e.getMessage();
 
-
-
-        try {
-            cartService.addToCart(userId, bookId, quantity);
-            return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
-        } catch (Exception e) {
-            String errorMessage = e.getMessage();
-
-            if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
-                // Nếu lỗi là do số lượng muốn thêm vượt quá số lượng trong kho
-                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
-            } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
-                // Nếu lỗi là do sản phẩm không còn hàng
-                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
-            } else {
-                // Các lỗi khác
-                System.out.println("Unexpected error: " + errorMessage);
-                return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
-            }
+        if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+        } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+        } else {
+            System.out.println("Unexpected error: " + errorMessage);
+            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
         }
     }
+}
 
 
 
 
-    @GetMapping("/user")
-    public ResponseEntity<?> getCartByUser(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        // Lấy ID người dùng từ thông tin xác thực
-        Integer userId = userDetails.getUserEntity().getIdUser();
 
-        // Lấy giỏ hàng của người dùng hiện tại
+
+    @GetMapping("/listcart")
+    public ResponseEntity<?> getCartByUser(@RequestParam Integer userId) {
+        // Lấy giỏ hàng của người dùng dựa trên userId từ FE
         List<CartResponse> cartResponses = cartService.getCartByUserId(userId);
 
-        // Trả về response
+        // Trả về phản hồi
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, cartResponses);
     }
 
