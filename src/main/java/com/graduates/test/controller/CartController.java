@@ -53,10 +53,10 @@ public class CartController {
 //                return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
 //            }
 //        }
-@PostMapping("/add/{bookId}/{quantity}")
+@PostMapping("/add")
 public ResponseEntity<?> addToCart(
-        @PathVariable Integer bookId,
-        @PathVariable int quantity,
+        @RequestParam Integer bookId,
+        @RequestParam int quantity,
         @RequestParam Integer userId) {
 
     try {
@@ -83,7 +83,7 @@ public ResponseEntity<?> addToCart(
 
 
 
-    @GetMapping("/listcart")
+    @GetMapping("/list")
     public ResponseEntity<?> getCartByUser(@RequestParam Integer userId) {
         // Lấy giỏ hàng của người dùng dựa trên userId từ FE
         List<CartResponse> cartResponses = cartService.getCartByUserId(userId);

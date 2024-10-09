@@ -1,5 +1,6 @@
 package com.graduates.test.model;
 
+import ch.qos.logback.core.status.Status;
 import com.graduates.test.resposity.PaymentResponsitory;
 import jakarta.persistence.*;
 
@@ -23,9 +24,6 @@ public class Order {
 
     private String shippingAddress;
 
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "status_id", referencedColumnName = "id")
-//    private Status status;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "status_id", referencedColumnName = "id")
     private OrderStatus orderStatus; // Thay đổi thành OrderStatus
@@ -169,4 +167,11 @@ public class Order {
         }
         this.totalAmount = total; // Cập nhật tổng giá trị đơn hàng
     }
+
+
+//    public void setStatus(String statusName) {
+//        // Lấy status từ cơ sở dữ liệu dựa trên tên trạng thái
+//        Status status = statusRepository.findByName(statusName);
+//        this.status = status;
+//    }
 }
