@@ -80,7 +80,7 @@ public class CartServiceImpl implements CartService {
                     // Kiểm tra xem tổng số lượng mới có vượt quá số lượng trong kho không
                     if (newQuantity > book.getQuantity()) {
 
-                            throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!");
+                            throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng trong kho !");
 
                     }
 
@@ -90,7 +90,7 @@ public class CartServiceImpl implements CartService {
         } else {
             // Nếu sách chưa có, kiểm tra số lượng muốn thêm
             if (quantity > book.getQuantity()) {
-                throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!");
+                throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng sách trong kho!");
             }
             // Tạo chi tiết giỏ hàng mới
             CartDetail cartDetail = new CartDetail(cart, book, quantity);
@@ -122,6 +122,8 @@ public class CartServiceImpl implements CartService {
     private CartResponse convertToCartResponse(CartDetail cartDetail) {
         Book book = cartDetail.getBook();
         List<String> imageUrls = getImageUrlsFromBook(book);
+      //  Cart cart=cartDetail.getCart();
+
         return new CartResponse(
                 book.getIdBook(),
                 book.getNameBook(),
@@ -129,7 +131,10 @@ public class CartServiceImpl implements CartService {
                 book.getDescription_short(),
                 cartDetail.getQuantity(),
                 cartDetail.getPrice(),
-                imageUrls
+                imageUrls,
+                book.getPrice()*cartDetail.getQuantity()
+
+
         );
     }
 

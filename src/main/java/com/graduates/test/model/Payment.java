@@ -10,18 +10,18 @@ import lombok.Data;
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id_payment")
     private Integer idPayment;
 
     private String paymentMethod; // Phương thức thanh toán (VD: Thẻ tín dụng, PayPal, COD)
 
-    @OneToOne(mappedBy = "payment")
-    private Order order; // Liên kết với Order
+//    @OneToOne(mappedBy = "payment")
+//    private Order order; // Liên kết với Order
 
     public Payment() {}
 
-    public Payment(Order order, String paymentMethod) {
-        this.order = order;
+    public Payment( String paymentMethod) {
+
         this.paymentMethod = paymentMethod;
     }
 
@@ -41,11 +41,5 @@ public class Payment {
         this.paymentMethod = paymentMethod;
     }
 
-    public Order getOrder() {
-        return order;
-    }
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 }

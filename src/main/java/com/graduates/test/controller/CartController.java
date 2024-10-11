@@ -25,34 +25,7 @@ public class CartController {
     private BookService bookService;
 
 
-//    @PostMapping("/add/{bookId}/{quantity}")
-//    public ResponseEntity<?> addToCart(
-//            @PathVariable Integer bookId,
-//            @PathVariable int quantity,
-//            @AuthenticationPrincipal CustomUserDetails userDetails) {
-//
-//        Integer userId = userDetails.getUserEntity().getIdUser(); // Lấy ID người dùng từ thông tin xác thực
-//
-//
-//
-//        try {
-//            cartService.addToCart(userId, bookId, quantity);
-//            return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
-//        } catch (Exception e) {
-//            String errorMessage = e.getMessage();
-//
-//            if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
-//                // Nếu lỗi là do số lượng muốn thêm vượt quá số lượng trong kho
-//                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
-//            } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
-//                // Nếu lỗi là do sản phẩm không còn hàng
-//                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
-//            } else {
-//                // Các lỗi khác
-//                System.out.println("Unexpected error: " + errorMessage);
-//                return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
-//            }
-//        }
+
 @PostMapping("/add")
 public ResponseEntity<?> addToCart(
         @RequestParam Integer bookId,

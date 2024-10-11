@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .requestMatchers( "/book/**").permitAll()
                 .requestMatchers( "/publisher/**").permitAll()
                 .requestMatchers("/distributor/**").permitAll()
+                .requestMatchers("/orders/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

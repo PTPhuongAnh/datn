@@ -11,12 +11,9 @@ public interface CartService {
     void addToCart(Integer userId, Integer bookId, int quantity) throws Exception;
 
 
-   // Optional<Cart> getCartByUserId(Integer userId);
 
     List<Cart> findByUser_idUser(Integer userId);
 
- //   List<CartResponse> getCartByUserId(Integer userId);
-  //  List<CartDetail> getCartByUserId(Integer userId);
 
     List<CartResponse> getCartByUserId(Integer userId);
 

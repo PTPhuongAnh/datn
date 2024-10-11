@@ -24,17 +24,17 @@ public class Order {
 
     private String shippingAddress;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "status_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "status_id")
     private OrderStatus orderStatus; // Thay đổi thành OrderStatus
 
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "payment_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "payment_id")
     private Payment payment;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "shipment_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "shipment_id")
     private Shipment shipment;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
@@ -42,8 +42,8 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "cart_id") // Tham chiếu đến Cart
     private Cart cart; // Liên kết tới Cart
-
-
+    private String phone;
+    private String receivingName;
     private LocalDateTime createdAt;
     public Order(UserEntity user, Payment payment, Shipment shipment, double totalAmount, String shippingAddress, LocalDateTime createdAt) {
         this.user = user;
@@ -54,7 +54,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(Integer id, UserEntity user, double totalAmount, String shippingAddress, OrderStatus orderStatus, Payment payment, Shipment shipment, List<OrderDetail> orderDetails, Cart cart, LocalDateTime createdAt) {
+    public Order(Integer id, UserEntity user, double totalAmount, String shippingAddress, OrderStatus orderStatus, Payment payment, Shipment shipment, List<OrderDetail> orderDetails, Cart cart, String phone, String receivingName, LocalDateTime createdAt) {
         this.id = id;
         this.user = user;
         this.totalAmount = totalAmount;
@@ -64,6 +64,8 @@ public class Order {
         this.shipment = shipment;
         this.orderDetails = orderDetails;
         this.cart = cart;
+        this.phone = phone;
+        this.receivingName = receivingName;
         this.createdAt = createdAt;
     }
 
@@ -168,10 +170,19 @@ public class Order {
         this.totalAmount = total; // Cập nhật tổng giá trị đơn hàng
     }
 
+    public String getPhone() {
+        return phone;
+    }
 
-//    public void setStatus(String statusName) {
-//        // Lấy status từ cơ sở dữ liệu dựa trên tên trạng thái
-//        Status status = statusRepository.findByName(statusName);
-//        this.status = status;
-//    }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getReceivingName() {
+        return receivingName;
+    }
+
+    public void setReceivingName(String receivingName) {
+        this.receivingName = receivingName;
+    }
 }

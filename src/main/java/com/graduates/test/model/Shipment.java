@@ -9,18 +9,18 @@ import lombok.Data;
 public class Shipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id_shipment")
     private Integer idShipment;
 
     private String shippingMethod; // Phương thức vận chuyển (VD: Giao hàng nhanh, Giao hàng tiêu chuẩn)
 
-    @OneToOne(mappedBy = "shipment")
-    private Order order; // Liên kết với Order
+//    @OneToOne(mappedBy = "shipment")
+//    private Order order; // Liên kết với Order
 
     public Shipment() {}
 
-    public Shipment(Order order, String shippingMethod) {
-        this.order = order;
+    public Shipment( String shippingMethod) {
+//        this.order = order;
         this.shippingMethod = shippingMethod;
     }
 
@@ -40,11 +40,11 @@ public class Shipment {
         this.shippingMethod = shippingMethod;
     }
 
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
+//    public Order getOrder() {
+//        return order;
+//    }
+//
+//    public void setOrder(Order order) {
+//        this.order = order;
+//    }
 }

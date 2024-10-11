@@ -1,8 +1,9 @@
 package com.graduates.test.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-public class CartResponse {
+public class OrderResponse {
     private Integer bookId; // ID của sách
     private String title; // Tiêu đề sách
     private String author; // Tác giả sách
@@ -11,14 +12,17 @@ public class CartResponse {
     private double price; // Giá sách
     private List<String> imageUrls; // Danh sách URL ảnh của sách
     private double total;
+    private String shipment;
+    private String payment;
+    private String phone;
+    private String shippingAdrress;
+    private String receiveName;
+    private LocalDateTime date;
 
-
-    // Constructor
-
-    public CartResponse() {
+    public OrderResponse() {
     }
 
-    public CartResponse(Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total) {
+    public OrderResponse(Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total,  String phone, String shippingAdrress, String receiveName,LocalDateTime date) {
         this.bookId = bookId;
         this.title = title;
         this.author = author;
@@ -27,10 +31,14 @@ public class CartResponse {
         this.price = price;
         this.imageUrls = imageUrls;
         this.total = total;
-
+//        this.shipment = shipment;
+//        this.payment = payment;
+        this.phone = phone;
+        this.shippingAdrress = shippingAdrress;
+        this.receiveName = receiveName;
+        this.date=date;
     }
 
-    // Getters and Setters
     public Integer getBookId() {
         return bookId;
     }
@@ -95,5 +103,51 @@ public class CartResponse {
         this.total = total;
     }
 
+    public String getShipment() {
+        return shipment;
+    }
 
+    public void setShipment(String shipment) {
+        this.shipment = shipment;
+    }
+
+    public String getPayment() {
+        return payment;
+    }
+
+    public void setPayment(String payment) {
+        this.payment = payment;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getShippingAdrress() {
+        return shippingAdrress;
+    }
+
+    public void setShippingAdrress(String shippingAdrress) {
+        this.shippingAdrress = shippingAdrress;
+    }
+
+    public String getReceiveName() {
+        return receiveName;
+    }
+
+    public void setReceiveName(String receiveName) {
+        this.receiveName = receiveName;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
 }

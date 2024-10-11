@@ -1,13 +1,19 @@
 package com.graduates.test.service.impl;
 
+import com.graduates.test.dto.CartResponse;
+import com.graduates.test.dto.OrderResponse;
 import com.graduates.test.model.*;
 import com.graduates.test.resposity.*;
 import com.graduates.test.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderImpl implements OrderService {
@@ -30,7 +36,10 @@ public class OrderImpl implements OrderService {
     private ShipmentRespository shipmentRepository; // Để lấy thông tin phương thức vận chuyển
 
 
-    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository) {
+    @Autowired
+    private  StatusRespository statusRespository;
+
+    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
@@ -38,10 +47,11 @@ public class OrderImpl implements OrderService {
         this.orderDetailRepository = orderDetailRepository;
         this.paymentRepository = paymentRepository;
         this.shipmentRepository = shipmentRepository;
+        this.statusRespository = statusRespository;
     }
 
     @Override
-    public Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId) throws Exception {
+    public Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone, String receivingName) throws Exception {
         // Tìm giỏ hàng của người dùng
 //
         Cart cart =  cartRepository.findByUserIdUser(userId)
@@ -56,11 +66,17 @@ public class OrderImpl implements OrderService {
 
         // Tạo đơn hàng mới
         Order order = new Order();
-        order.setUser(cart.getUser()); // Lấy thông tin người dùng từ giỏ hàng
+        order.setCart(cart);
+     //   order.setUser(cart.getUser()); // Lấy thông tin người dùng từ giỏ hàng
         order.setShippingAddress(shippingAddress);
         order.setPayment(payment); // Thiết lập payment
         order.setShipment(shipment); // Thiết lập shipment
         order.setCreatedAt(LocalDateTime.now());
+        order.setTotalAmount(cart.getTotalAmount());
+        order.setPhone(phone);
+        order.setReceivingName(receivingName);
+      //  order.setOrderStatus();
+        order.setUser(cart.getUser());
 
         // Thiết lập chi tiết đơn hàng
         for (Integer detailId : selectedCartDetailIds) {
@@ -70,6 +86,8 @@ public class OrderImpl implements OrderService {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setBook(cartDetail.getBook());
             orderDetail.setQuantity(cartDetail.getQuantity());
+            orderDetail.setPrice(cartDetail.getPrice());
+
             order.addOrderDetail(orderDetail); // Thêm chi tiết đơn hàng vào đơn hàng
         }
 
@@ -77,6 +95,61 @@ public class OrderImpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    @Override
+    public List<OrderResponse> getOrderByUserId(Integer userId) {
+        List<Order> orders=orderRepository.findByUser_IdUser(userId);
+        return orders.stream()
+                .flatMap(order -> order.getOrderDetails().stream()
+                        .map(this::convertToOrderResponse)) // Chuyển đổi từng CartDetail sang CartResponse
+                .collect(Collectors.toList());
+    }
+
+    private OrderResponse convertToOrderResponse(OrderDetail orderDetail) {
+        Book book = orderDetail.getBook();
+        List<String> imageUrls = getImageUrlsFromBook(book);
+        Order order=orderDetail.getOrder();
+        Shipment shipment = shipmentRepository.findById(order.getId())
+                .orElse(null);
+
+        Payment payment = paymentRepository.findById(order.getId())
+                .orElse(null);
+        return new OrderResponse(
+                book.getIdBook(),
+                book.getNameBook(),
+                book.getAuthor(),
+                book.getDescription_short(),
+                orderDetail.getQuantity(),
+                orderDetail.getPrice(),
+                imageUrls,
+                order.getTotalAmount(),
+                order.getPhone(),
+//                order.setShipment(shipment),
+//                order.setPayment(payment),
+                order.getShippingAddress(),
+                order.getReceivingName(),
+                order.getCreatedAt()
+
+
+
+        );
+    }
+
+    private List<String> getImageUrlsFromBook(Book book) {
+        String baseUrl = "http://localhost:8080/book/image/";
+        return book.getImageBooks().stream()
+                .map(image -> baseUrl + encodeURIComponent(image.getImage_url()))
+                .collect(Collectors.toList());
+    }
+
+    private String encodeURIComponent(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
+
+
 
 
