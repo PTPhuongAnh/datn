@@ -1,6 +1,13 @@
 package com.graduates.test.dto;
 
+import com.graduates.test.model.Book;
+import com.graduates.test.model.CartDetail;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CartResponse {
     private Integer bookId; // ID của sách
@@ -29,6 +36,40 @@ public class CartResponse {
         this.total = total;
 
     }
+
+//    private CartResponse convertToCartResponse(CartDetail cartDetail) {
+//        Book book = cartDetail.getBook();
+//        List<String> imageUrls = getImageUrlsFromBook(book);
+//        //  Cart cart=cartDetail.getCart();
+//
+//        return new CartResponse(
+//                book.getIdBook(),
+//                book.getNameBook(),
+//                book.getAuthor(),
+//                book.getDescription_short(),
+//                cartDetail.getQuantity(),
+//                cartDetail.getPrice(),
+//                imageUrls,
+//                book.getPrice() * cartDetail.getQuantity()
+//
+//
+//        );
+//    }
+//
+//    private List<String> getImageUrlsFromBook(Book book) {
+//        String baseUrl = "http://localhost:8080/book/image/";
+//        return book.getImageBooks().stream()
+//                .map(image -> baseUrl + encodeURIComponent(image.getImage_url()))
+//                .collect(Collectors.toList());
+//    }
+//
+//    private String encodeURIComponent(String value) {
+//        try {
+//            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+//        } catch (UnsupportedEncodingException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     // Getters and Setters
     public Integer getBookId() {

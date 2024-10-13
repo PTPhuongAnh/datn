@@ -137,4 +137,6 @@ public class Cart {
                 .mapToInt(CartDetail::getQuantity)
                 .sum();
     }
+
+
 }

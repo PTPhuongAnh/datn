@@ -18,11 +18,12 @@ public class OrderResponse {
     private String shippingAdrress;
     private String receiveName;
     private LocalDateTime date;
+    private String status;
 
     public OrderResponse() {
     }
 
-    public OrderResponse(Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total,  String phone, String shippingAdrress, String receiveName,LocalDateTime date) {
+    public OrderResponse(Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status) {
         this.bookId = bookId;
         this.title = title;
         this.author = author;
@@ -31,12 +32,13 @@ public class OrderResponse {
         this.price = price;
         this.imageUrls = imageUrls;
         this.total = total;
-//        this.shipment = shipment;
-//        this.payment = payment;
+        this.shipment = shipment;
+        this.payment = payment;
         this.phone = phone;
         this.shippingAdrress = shippingAdrress;
         this.receiveName = receiveName;
-        this.date=date;
+        this.date = date;
+        this.status = status;
     }
 
     public Integer getBookId() {
@@ -149,5 +151,13 @@ public class OrderResponse {
 
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

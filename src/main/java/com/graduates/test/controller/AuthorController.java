@@ -217,9 +217,18 @@ public class AuthorController {
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
     }
 
-    @GetMapping("/{userId}/roles")
-    public ResponseEntity<?> getUserRoles(@PathVariable Integer userId) {
+    @GetMapping("/roles")
+    public ResponseEntity<?> getUserRoles(@RequestParam Integer userId) {
         List<String> roles = userService.getRolesByUserId(userId);
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,roles);
     }
+
+
+    @GetMapping("/list/user")
+    public ResponseEntity<?> getUsersByRole() {
+        List<UserEntity> users = userService.getUsersByRole("ROLE_USER");
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,users);
+
+    }
+
 }

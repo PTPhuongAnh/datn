@@ -14,7 +14,7 @@ public interface BookService {
     BookRespone createBook(Book book, List<MultipartFile> images) throws IOException;
     //BookRespone updateBook(Integer idBook, BookUpdate book);
 
-    void deleteBook(String idBook);
+    void deleteBook(Integer idBook);
 
     List<BookRespone> getAllBooks();
 

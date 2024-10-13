@@ -42,6 +42,8 @@ public class Book {
     private List<ImageBook> imageBooks = new ArrayList<>();
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CartDetail> cartDetails = new HashSet<>();
+
+    private boolean isDeleted=false;
     public Book(Integer bookId) {
     }
 
@@ -203,5 +205,37 @@ public class Book {
 
     public LocalDateTime getUpdateAt() {
         return updateAt;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
+    }
+
+    public Set<CartDetail> getCartDetails() {
+        return cartDetails;
+    }
+
+    public void setCartDetails(Set<CartDetail> cartDetails) {
+        this.cartDetails = cartDetails;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }

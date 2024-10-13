@@ -8,6 +8,9 @@ import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.service.OrderService;
 import com.graduates.test.service.impl.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,17 +55,36 @@ public class OrderController {
 
             return ResponseHandler.responeBuilder(HttpStatus.OK, true, "ORDER success");
         } catch (Exception e) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK, false, "Error creating order: " + e.getMessage());
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false,  e.getMessage());
         }
     }
 
 
     @GetMapping("/list")
-    public ResponseEntity<?> getOrderByUser(@RequestParam Integer userId) {
+    public ResponseEntity<?> getOrdersByUserIdAndOptionalStatus(@RequestParam Integer userId,
+                                                                @RequestParam Integer statusId) {
+
         // Lấy giỏ hàng của người dùng dựa trên userId từ FE
-        List<OrderResponse> responses = orderService.getOrderByUserId(userId);
+
+        List<OrderResponse> responses = orderService.getOrdersByUserIdAndOptionalStatus(userId,statusId);
 
         // Trả về phản hồi
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, responses);
     }
+
+
+    @PutMapping("/cancel")
+    public ResponseEntity<?> cancelOrder(
+            @RequestParam Integer userId,
+            @RequestParam Integer orderId) {
+        try {
+            // Gọi service để hủy đơn hàng
+            orderService.cancelOrder(userId, orderId);
+            return ResponseEntity.ok("Order canceled successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
 }

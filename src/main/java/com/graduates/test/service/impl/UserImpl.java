@@ -17,6 +17,8 @@ public class UserImpl implements UserService {
     @Autowired
     private UserResposity userRepository;
 
+
+
     public List<String> getRolesByUserId(Integer userId) {
         // Tìm người dùng theo userId
         UserEntity user = userRepository.findById(userId)
@@ -34,9 +36,12 @@ public class UserImpl implements UserService {
         Pageable pageable = PageRequest.of(page, sizes);
         return userRepository.searchUser(username, email, fullname, dob, phone, street,city,pageable);
     }
-//    public String getUserRoleById(Integer userId) {
-//        // Query để lấy vai trò của người dùng dựa trên userId
-//        return userRepository.findRoleByUserId(userId);
-//    }
 
-}
+    @Override
+    public List<UserEntity> getUsersByRole(String roleName) {
+            return userRepository. findByRoles_Name(roleName);
+        }
+    }
+
+
+

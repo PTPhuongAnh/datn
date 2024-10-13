@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers( "/publisher/**").permitAll()
                 .requestMatchers("/distributor/**").permitAll()
                 .requestMatchers("/orders/**").permitAll()
+                .requestMatchers("/feedback/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

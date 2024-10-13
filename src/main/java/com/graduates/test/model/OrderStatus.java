@@ -18,8 +18,8 @@ public class OrderStatus {
 
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "orderStatus", cascade = CascadeType.ALL)
-    private Order order;
+//    @OneToOne(mappedBy = "orderStatus", cascade = CascadeType.ALL)
+//    private Order order;
 
 
 
@@ -30,11 +30,10 @@ public class OrderStatus {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public OrderStatus(Integer idStatus, String status, Order order) {
+    public OrderStatus(Integer idStatus, String status) {
         this.idStatus = idStatus;
         this.status = status;
 
-        this.order = order;
     }
 
     public Integer getIdStatus() {
@@ -61,11 +60,12 @@ public class OrderStatus {
         this.updatedAt = updatedAt;
     }
 
-    public Order getOrder() {
-        return order;
-    }
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
+//    public Order getOrder() {
+//        return order;
+//    }
+//
+//    public void setOrder(Order order) {
+//        this.order = order;
+//    }
 }

@@ -17,7 +17,9 @@ public interface BookCategoryResposity extends JpaRepository<Book,Integer> {
         "AND (:author IS NULL OR b.author LIKE %:author%) " +
         "AND (:category IS NULL OR b.category.nameCategory LIKE %:category%) " +
         "AND (:publisher IS NULL OR b.publisher.namePublisher LIKE %:publisher%)"+
-        "AND (:distributor IS NULL OR b.distributor.nameDistributor LIKE %:distributor%)")
+        "AND (:distributor IS NULL OR b.distributor.nameDistributor LIKE %:distributor%)"+
+        "AND b.isDeleted = false"
+)
 Page<Book> searchBooks(
         @Param("nameBook") String nameBook,
         @Param("author") String author,

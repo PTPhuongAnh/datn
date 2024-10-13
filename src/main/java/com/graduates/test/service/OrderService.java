@@ -4,10 +4,16 @@ import com.graduates.test.dto.CartResponse;
 import com.graduates.test.dto.OrderResponse;
 import com.graduates.test.model.Order;
 import com.graduates.test.model.OrderRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface OrderService {
    Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone,String receivingName) throws Exception;
-   List<OrderResponse> getOrderByUserId(Integer userId);
+
+List<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId);
+
+   void cancelOrder(Integer userId, Integer orderId) throws Exception;
+  // Page<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId, Pageable pageable);
 }

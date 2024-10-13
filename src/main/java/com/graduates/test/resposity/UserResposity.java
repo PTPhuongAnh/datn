@@ -7,17 +7,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserResposity extends JpaRepository<UserEntity,Integer> {
     Optional<UserEntity> findByUsername(String username);
-    Boolean existsByUsername(String username);
+  //  Boolean existsByUsername(String username);
 
 
-//    @Query("SELECT ur.role.name FROM  ur WHERE ur.user.id = :userId")
-//    String findRoleByUserId(@Param("userId") Integer userId);
 
-    @Query("SELECT u FROM UserEntity u " +
+
+    @Query(value = "SELECT u FROM UserEntity u " +
+            "JOIN u.roles r " +
             "JOIN u.address a " + // Thực hiện phép nối với Address
             "WHERE (:username IS NULL OR u.username LIKE %:username%) AND " +
             "(:email IS NULL OR u.email LIKE %:email%) AND " +
@@ -25,7 +26,8 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
             "(:dob IS NULL OR u.dob = :dob) AND " +
             "(:phone IS NULL OR u.phone LIKE %:phone%) AND " +
             "(:street IS NULL OR a.street LIKE %:street%) AND " + // Thêm điều kiện cho street
-            "(:city IS NULL OR a.city LIKE %:city%)") // Thêm điều kiện cho city
+            "(:city IS NULL OR a.city LIKE %:city%) AND" +
+            "(r.name = 'ROLE_USER')") // Thêm điều kiện cho city
     Page<UserEntity> searchUser(@Param("username") String username,
                                @Param("email") String email,
                                @Param("fullname") String fullname,
@@ -34,4 +36,6 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
                                 @Param("street") String street,
                                 @Param("city") String city,
                                Pageable pageable);
+
+    List<UserEntity> findByRoles_Name(String roleName);
 }

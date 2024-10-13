@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 @Service
 public class BookImpl implements BookService {
 
-    @Value("${file.upload-dirs}")
-    private String bookUploadDir;
+//    @Value("${file.upload-dirs}")
+//    private String bookUploadDir;
 
 
 
@@ -38,20 +38,29 @@ public class BookImpl implements BookService {
     private CategoryResposity categoryRepository;
 
     private PublisherResposity publisherRepository;
+
     private DistributorResposity distributorResposity;
+
+    private OrderRespository orderRespository;
+
+    private OrderDetailRepository orderDetailRepository;
 
 
 
     private ImageResposity imageResposity;
 
-    public BookImpl(BookCategoryResposity bookCategoryResposity, CategoryResposity categoryRepository, PublisherResposity publisherRepository, DistributorResposity distributorResposity, ImageResposity imageResposity) {
+    public BookImpl( BookCategoryResposity bookCategoryResposity, CategoryResposity categoryRepository, PublisherResposity publisherRepository, DistributorResposity distributorResposity, OrderRespository orderRespository, OrderDetailRepository orderDetailRepository, ImageResposity imageResposity) {
+
         this.bookCategoryResposity = bookCategoryResposity;
         this.categoryRepository = categoryRepository;
         this.publisherRepository = publisherRepository;
         this.distributorResposity = distributorResposity;
+        this.orderRespository = orderRespository;
+        this.orderDetailRepository = orderDetailRepository;
         this.imageResposity = imageResposity;
     }
-
+    @Value("${file.upload-dirs}")
+    private String bookUploadDir;
 
     public String getBookUploadDir() {
         return bookUploadDir;
@@ -60,10 +69,7 @@ public class BookImpl implements BookService {
 
 
 
-    @Override
-    public void deleteBook(String idBook) {
 
-    }
 
     @Override
     public List<BookRespone> getAllBooks() {
@@ -131,10 +137,6 @@ public Page<Book> getList(String nameBook, String author, String description_sho
     return bookCategoryResposity.searchBooks(nameBook, author, category, publisher, distributor,pageable);
 }
 
-//    @Override
-//    public Book updateBook(Integer id, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer idCategory, Integer idPublisher, Integer idDistributor, Integer quantity, Integer price, List<MultipartFile> images) {
-//        return null;
-//    }
 
 
     private void deleteOldImages(Book book) {
@@ -222,8 +224,6 @@ private void updateBookImages(Book book, List<MultipartFile> newImages) throws I
 
         for (MultipartFile image : images) {
             try {
-
-
                 // Sử dụng UUID để tạo tên tệp duy nhất
                 String originalFileName = image.getOriginalFilename();
                 String fileName = originalFileName;
@@ -246,33 +246,23 @@ private void updateBookImages(Book book, List<MultipartFile> newImages) throws I
         }
     }
 
+    public void deleteBook(Integer idBook) {
+        if (orderDetailRepository.existsByBook_IdBook(idBook)) {
+            throw new IllegalStateException("Cannot delete book. It is used in one or more orders.");
+        }
 
-    public void validateBookInputs(String nameBook, String author, String description, Integer idCategory,
-                                   Integer idPublisher, Integer quantity, Integer price, List<MultipartFile> images) {
-        if (nameBook == null || nameBook.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book name is required");
+        Optional<Book> bookOptional = bookCategoryResposity.findById(idBook);
+        if (!bookOptional.isPresent()) {
+            throw new IllegalStateException("Book not found.");
         }
-        if (author == null || author.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Author is required");
-        }
-        if (description == null || description.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description is required");
-        }
-        if (idCategory == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category ID is required");
-        }
-        if (idPublisher == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Publisher ID is required");
-        }
-        if (quantity == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity is required");
-        }
-        if (price == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price is required");
-        }
-        if (images == null || images.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one image is required");
-        }
+
+        Book book = bookOptional.get();
+        book.setDeleted(true);
+        bookCategoryResposity.save(book); // Xóa sách nếu không có ràng buộc
+    }
+
+    private boolean isBookUsedInOrders(Integer idBook) {
+        return orderDetailRepository.existsByBook_IdBook(idBook); // Điều chỉnh dựa vào cách bạn liên kết sách và đơn hàng
     }
 
 }

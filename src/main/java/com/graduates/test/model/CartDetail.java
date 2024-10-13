@@ -28,6 +28,8 @@ public class CartDetail {
 
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+    private boolean isDeleted=false;
+    private boolean isPurchased = false;
 
     public CartDetail() {}
 
@@ -104,5 +106,19 @@ public class CartDetail {
         this.updateAt = LocalDateTime.now();
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
 
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public boolean isPurchased() {
+        return isPurchased;
+    }
+
+    public void setPurchased(boolean purchased) {
+        isPurchased = purchased;
+    }
 }

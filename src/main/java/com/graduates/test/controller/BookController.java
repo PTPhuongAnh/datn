@@ -259,6 +259,17 @@ public ResponseEntity<?> updateBook(
             return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
         }
     }
+
+
+    @DeleteMapping("/{idBook}")
+    public ResponseEntity<?> deleteBook(@PathVariable Integer idBook) {
+        try {
+            bookService.deleteBook(idBook);
+            return ResponseHandler.responeBuilder(HttpStatus.OK,true,"book deleted successfully.");
+        } catch (IllegalStateException e) {
+            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
+        }
+    }
     }
 
 
