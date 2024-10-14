@@ -96,10 +96,10 @@ public ResponseEntity<?> addToCart(
     }
 
 
-    @DeleteMapping("/{idBook}")
-    public ResponseEntity<?> deleteBookFromCart(@PathVariable Integer  idBook) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteBookFromCart(@RequestParam Integer userId, @RequestParam Integer  idBook) {
         try {
-          cartService.deleteBookFromCart(idBook);
+          cartService.deleteBookFromCart(userId,idBook);
             return ResponseHandler.responeBuilder(HttpStatus.OK,true," delete book from cart successfully.");
         } catch (IllegalStateException e) {
             return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());

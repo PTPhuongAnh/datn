@@ -195,14 +195,23 @@ public class CartServiceImpl implements CartService {
 
 
 
-    public void deleteBookFromCart(Integer idBook) {
-        // Tìm CartDetail chứa sách theo idBook
-        CartDetail cartDetail = cartDetailRepository.findByBook_IdBook(idBook)
-                .orElseThrow(() -> new IllegalStateException("Book not found in cart."));
+    public void deleteBookFromCart(Integer userId, Integer idBook) {
 
-        // Thực hiện xóa mềm
+        Cart cart = cartRepository.findByUserIdUser(userId)
+                .orElseThrow(() -> new IllegalStateException("Cart not found for user ID: " + userId));
+
+
+        CartDetail cartDetail = cartDetailRepository.findByBook_IdBookAndCart_IdCart(idBook, cart.getIdCart())
+                .orElseThrow(() -> new IllegalStateException("Book not found in user's cart."));
+
+
+        if (!cart.getUser().getIdUser().equals(userId)) {
+            throw new IllegalStateException("You are not authorized to delete this item from the cart.");
+        }
+
+
         cartDetail.setDeleted(true);
-        cartDetailRepository.save(cartDetail); // Lưu lại đối tượng đã cập nhật trạng thái xóa mềm
+        cartDetailRepository.save(cartDetail);
     }
 }
 

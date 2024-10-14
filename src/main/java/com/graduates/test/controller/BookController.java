@@ -261,8 +261,8 @@ public ResponseEntity<?> updateBook(
     }
 
 
-    @DeleteMapping("/{idBook}")
-    public ResponseEntity<?> deleteBook(@PathVariable Integer idBook) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteBook(@RequestParam Integer idBook) {
         try {
             bookService.deleteBook(idBook);
             return ResponseHandler.responeBuilder(HttpStatus.OK,true,"book deleted successfully.");

@@ -33,7 +33,8 @@ public class OrderController {
             @RequestParam("paymentId") Integer paymentId, // ID thanh toán
             @RequestParam("shipmentId") Integer shipmentId ,// ID vận chuyển
             @RequestParam("phone") String phone,
-            @RequestParam("receivingName") String receivingName
+            @RequestParam("receivingName") String receivingName,
+            @RequestParam("note") String note
 
 
            ) {
@@ -49,7 +50,9 @@ public class OrderController {
                     paymentId,
                     shipmentId,
                     phone,
-                    receivingName
+                    receivingName,
+                    note
+
 
             );
 

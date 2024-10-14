@@ -19,4 +19,6 @@ public interface CartDetailRepository extends JpaRepository<CartDetail,Integer> 
    List<CartDetail> findByCartAndIsDeletedFalseAndIsPurchasedFalse(Cart cart);
   //  Optional<CartDetail> findByCartAndIsDeletedFalseAndIsPurchasedFalse(Cart cart);
   Page<CartDetail> findByCartAndIsDeletedFalseAndIsPurchasedFalse(Cart cart, Pageable pageable);
+
+    Optional<CartDetail> findByBook_IdBookAndCart_IdCart(Integer idBook, Integer idCart);
 }

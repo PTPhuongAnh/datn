@@ -52,7 +52,7 @@ public class OrderImpl implements OrderService {
     }
 
     @Override
-    public Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone, String receivingName) throws Exception {
+    public Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone, String receivingName,String note) throws Exception {
         // Tìm giỏ hàng của người dùng
 
         Cart cart =  cartRepository.findByUserIdUser(userId)
@@ -80,6 +80,8 @@ public class OrderImpl implements OrderService {
         order.setUser(cart.getUser());
         OrderStatus pendingStatus = statusRespository.findByStatus("Pending"); // Tìm trạng thái "Pending" từ bảng Status
         order.setOrderStatus(pendingStatus);
+        order.setNote(note);
+        order.setDeliveryDate(LocalDateTime.now().plusDays(5));
 
         // Thiết lập chi tiết đơn hàng
         for (Integer detailId : selectedCartDetailIds) {
@@ -147,7 +149,9 @@ public class OrderImpl implements OrderService {
                 order.getShippingAddress(),
                 order.getReceivingName(),
                 order.getCreatedAt(),
-                status.getStatus()
+                status.getStatus(),
+                order.getNote(),
+                order.getDeliveryDate()
 
 
 

@@ -19,11 +19,13 @@ public class OrderResponse {
     private String receiveName;
     private LocalDateTime date;
     private String status;
+    private String note;
+    private LocalDateTime deliveryDate;
 
     public OrderResponse() {
     }
 
-    public OrderResponse(Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status) {
+    public OrderResponse(Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate) {
         this.bookId = bookId;
         this.title = title;
         this.author = author;
@@ -39,6 +41,8 @@ public class OrderResponse {
         this.receiveName = receiveName;
         this.date = date;
         this.status = status;
+        this.note = note;
+        this.deliveryDate = deliveryDate;
     }
 
     public Integer getBookId() {
@@ -159,5 +163,21 @@ public class OrderResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public LocalDateTime getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(LocalDateTime deliveryDate) {
+        this.deliveryDate = deliveryDate;
     }
 }
