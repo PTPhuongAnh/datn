@@ -6,6 +6,8 @@ import com.graduates.test.model.*;
 import com.graduates.test.resposity.*;
 import com.graduates.test.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -213,6 +215,11 @@ public class OrderImpl implements OrderService {
             product.setQuantity(product.getQuantity() + detail.getQuantity());
             bookCategoryResposity.save(product);
         }
+    }
+
+
+    public Page<Order> getAllOrdersForAdmin(Pageable pageable) {
+        return orderRepository.findAll(pageable);
     }
 }
 

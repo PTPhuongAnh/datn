@@ -13,7 +13,7 @@ public interface OrderService {
    Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone,String receivingName,String note) throws Exception;
 
 List<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId);
-
+   Page<Order> getAllOrdersForAdmin(Pageable pageable);
    void cancelOrder(Integer userId, Integer orderId) throws Exception;
   // Page<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId, Pageable pageable);
 }

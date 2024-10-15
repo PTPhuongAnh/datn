@@ -11,4 +11,5 @@ public interface UserService {
     Page<UserEntity>  searchUser(String username, String  email, String fullname, String dob, String phone,String street, String city, int page, int sizes);
 
     List<UserEntity> getUsersByRole(String roleName);
+    boolean isAdmin(Integer userId);
 }

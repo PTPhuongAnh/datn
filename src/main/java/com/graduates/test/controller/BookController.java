@@ -134,7 +134,7 @@ public ResponseEntity<?> updateBook(
         @RequestParam(value = "idDistributor") Integer idDistributor,
         @RequestParam(value = "quantity") Integer quantity,
         @RequestParam(value = "price") Integer price,
-        @RequestParam("images") List<MultipartFile> images) {
+        @RequestParam(value = "images", required = false) List<MultipartFile> images) {
 
     // Gọi service để cập nhật sách và ảnh
     try {

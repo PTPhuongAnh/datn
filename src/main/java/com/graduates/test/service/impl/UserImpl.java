@@ -41,6 +41,19 @@ public class UserImpl implements UserService {
     public List<UserEntity> getUsersByRole(String roleName) {
             return userRepository. findByRoles_Name(roleName);
         }
+
+    public boolean isAdmin(Integer userId) {
+        // Lấy thông tin người dùng từ userId
+        UserEntity user = userRepository.findById(userId).orElse(null);
+
+        // Kiểm tra nếu user tồn tại và có role là "ROLE_ADMIN"
+        if (user != null && user.getRoles() != null) {
+            return user.getRoles().stream()
+                    .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+        }
+
+        return false;
+    }
     }
 
 

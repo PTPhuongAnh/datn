@@ -122,13 +122,11 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Trả về lỗi không tìm thấy tệp
         }
     }
-
-
     @PutMapping("/{idCategory}")
     public ResponseEntity<Object> updateCategoryDetails(
             @PathVariable("idCategory") Integer idCategory,
-            @RequestParam(value = "nameCategory", required = true) String nameCategory,
-            @RequestPart(value = "image", required = true) MultipartFile file
+            @RequestParam(value = "nameCategory",required = false) String nameCategory,
+            @RequestPart(value = "image", required = false) MultipartFile file
     ) {
 
         try {
