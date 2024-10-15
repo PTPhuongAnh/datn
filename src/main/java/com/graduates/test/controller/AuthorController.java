@@ -3,11 +3,9 @@ package com.graduates.test.controller;
 import com.graduates.test.dto.BookRespone;
 import com.graduates.test.dto.LoginDto;
 import com.graduates.test.dto.UserResponseDTO;
-import com.graduates.test.model.Address;
-import com.graduates.test.model.Book;
-import com.graduates.test.model.Role;
-import com.graduates.test.model.UserEntity;
+import com.graduates.test.model.*;
 import com.graduates.test.response.ResponseHandler;
+import com.graduates.test.resposity.CartRepository;
 import com.graduates.test.resposity.RoleRespository;
 import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.UserService;
@@ -36,15 +34,16 @@ public class AuthorController {
     private RoleRespository roleRespository;
     private PasswordEncoder passwordEncoder;
     private UserService userService;
+    private CartRepository cartRepository;
 
-    public AuthorController(AuthenticationManager authenticationManager, UserResposity userResposity, RoleRespository roleRespository, PasswordEncoder passwordEncoder, UserService userService) {
+    public AuthorController(AuthenticationManager authenticationManager, UserResposity userResposity, RoleRespository roleRespository, PasswordEncoder passwordEncoder, UserService userService, CartRepository cartRepository) {
         this.authenticationManager = authenticationManager;
         this.userResposity = userResposity;
         this.roleRespository = roleRespository;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.cartRepository = cartRepository;
     }
-
 
     @PostMapping("/register")
 
@@ -76,9 +75,15 @@ public class AuthorController {
         address.setCity(city);
 
         user.setAddress(address);
+        userResposity.save(user);
+        Cart cart = new Cart();
+        cart.setUser(user);
+
+        // Lưu Cart vào cơ sở dữ liệu
+        cartRepository.save(cart);
 
         // Lưu vào database qua JPA repository
-        userResposity.save(user);
+      //  userResposity.save(user);
 
         // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);

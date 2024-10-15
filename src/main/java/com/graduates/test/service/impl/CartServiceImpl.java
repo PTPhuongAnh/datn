@@ -106,11 +106,11 @@ public class CartServiceImpl implements CartService {
         }
 
         Cart cart = user.getCart();
-        if (cart == null) {
-            cart = new Cart();
-            cart.setUser(user);
-            user.setCart(cart); // Thiết lập giỏ hàng cho người dùng
-        }
+//        if (cart == null) {
+//            cart = new Cart();
+//            cart.setUser(user);
+//            user.setCart(cart); // Thiết lập giỏ hàng cho người dùng
+//        }
 
         // Kiểm tra xem sách đã tồn tại trong giỏ hàng và chưa bị xóa mềm
         Optional<CartDetail> existingCartDetailOpt = cart.getCartDetails().stream()
