@@ -41,13 +41,59 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void addToCart(Integer userId, Integer bookId, int quantity) throws Exception {
+//        Optional<UserEntity> optionalUser = userResposity.findById(userId);
+//        Optional<Book> optionalBook = bookRepository.findById(bookId);
+//        if (optionalUser.isEmpty()) {
+//            throw new Exception("User not found");
+//        }
+//        if (optionalBook.isEmpty()) {
+//            throw new Exception("Book not found");
+//        }
+//        UserEntity user = optionalUser.get();
+//        Book book = optionalBook.get();
+//        if (book.getQuantity() <= 0) {
+//            throw new IllegalArgumentException("Không thể thêm vào giỏ hàng. Sản phẩm hiện không còn hàng.");
+//        }
+//        Cart cart = user.getCart();
+//        if (cart == null) {
+//            cart = new Cart();
+//            cart.setUser(user);
+//            user.setCart(cart); // Thiết lập giỏ hàng cho người dùng
+//        }
+//        boolean bookExistsInCart = cart.getCartDetails().stream()
+//                .anyMatch(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()));
+//
+//        if (bookExistsInCart) {
+//            cart.getCartDetails().forEach(cartDetail -> {
+//                if (cartDetail.getBook().getIdBook().equals(book.getIdBook())) {
+//                    int newQuantity = cartDetail.getQuantity() + quantity;
+//
+//                    // Kiểm tra xem tổng số lượng mới có vượt quá số lượng trong kho không
+//                    if (newQuantity > book.getQuantity()) {
+//                        throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng trong kho !");
+//                    }
+//                    cartDetail.setQuantity(newQuantity);
+//                }
+//            });
+//        } else {
+//            // Nếu sách chưa có, kiểm tra số lượng muốn thêm
+//            if (quantity > book.getQuantity()) {
+//                throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng sách trong kho!");
+//            }
+//            // Tạo chi tiết giỏ hàng mới
+//            CartDetail cartDetail = new CartDetail(cart, book, quantity);
+//            cart.addCartDetail(cartDetail);
+//        }
+//        cart.updateTotalPrice();
+//        cartRepository.save(cart);
+//        userResposity.save(user);
+
         Optional<UserEntity> optionalUser = userResposity.findById(userId);
         Optional<Book> optionalBook = bookRepository.findById(bookId);
 
         if (optionalUser.isEmpty()) {
             throw new Exception("User not found");
         }
-
         if (optionalBook.isEmpty()) {
             throw new Exception("Book not found");
         }
@@ -55,56 +101,61 @@ public class CartServiceImpl implements CartService {
         UserEntity user = optionalUser.get();
         Book book = optionalBook.get();
 
-        // Kiểm tra xem số lượng sách có lớn hơn 0 không
         if (book.getQuantity() <= 0) {
             throw new IllegalArgumentException("Không thể thêm vào giỏ hàng. Sản phẩm hiện không còn hàng.");
         }
 
         Cart cart = user.getCart();
-
-        // Nếu người dùng chưa có giỏ hàng, tạo mới giỏ hàng
         if (cart == null) {
             cart = new Cart();
             cart.setUser(user);
             user.setCart(cart); // Thiết lập giỏ hàng cho người dùng
         }
 
-        // Kiểm tra xem sách đã có trong giỏ hàng chưa
-        boolean bookExistsInCart = cart.getCartDetails().stream()
-                .anyMatch(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()));
+        // Kiểm tra xem sách đã tồn tại trong giỏ hàng và chưa bị xóa mềm
+        Optional<CartDetail> existingCartDetailOpt = cart.getCartDetails().stream()
+                .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && !cartDetail.isDeleted())
+                .findFirst();
 
-        if (bookExistsInCart) {
-            // Nếu sách đã có, cập nhật số lượng
-            cart.getCartDetails().forEach(cartDetail -> {
-                if (cartDetail.getBook().getIdBook().equals(book.getIdBook())) {
-                    int newQuantity = cartDetail.getQuantity() + quantity;
+        if (existingCartDetailOpt.isPresent()) {
+            CartDetail existingCartDetail = existingCartDetailOpt.get();
+            int newQuantity = existingCartDetail.getQuantity() + quantity;
 
-                    // Kiểm tra xem tổng số lượng mới có vượt quá số lượng trong kho không
-                    if (newQuantity > book.getQuantity()) {
-
-                        throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng trong kho !");
-
-                    }
-
-                    cartDetail.setQuantity(newQuantity);
-                }
-            });
-        } else {
-            // Nếu sách chưa có, kiểm tra số lượng muốn thêm
-            if (quantity > book.getQuantity()) {
-                throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng sách trong kho!");
+            // Kiểm tra xem tổng số lượng mới có vượt quá số lượng trong kho không
+            if (newQuantity > book.getQuantity()) {
+                throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng trong kho!");
             }
-            // Tạo chi tiết giỏ hàng mới
-            CartDetail cartDetail = new CartDetail(cart, book, quantity);
-            cart.addCartDetail(cartDetail);
+
+            existingCartDetail.setQuantity(newQuantity); // Cập nhật số lượng
+        } else {
+            // Nếu sách đã tồn tại nhưng bị xóa mềm (delete = true)
+            Optional<CartDetail> softDeletedCartDetailOpt = cart.getCartDetails().stream()
+                    .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && cartDetail.isDeleted())
+                    .findFirst();
+
+            if (softDeletedCartDetailOpt.isPresent()) {
+                CartDetail softDeletedCartDetail = softDeletedCartDetailOpt.get();
+
+                // Cập nhật lại delete = false và số lượng
+                if (quantity > book.getQuantity()) {
+                    throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng sách trong kho!");
+                }
+                softDeletedCartDetail.setDeleted(false);
+                softDeletedCartDetail.setQuantity(quantity);
+            } else {
+                // Nếu sách chưa có, kiểm tra số lượng muốn thêm
+                if (quantity > book.getQuantity()) {
+                    throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng sách trong kho!");
+                }
+                // Tạo chi tiết giỏ hàng mới
+                CartDetail cartDetail = new CartDetail(cart, book, quantity);
+                cart.addCartDetail(cartDetail);
+            }
         }
 
-        // Cập nhật tổng giá trị giỏ hàng
         cart.updateTotalPrice();
-
-        // Lưu giỏ hàng vào cơ sở dữ liệu
         cartRepository.save(cart);
-        userResposity.save(user); // Cập nhật lại người dùng với giỏ hàng mới
+        userResposity.save(user);
     }
 
     @Override
@@ -116,17 +167,9 @@ public class CartServiceImpl implements CartService {
         // Tìm giỏ hàng dựa trên userId
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new Exception("Không tìm thấy giỏ hàng của người dùng với ID: " + userId));
-
-        // Lấy danh sách chi tiết giỏ hàng có phân trang
         Page<CartDetail> cartDetailsPage = cartDetailRepository.findByCartAndIsDeletedFalseAndIsPurchasedFalse(cart, pageable);
-
-        // Chuyển đổi từ CartDetail sang CartResponse
         return cartDetailsPage.map(this::convertToCartResponse);
-
     }
-
-
-
     private CartResponse convertToCartResponse(CartDetail cartDetail) {
         Book book = cartDetail.getBook();
         List<String> imageUrls = getImageUrlsFromBook(book);
@@ -191,10 +234,6 @@ public class CartServiceImpl implements CartService {
 
         cartDetailRepository.save(cartDetail);
     }
-
-
-
-
     public void deleteBookFromCart(Integer userId, Integer idBook) {
 
         Cart cart = cartRepository.findByUserIdUser(userId)

@@ -36,7 +36,6 @@ public class OrderController {
             @RequestParam("receivingName") String receivingName,
             @RequestParam("note") String note
 
-
            ) {
 
        // Integer userId = userDetails.getUserEntity().getIdUser(); // Lấy ID người dùng từ thông tin xác thực
