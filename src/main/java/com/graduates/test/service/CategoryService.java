@@ -25,4 +25,6 @@ public interface CategoryService {
 
     void markCategoryAsDeleted(Integer idCategory);
     Page<Category> getList(String nameCategory, int page, int sizes);
+
+    String updateCategoryNameOnly(Integer idCategory, String nameCategory);
 }

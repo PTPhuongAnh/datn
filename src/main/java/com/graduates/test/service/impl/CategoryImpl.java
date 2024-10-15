@@ -68,6 +68,24 @@ public class CategoryImpl implements CategoryService {
             return "Category not found";
         }
     }
+//    public String updateCategoryNameOnly(int idCategory, String nameCategory) {
+//        Optional<Category> existingCategory = categoryResposity.findById(idCategory);
+//        if (existingCategory.isPresent()) {
+//            Category updatedCategory = existingCategory.get();
+//            updatedCategory.setNameCategory(nameCategory);
+//
+//            // Cập nhật vào cơ sở dữ liệu
+//            categoryResposity.save(updatedCategory);
+//            return "Category updated successfully with no new image";
+//        } else {
+//            return "Category not found";
+//        }
+//    }
+
+    // Lấy danh mục theo ID
+    public Category getCategory(int idCategory) {
+        return categoryResposity.findById(idCategory).orElse(null);
+    }
 
 
 
@@ -158,6 +176,21 @@ public class CategoryImpl implements CategoryService {
             return categoryResposity.findByNameCategoryContaining(nameCategory, pageable);
         } else {
             return categoryResposity.findAllByDeletedFalse(pageable);
+        }
+    }
+
+    @Override
+    public String updateCategoryNameOnly(Integer idCategory, String nameCategory) {
+        Optional<Category> existingCategory = categoryResposity.findById(idCategory);
+        if (existingCategory.isPresent()) {
+            Category updatedCategory = existingCategory.get();
+            updatedCategory.setNameCategory(nameCategory);
+
+            // Cập nhật vào cơ sở dữ liệu
+            categoryResposity.save(updatedCategory);
+            return "Category updated successfully with no new image";
+        } else {
+            return "Category not found";
         }
     }
 }
