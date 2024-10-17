@@ -27,7 +27,13 @@ import java.util.Map;
 public class OrderController {
     @Autowired
     private OrderService orderService; // Inject OrderService
+    @Autowired
     private UserService userService;
+
+    public OrderController(OrderService orderService, UserService userService) {
+        this.orderService = orderService;
+        this.userService = userService;
+    }
 
     @PostMapping("/create")
 
@@ -71,11 +77,7 @@ public class OrderController {
     public ResponseEntity<?> getOrdersByUserIdAndOptionalStatus(@RequestParam Integer userId,
                                                                 @RequestParam Integer statusId) {
 
-        // Lấy giỏ hàng của người dùng dựa trên userId từ FE
-
         List<OrderResponse> responses = orderService.getOrdersByUserIdAndOptionalStatus(userId,statusId);
-
-        // Trả về phản hồi
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, responses);
     }
 
@@ -87,25 +89,27 @@ public class OrderController {
         try {
             // Gọi service để hủy đơn hàng
             orderService.cancelOrder(userId, orderId);
-            return ResponseEntity.ok("Order canceled successfully.");
+            return ResponseHandler.responeBuilder(HttpStatus.OK,true,"Order canceled successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
+                    e.getMessage());
         }
     }
+
+
     @GetMapping("/list/admin")
     public ResponseEntity<?> getAllOrdersForAdmin(@RequestParam Integer userId,
-                                                  @RequestParam int page,
-                                                  @RequestParam int size) {
+                                                  @RequestParam(value = "page", defaultValue = "0") int page,
+                                                  @RequestParam(value = "size", defaultValue = "10") int size) {
         // Kiểm tra quyền admin
         if (!userService.isAdmin(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("You are not authorized to view orders");
+            return ResponseHandler.responeBuilder(HttpStatus.OK,true,
+                    "You are not authorized to view orders");
         }
 
         // Nếu là admin, lấy danh sách đơn hàng với phân trang
         Pageable pageable = PageRequest.of(page, size);
-        Page<Order> orders = orderService.getAllOrdersForAdmin(pageable);
+        Page<OrderResponse> orders = orderService.getAllOrdersForAdmin(pageable);
 
         // Chuyển đổi kết quả thành phản hồi với thông tin phân trang
         Map<String, Object> response = new HashMap<>();
@@ -114,6 +118,50 @@ public class OrderController {
         response.put("totalItems", orders.getTotalElements());
         response.put("totalPages", orders.getTotalPages());
 
-        return ResponseEntity.ok(response);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
+    }
+
+
+    @GetMapping("/details")
+    public ResponseEntity<?> getOrderDetails(@RequestParam("orderId") Integer orderId,
+                                             @RequestParam("userId") Integer userId) {
+        // Kiểm tra quyền admin
+        if (!userService.isAdmin(userId)) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                    .body("You are not authorized to view this order");
+            return  ResponseHandler.responeBuilder(HttpStatus.OK,true,"You are not authorized to view this order");
+        }
+        // Nếu là admin, lấy chi tiết đơn hàng
+        OrderResponse orderResponse = orderService.getOrderDetails(orderId);
+        if (orderResponse != null) {
+          //  return ResponseEntity.ok(orderResponse);
+            return  ResponseHandler.responeBuilder(HttpStatus.OK,true,orderResponse);
+        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body("Order not found");
+            return  ResponseHandler.responeBuilder(HttpStatus.OK,false,"Order not found");
+        }
+    }
+
+
+    @PutMapping("/update-status")
+    public ResponseEntity<?> updateOrderStatus(@RequestParam("orderId") Integer orderId,
+                                               @RequestParam("statusId") Integer statusId,
+                                               @RequestParam("userId") Integer userId) {
+        // Kiểm tra quyền admin
+        if (!userService.isAdmin(userId)) {
+            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
+                    "You are not authorized to update this order");
+        }
+
+        // Cập nhật trạng thái đơn hàng dựa vào statusId
+        boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);
+
+        if (isUpdated) {
+           return ResponseHandler.responeBuilder(HttpStatus.OK,true,"Order status updated successfully");
+        } else {
+            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
+                    "Order not found or status not updated");
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.graduates.test.service.impl;
 
+import ch.qos.logback.core.status.Status;
 import com.graduates.test.dto.CartResponse;
 import com.graduates.test.dto.OrderResponse;
 import com.graduates.test.model.*;
@@ -7,6 +8,7 @@ import com.graduates.test.resposity.*;
 import com.graduates.test.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +30,7 @@ public class OrderImpl implements OrderService {
 
     @Autowired
     private CartRepository cartRepository;
-    private  CartDetailRepository cartDetailRepository;
+    private CartDetailRepository cartDetailRepository;
 
     @Autowired
     private OrderDetailRepository orderDetailRepository;
@@ -37,9 +40,9 @@ public class OrderImpl implements OrderService {
     @Autowired
     private ShipmentRespository shipmentRepository; // Để lấy thông tin phương thức vận chuyển
     @Autowired
-    private  StatusRespository statusRespository;
+    private StatusRespository statusRespository;
     @Autowired
-    private  BookCategoryResposity bookCategoryResposity;
+    private BookCategoryResposity bookCategoryResposity;
 
 
     public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository) {
@@ -54,10 +57,10 @@ public class OrderImpl implements OrderService {
     }
 
     @Override
-    public Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone, String receivingName,String note) throws Exception {
+    public Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note) throws Exception {
         // Tìm giỏ hàng của người dùng
 
-        Cart cart =  cartRepository.findByUserIdUser(userId)
+        Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new Exception("Cart not found for user ID: " + userId));
 
         // Tìm payment và shipment từ database
@@ -70,7 +73,7 @@ public class OrderImpl implements OrderService {
         // Tạo đơn hàng mới
         Order order = new Order();
         order.setCart(cart);
-     //   order.setUser(cart.getUser()); // Lấy thông tin người dùng từ giỏ hàng
+        //   order.setUser(cart.getUser()); // Lấy thông tin người dùng từ giỏ hàng
         order.setShippingAddress(shippingAddress);
         order.setPayment(payment); // Thiết lập payment
         order.setShipment(shipment); // Thiết lập shipment
@@ -78,7 +81,7 @@ public class OrderImpl implements OrderService {
         order.setTotalAmount(cart.getTotalAmount());
         order.setPhone(phone);
         order.setReceivingName(receivingName);
-      //  order.setOrderStatus();
+        //  order.setOrderStatus();
         order.setUser(cart.getUser());
         OrderStatus pendingStatus = statusRespository.findByStatus("Pending"); // Tìm trạng thái "Pending" từ bảng Status
         order.setOrderStatus(pendingStatus);
@@ -87,12 +90,12 @@ public class OrderImpl implements OrderService {
 
         // Thiết lập chi tiết đơn hàng
         for (Integer detailId : selectedCartDetailIds) {
-    //        CartDetail cartDetail = cartDetailRepository.findById(detailId)
-      //              .orElseThrow(() -> new Exception("Cart detail not found with ID: " + detailId));
+            //        CartDetail cartDetail = cartDetailRepository.findById(detailId)
+            //              .orElseThrow(() -> new Exception("Cart detail not found with ID: " + detailId));
 
-               CartDetail cartDetail = cartDetailRepository.findByIdAndCart_IdCart(detailId, cart.getIdCart())
+            CartDetail cartDetail = cartDetailRepository.findByIdAndCart_IdCart(detailId, cart.getIdCart())
 
-                       .orElseThrow(() ->new Exception("Cart detail not found with ID: " + detailId + " for cart ID: " + cart.getIdCart()));
+                    .orElseThrow(() -> new Exception("Cart detail not found with ID: " + detailId + " for cart ID: " + cart.getIdCart()));
 
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setBook(cartDetail.getBook());
@@ -127,15 +130,13 @@ public class OrderImpl implements OrderService {
     }
 
 
-
-
     private OrderResponse convertToOrderResponse(OrderDetail orderDetail) {
         Book book = orderDetail.getBook();
         List<String> imageUrls = getImageUrlsFromBook(book);
-        Order order=orderDetail.getOrder();
+        Order order = orderDetail.getOrder();
         Shipment shipment = order.getShipment();
         Payment payment = order.getPayment();
-        OrderStatus status=order.getOrderStatus();
+        OrderStatus status = order.getOrderStatus();
         return new OrderResponse(
                 book.getIdBook(),
                 book.getNameBook(),
@@ -154,7 +155,6 @@ public class OrderImpl implements OrderService {
                 status.getStatus(),
                 order.getNote(),
                 order.getDeliveryDate()
-
 
 
         );
@@ -177,16 +177,15 @@ public class OrderImpl implements OrderService {
 
 
     public void cancelOrder(Integer userId, Integer orderId) throws Exception {
-        // Tìm đơn hàng theo ID và kiểm tra xem nó có thuộc về user không
         Order order = orderRepository.findByIdAndUser_idUser(orderId, userId)
                 .orElseThrow(() -> new Exception("Order not found"));
         OrderStatus pendingStatus;
         try {
-            pendingStatus=statusRespository.findByStatus("Pending");
-            if(pendingStatus==null){
+            pendingStatus = statusRespository.findByStatus("Pending");
+            if (pendingStatus == null) {
                 throw new Exception("Pending status not found");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception("Error finding canceled status: " + e.getMessage());
         }
 
@@ -218,8 +217,50 @@ public class OrderImpl implements OrderService {
     }
 
 
-    public Page<Order> getAllOrdersForAdmin(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+    public Page<OrderResponse> getAllOrdersForAdmin(Pageable pageable) {
+        // return orderRepository.findAll(pageable);
+        Page<Order> orders = orderRepository.findAll(pageable);
+
+        // Chuyển mỗi đối tượng Order thành OrderResponse
+        List<OrderResponse> orderResponses = orders.stream()
+                .flatMap(order -> order.getOrderDetails().stream()
+                        .map(this::convertToOrderResponse)) // Chuyển đổi từng OrderDetail sang OrderResponse
+                .collect(Collectors.toList());
+
+        // Trả về PageImpl để chuyển List thành Page
+        return new PageImpl<>(orderResponses, pageable, orders.getTotalElements());
+    }
+    public OrderResponse getOrderDetails(Integer orderId) {
+        // Tìm đơn hàng theo orderId
+        OrderDetail order = orderDetailRepository.findById(orderId).orElse(null);
+
+        if (order == null) {
+            return null; // Nếu đơn hàng không tồn tại
+        }
+
+        // Chuyển đổi Order thành OrderResponse (bao gồm các thông tin chi tiết)
+        return convertToOrderResponse(order);
+    }
+
+    public boolean updateOrderStatus(Integer orderId, Integer statusId) {
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        Optional<OrderStatus> optionalStatus = statusRespository.findById(statusId);
+
+        // Kiểm tra nếu đơn hàng và trạng thái tồn tại
+        if (optionalOrder.isPresent() && optionalStatus.isPresent()) {
+            Order order = optionalOrder.get();
+            OrderStatus status = optionalStatus.get();
+
+            // Cập nhật trạng thái mới
+            order.setOrderStatus(status);
+
+            // Lưu lại thay đổi vào cơ sở dữ liệu
+            orderRepository.save(order);
+
+            return true;
+        }
+
+        return false; // Nếu đơn hàng hoặc trạng thái không tồn tại
     }
 }
 
