@@ -22,6 +22,7 @@ public interface CartService {
 
     void updateCartQuantity(Integer userId, Integer bookId, String operation) throws Exception;
     void deleteBookFromCart(Integer userId, Integer idBook);
+    void deleteBooksFromCart(Integer userId, List<Integer> idBooks);
 
     Page<CartResponse> getCartByUserId(Integer userId, Pageable pageable) throws Exception;
 }
