@@ -173,9 +173,10 @@ public class CartServiceImpl implements CartService {
     private CartResponse convertToCartResponse(CartDetail cartDetail) {
         Book book = cartDetail.getBook();
         List<String> imageUrls = getImageUrlsFromBook(book);
-        //  Cart cart=cartDetail.getCart();
+         Cart cart=cartDetail.getCart();
 
         return new CartResponse(
+                cartDetail.getId(),
                 book.getIdBook(),
                 book.getNameBook(),
                 book.getAuthor(),

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CartResponse {
+    private Integer idCartDetail;
     private Integer bookId; // ID của sách
     private String title; // Tiêu đề sách
     private String author; // Tác giả sách
@@ -25,7 +26,8 @@ public class CartResponse {
     public CartResponse() {
     }
 
-    public CartResponse(Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total) {
+    public CartResponse(Integer idCartDetail, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total) {
+        this.idCartDetail = idCartDetail;
         this.bookId = bookId;
         this.title = title;
         this.author = author;
@@ -34,42 +36,15 @@ public class CartResponse {
         this.price = price;
         this.imageUrls = imageUrls;
         this.total = total;
-
     }
 
-//    private CartResponse convertToCartResponse(CartDetail cartDetail) {
-//        Book book = cartDetail.getBook();
-//        List<String> imageUrls = getImageUrlsFromBook(book);
-//        //  Cart cart=cartDetail.getCart();
-//
-//        return new CartResponse(
-//                book.getIdBook(),
-//                book.getNameBook(),
-//                book.getAuthor(),
-//                book.getDescription_short(),
-//                cartDetail.getQuantity(),
-//                cartDetail.getPrice(),
-//                imageUrls,
-//                book.getPrice() * cartDetail.getQuantity()
-//
-//
-//        );
-//    }
-//
-//    private List<String> getImageUrlsFromBook(Book book) {
-//        String baseUrl = "http://localhost:8080/book/image/";
-//        return book.getImageBooks().stream()
-//                .map(image -> baseUrl + encodeURIComponent(image.getImage_url()))
-//                .collect(Collectors.toList());
-//    }
-//
-//    private String encodeURIComponent(String value) {
-//        try {
-//            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-//        } catch (UnsupportedEncodingException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    public Integer getIdCart() {
+        return idCartDetail;
+    }
+
+    public void setIdCart(Integer idCartDetail) {
+        this.idCartDetail = idCartDetail;
+    }
 
     // Getters and Setters
     public Integer getBookId() {
