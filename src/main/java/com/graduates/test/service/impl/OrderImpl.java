@@ -7,6 +7,7 @@ import com.graduates.test.dto.OrderResponse;
 import com.graduates.test.model.*;
 import com.graduates.test.resposity.*;
 import com.graduates.test.service.OrderService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -276,13 +277,14 @@ public class OrderImpl implements OrderService {
         Double totalRevenue = orderRepository.calculateTotalRevenue();
 
         if (totalRevenue == null) {
-            totalRevenue = 0.0; // Nếu không có doanh thu, trả về 0
+            totalRevenue =  0.0; // Nếu không có doanh thu, trả về 0
         }
+        Integer totalRevenueInt = totalRevenue.intValue();
 
         // Chuẩn bị dữ liệu phản hồi
         Map<String, Object> response = new HashMap<>();
         response.put("totalOrders", totalOrders);
-        response.put("totalRevenue", totalRevenue);
+        response.put("totalRevenueInt", totalRevenueInt);
 
         return response;
     }
@@ -297,15 +299,16 @@ public class OrderImpl implements OrderService {
         List<Object[]> revenueData = orderRepository.getMonthlyRevenue(currentYear);
 
         // Khởi tạo mảng dữ liệu doanh thu và mảng tháng
-        List<Double> revenueList = new ArrayList<>(Collections.nCopies(12, 0.0));
+        List<Integer> revenueList = new ArrayList<>(Collections.nCopies(12, 0));
 
         // Xử lý dữ liệu để đưa vào đúng định dạng
         for (Object[] row : revenueData) {
             Integer month = (Integer) row[0];
             Double totalRevenue = (Double) row[1];
+            Integer totalRevenueInt = totalRevenue.intValue();
 
             // Đưa doanh thu vào đúng vị trí của tháng
-            revenueList.set(month - 1, totalRevenue);
+            revenueList.set(month - 1, totalRevenueInt);
         }
 
 
