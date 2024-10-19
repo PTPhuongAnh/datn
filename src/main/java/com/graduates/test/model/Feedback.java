@@ -1,6 +1,7 @@
 package com.graduates.test.model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 public class Feedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idFeedback;
+    private Integer  idFeedback;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -24,11 +25,11 @@ public class Feedback {
     private String comment;
     private Integer rating;
     private LocalDateTime createdAt;
-    public Long getIdFeedback() {
+    public Integer getIdFeedback() {
         return idFeedback;
     }
 
-    public void setIdFeedback(Long idFeedback) {
+    public void setIdFeedback(Integer idFeedback) {
         this.idFeedback = idFeedback;
     }
 
