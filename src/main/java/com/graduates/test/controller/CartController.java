@@ -91,7 +91,7 @@ public ResponseEntity<?> addToCart(
             if (errorMessage.contains("Không đủ số lượng trong kho")) {
                 return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
             }
-            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Không thể cập nhật số lượng sản phẩm!");
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false, "Không thể cập nhật số lượng sản phẩm!");
         }
     }
 

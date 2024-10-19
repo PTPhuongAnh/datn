@@ -2,6 +2,7 @@ package com.graduates.test.service.impl;
 
 import ch.qos.logback.core.status.Status;
 import com.graduates.test.dto.CartResponse;
+import com.graduates.test.dto.CategorySalesDTO;
 import com.graduates.test.dto.OrderResponse;
 import com.graduates.test.model.*;
 import com.graduates.test.resposity.*;
@@ -15,9 +16,9 @@ import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -262,6 +263,64 @@ public class OrderImpl implements OrderService {
 
         return false; // Nếu đơn hàng hoặc trạng thái không tồn tại
     }
+
+
+    public Map<String, Object> getStatistics() {
+        // Lấy tổng số đơn hàng
+        long totalOrders = orderRepository.countTotalOrders();
+
+        // Lấy tổng số nhân viên
+
+
+        // Tính tổng doanh thu
+        Double totalRevenue = orderRepository.calculateTotalRevenue();
+
+        if (totalRevenue == null) {
+            totalRevenue = 0.0; // Nếu không có doanh thu, trả về 0
+        }
+
+        // Chuẩn bị dữ liệu phản hồi
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalOrders", totalOrders);
+        response.put("totalRevenue", totalRevenue);
+
+        return response;
+    }
+
+
+
+    public Map<String, Object> getMonthlyRevenue() {
+
+        int currentYear = LocalDateTime.now().getYear();
+
+        // Lấy dữ liệu từ repository
+        List<Object[]> revenueData = orderRepository.getMonthlyRevenue(currentYear);
+
+        // Khởi tạo mảng dữ liệu doanh thu và mảng tháng
+        List<Double> revenueList = new ArrayList<>(Collections.nCopies(12, 0.0));
+
+        // Xử lý dữ liệu để đưa vào đúng định dạng
+        for (Object[] row : revenueData) {
+            Integer month = (Integer) row[0];
+            Double totalRevenue = (Double) row[1];
+
+            // Đưa doanh thu vào đúng vị trí của tháng
+            revenueList.set(month - 1, totalRevenue);
+        }
+
+
+        // Chuẩn bị dữ liệu trả về
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("data", revenueList);
+        response.put("month", Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+
+        return response;
+    }
+
+
+
+
 }
 
 

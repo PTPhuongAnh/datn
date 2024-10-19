@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
    Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone,String receivingName,String note) throws Exception;
@@ -19,5 +20,11 @@ List<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer s
    OrderResponse getOrderDetails(Integer orderId);
 
    boolean updateOrderStatus(Integer orderId, Integer statusId);
+
+  //  Map<String, Object> getSalesStatistics(String period);
+
+   Map<String, Object> getMonthlyRevenue();
+
+   Map<String, Object> getStatistics();
    // Page<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId, Pageable pageable);
 }

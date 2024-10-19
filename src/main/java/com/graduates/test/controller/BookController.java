@@ -270,6 +270,11 @@ public ResponseEntity<?> updateBook(
             return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
         }
     }
+    @GetMapping("/books-sales")
+    public ResponseEntity<?> getBooksSales() {
+        List<Map<String, Object>> bookSales = bookService.getBooksSortedBySales();
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,bookSales);
+    }
     }
 
 

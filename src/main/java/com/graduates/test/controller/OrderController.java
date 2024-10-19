@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -108,7 +109,7 @@ public class OrderController {
         }
 
         // Nếu là admin, lấy danh sách đơn hàng với phân trang
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<OrderResponse> orders = orderService.getAllOrdersForAdmin(pageable);
 
         // Chuyển đổi kết quả thành phản hồi với thông tin phân trang
@@ -164,4 +165,20 @@ public class OrderController {
                     "Order not found or status not updated");
         }
     }
+
+
+
+    @GetMapping("/sales")
+    public ResponseEntity<?> getStatistics() {
+        Map<String, Object> statistics = orderService.getStatistics();
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,statistics);
+    }
+        @GetMapping("/revenue-chart")
+    public ResponseEntity<?> getRevenueChart() {
+        Map<String, Object> chartData = orderService.getMonthlyRevenue();
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,chartData);
+    }
+
+
+
 }

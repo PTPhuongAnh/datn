@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -215,6 +214,57 @@ private void updateBookImages(Book book, List<MultipartFile> newImages) throws I
         // Chuyển đổi sang BookRespone và trả về
         return convertToBookResponse(updatedBook);
     }
+
+    @Override
+    public List<Map<String, Object>> getBooksSortedBySales() {
+        // Truy vấn số lượng sách đã bán từ cơ sở dữ liệu (OrderDetail) và thông tin sách từ Book.
+        List<Object[]> result = orderDetailRepository.findBooksByTotalSoldWithDeliveredStatus();
+
+        List<Map<String, Object>> bookSalesList = new ArrayList<>();
+
+        // Lặp qua từng dòng kết quả trả về từ truy vấn.
+        for (Object[] row : result) {
+            Map<String, Object> bookData = new HashMap<>();
+
+            // Lấy ID sách từ dòng kết quả.
+            Integer bookId = (Integer) row[0];
+
+            // Lấy số lượng sách đã bán.
+            Long totalSold = (Long) row[1];
+
+            // Lấy thông tin sách từ bảng Book
+            Book book = bookCategoryResposity.findById(bookId).orElse(null);
+
+            if (book != null) {
+                // Thêm thông tin sách vào dữ liệu trả về.
+                bookData.put("bookId", book.getIdBook());
+                bookData.put("bookName", book.getNameBook());
+                bookData.put("bookPrice", book.getPrice());
+                bookData.put("totalSold", totalSold);
+
+                // Lấy danh sách ảnh của sách từ bảng ImageBook
+                // Lấy danh sách tên hình ảnh từ bảng ImageBook
+                List<String> imageUrls = imageResposity.findImageUrlsByBookId(bookId);
+
+                // Chuyển danh sách tên hình ảnh thành danh sách URL đầy đủ
+                List<String> fullImageUrls = new ArrayList<>();
+                String baseUrl = "http://localhost:8080/book/image/";
+
+                for (String imageUrl : imageUrls) {
+                    fullImageUrls.add(baseUrl + imageUrl);
+                }
+
+                // Thêm danh sách URL hình ảnh vào dữ liệu trả về.
+                bookData.put("imageUrls", fullImageUrls);
+
+                // Thêm sách vào danh sách.
+                bookSalesList.add(bookData);
+            }
+        }
+
+        return bookSalesList;
+    }
+
 
     private void saveBookImages(Book savedBook, List<MultipartFile> images) throws IOException {
         File uploadDir = new File(bookUploadDir);
