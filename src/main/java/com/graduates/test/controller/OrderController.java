@@ -75,10 +75,9 @@ public class OrderController {
 
 
     @GetMapping("/list")
-    public ResponseEntity<?> getOrdersByUserIdAndOptionalStatus(@RequestParam Integer userId,
-                                                                @RequestParam Integer statusId) {
+    public ResponseEntity<?> getOrdersByUserIdAndOptionalStatus(@RequestParam Integer userId) {
 
-        List<OrderResponse> responses = orderService.getOrdersByUserIdAndOptionalStatus(userId,statusId);
+        List<OrderResponse> responses = orderService.getOrdersByUserId(userId);
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, responses);
     }
 

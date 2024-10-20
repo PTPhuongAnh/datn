@@ -17,6 +17,8 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
    @Column(name = "id_book")
     private Integer idBook;
+
+
     private String nameBook;
    private String author;
     private String description_short;

@@ -118,13 +118,11 @@ public class OrderImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId) {
+    public List<OrderResponse> getOrdersByUserId(Integer userId) {
         List<Order> orders;
-        if (statusId != null) {
-            orders = orderRepository.findByUser_IdUserAndOrderStatus_IdStatus(userId, statusId);
-        } else {
+
             orders = orderRepository.findByUser_idUser(userId);
-        }
+
         return orders.stream()
                 .flatMap(order -> order.getOrderDetails().stream()
                         .map(this::convertToOrderResponse)) // Chuyển đổi từng CartDetail sang CartResponse

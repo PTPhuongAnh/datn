@@ -13,7 +13,7 @@ import java.util.Map;
 public interface OrderService {
    Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone,String receivingName,String note) throws Exception;
 
-List<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId);
+//List<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId);
    Page<OrderResponse> getAllOrdersForAdmin(Pageable pageable);
    void cancelOrder(Integer userId, Integer orderId) throws Exception;
 
@@ -26,5 +26,7 @@ List<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer s
    Map<String, Object> getMonthlyRevenue();
 
    Map<String, Object> getStatistics();
-   // Page<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId, Pageable pageable);
+
+    List<OrderResponse> getOrdersByUserId(Integer userId);
+    // Page<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId, Pageable pageable);
 }
