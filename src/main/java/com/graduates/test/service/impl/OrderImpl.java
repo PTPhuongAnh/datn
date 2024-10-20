@@ -131,8 +131,6 @@ public class OrderImpl implements OrderService {
                         .map(this::convertToOrderResponse)) // Chuyển đổi từng CartDetail sang CartResponse
                 .collect(Collectors.toList());
     }
-
-
     private OrderResponse convertToOrderResponse(OrderDetail orderDetail) {
         Book book = orderDetail.getBook();
         List<String> imageUrls = getImageUrlsFromBook(book);
@@ -141,6 +139,7 @@ public class OrderImpl implements OrderService {
         Payment payment = order.getPayment();
         OrderStatus status = order.getOrderStatus();
         return new OrderResponse(
+                order.getId(),
                 book.getIdBook(),
                 book.getNameBook(),
                 book.getAuthor(),
@@ -316,7 +315,7 @@ public class OrderImpl implements OrderService {
         // Chuẩn bị dữ liệu trả về
         Map<String, Object> response = new HashMap<>();
 
-        response.put("data", Arrays.asList(1000, 1000, 3000, 0, 6000, 0, 700, 800, 900, 10, 0, 0));
+        response.put("data", revenueList);
         response.put("month", Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
 
         return response;

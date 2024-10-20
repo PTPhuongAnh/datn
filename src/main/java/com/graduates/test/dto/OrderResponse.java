@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderResponse {
+    private Integer id;
     private Integer bookId; // ID của sách
     private String title; // Tiêu đề sách
     private String author; // Tác giả sách
@@ -25,7 +26,8 @@ public class OrderResponse {
     public OrderResponse() {
     }
 
-    public OrderResponse(Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate) {
+    public OrderResponse(Integer id, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate) {
+        this.id = id;
         this.bookId = bookId;
         this.title = title;
         this.author = author;
@@ -45,7 +47,13 @@ public class OrderResponse {
         this.deliveryDate = deliveryDate;
     }
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Integer getBookId() {
         return bookId;
