@@ -85,7 +85,7 @@ public class OrderImpl implements OrderService {
         order.setReceivingName(receivingName);
         //  order.setOrderStatus();
         order.setUser(cart.getUser());
-        OrderStatus pendingStatus = statusRespository.findByStatus("Pending"); // Tìm trạng thái "Pending" từ bảng Status
+        OrderStatus pendingStatus = statusRespository.findByStatus("Processing"); // Tìm trạng thái "Pending" từ bảng Status
         order.setOrderStatus(pendingStatus);
         order.setNote(note);
         order.setDeliveryDate(LocalDateTime.now().plusDays(5));
@@ -157,8 +157,6 @@ public class OrderImpl implements OrderService {
                 status.getStatus(),
                 order.getNote(),
                 order.getDeliveryDate()
-
-
         );
     }
 
