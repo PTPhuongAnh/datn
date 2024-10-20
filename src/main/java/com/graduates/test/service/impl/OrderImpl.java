@@ -99,6 +99,9 @@ public class OrderImpl implements OrderService {
 
                     .orElseThrow(() -> new Exception("Cart detail not found with ID: " + detailId + " for cart ID: " + cart.getIdCart()));
 
+            if (cartDetail.isPurchased()) {
+                throw new Exception("Cannot purchase item: " + cartDetail.getBook().getNameBook() + " because it hasn't valid.");
+            }
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setBook(cartDetail.getBook());
             orderDetail.setQuantity(cartDetail.getQuantity());

@@ -41,52 +41,6 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void addToCart(Integer userId, Integer bookId, int quantity) throws Exception {
-//        Optional<UserEntity> optionalUser = userResposity.findById(userId);
-//        Optional<Book> optionalBook = bookRepository.findById(bookId);
-//        if (optionalUser.isEmpty()) {
-//            throw new Exception("User not found");
-//        }
-//        if (optionalBook.isEmpty()) {
-//            throw new Exception("Book not found");
-//        }
-//        UserEntity user = optionalUser.get();
-//        Book book = optionalBook.get();
-//        if (book.getQuantity() <= 0) {
-//            throw new IllegalArgumentException("Không thể thêm vào giỏ hàng. Sản phẩm hiện không còn hàng.");
-//        }
-//        Cart cart = user.getCart();
-//        if (cart == null) {
-//            cart = new Cart();
-//            cart.setUser(user);
-//            user.setCart(cart); // Thiết lập giỏ hàng cho người dùng
-//        }
-//        boolean bookExistsInCart = cart.getCartDetails().stream()
-//                .anyMatch(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()));
-//
-//        if (bookExistsInCart) {
-//            cart.getCartDetails().forEach(cartDetail -> {
-//                if (cartDetail.getBook().getIdBook().equals(book.getIdBook())) {
-//                    int newQuantity = cartDetail.getQuantity() + quantity;
-//
-//                    // Kiểm tra xem tổng số lượng mới có vượt quá số lượng trong kho không
-//                    if (newQuantity > book.getQuantity()) {
-//                        throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng trong kho !");
-//                    }
-//                    cartDetail.setQuantity(newQuantity);
-//                }
-//            });
-//        } else {
-//            // Nếu sách chưa có, kiểm tra số lượng muốn thêm
-//            if (quantity > book.getQuantity()) {
-//                throw new IllegalArgumentException("Số lượng muốn thêm vượt quá số lượng sách trong kho!");
-//            }
-//            // Tạo chi tiết giỏ hàng mới
-//            CartDetail cartDetail = new CartDetail(cart, book, quantity);
-//            cart.addCartDetail(cartDetail);
-//        }
-//        cart.updateTotalPrice();
-//        cartRepository.save(cart);
-//        userResposity.save(user);
 
         Optional<UserEntity> optionalUser = userResposity.findById(userId);
         Optional<Book> optionalBook = bookRepository.findById(bookId);
@@ -106,15 +60,9 @@ public class CartServiceImpl implements CartService {
         }
 
         Cart cart = user.getCart();
-//        if (cart == null) {
-//            cart = new Cart();
-//            cart.setUser(user);
-//            user.setCart(cart); // Thiết lập giỏ hàng cho người dùng
-//        }
-
         // Kiểm tra xem sách đã tồn tại trong giỏ hàng và chưa bị xóa mềm
         Optional<CartDetail> existingCartDetailOpt = cart.getCartDetails().stream()
-                .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && !cartDetail.isDeleted())
+                .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && !cartDetail.isDeleted()&& !cartDetail.isPurchased())
                 .findFirst();
 
         if (existingCartDetailOpt.isPresent()) {
@@ -130,7 +78,7 @@ public class CartServiceImpl implements CartService {
         } else {
             // Nếu sách đã tồn tại nhưng bị xóa mềm (delete = true)
             Optional<CartDetail> softDeletedCartDetailOpt = cart.getCartDetails().stream()
-                    .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && cartDetail.isDeleted())
+                    .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && cartDetail.isDeleted() && cartDetail.isPurchased())
                     .findFirst();
 
             if (softDeletedCartDetailOpt.isPresent()) {
