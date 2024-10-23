@@ -36,6 +36,15 @@ public class BookRespone {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 
+    public BookRespone(Integer idBook, String nameBook, String author, Integer quantity, Integer price, List<String> imageUrls) {
+        this.idBook = idBook;
+        this.nameBook = nameBook;
+        this.author = author;
+        this.quantity = quantity;
+        this.price = price;
+        this.imageUrls = imageUrls;
+    }
+
     public BookRespone(Integer idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, String categoryName, String publisherName, String distributorName, Integer quantity, Integer price, Integer categoryId, Integer publisherId, Integer distributorId, List<String> imageUrls) {
         this.idBook = idBook;
         this.nameBook = nameBook;

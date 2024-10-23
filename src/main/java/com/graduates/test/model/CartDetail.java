@@ -24,7 +24,7 @@ public class CartDetail {
 
     private int quantity; // Số lượng của sách
 
-    private double price; // Giá của sách
+    private Integer price; // Giá của sách
 
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
@@ -72,11 +72,11 @@ public class CartDetail {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 

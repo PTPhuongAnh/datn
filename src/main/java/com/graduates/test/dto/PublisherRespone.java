@@ -11,7 +11,7 @@ public class PublisherRespone {
     private String addressPublisher;
     private String phonePublisher;
     private String emailPublisher;
-
+private String publisherCode;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
   //  private boolean deleted=false;
@@ -85,11 +85,11 @@ public class PublisherRespone {
         this.updateAt = updateAt;
     }
 
-//    public boolean isDeleted() {
-//        return deleted;
-//    }
-//
-//    public void setDeleted(boolean deleted) {
-//        this.deleted = deleted;
-//    }
+    public String getPublisherCode() {
+        return publisherCode;
+    }
+
+    public void setPublisherCode(String publisherCode) {
+        this.publisherCode = publisherCode;
+    }
 }

@@ -23,11 +23,11 @@ public class OrderDetail {
 
     private int quantity; // Số lượng sách trong đơn hàng
 
-    private double price; // Giá của sản phẩm
+    private Integer price; // Giá của sản phẩm
 
     public OrderDetail() {}
 
-    public OrderDetail(Order order, Book book, int quantity, double price) {
+    public OrderDetail(Order order, Book book, int quantity, Integer price) {
         this.order = order;
         this.book = book;
         this.quantity = quantity;
@@ -66,11 +66,11 @@ public class OrderDetail {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 }

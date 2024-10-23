@@ -16,18 +16,21 @@ private String namePublisher;
 private String addressPublisher;
     private String phonePublisher;
     private String emailPublisher;
+    @Column(unique = true)
+    private String publisherCode;
 
 private LocalDateTime createAt;
 private LocalDateTime updateAt;
     private boolean deleted=false;
 
 
-    public Publisher(Integer idPublisher, String namePublisher, String addressPublisher, String phonePublisher, String emailPublisher) {
+    public Publisher(Integer idPublisher, String namePublisher, String addressPublisher, String phonePublisher, String emailPublisher, String publisherCode) {
         this.idPublisher = idPublisher;
         this.namePublisher = namePublisher;
         this.addressPublisher = addressPublisher;
         this.phonePublisher = phonePublisher;
         this.emailPublisher = emailPublisher;
+        this.publisherCode = publisherCode;
     }
 
     public Publisher() {
@@ -110,5 +113,13 @@ private LocalDateTime updateAt;
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getPublisherCode() {
+        return publisherCode;
+    }
+
+    public void setPublisherCode(String publisherCode) {
+        this.publisherCode = publisherCode;
     }
 }

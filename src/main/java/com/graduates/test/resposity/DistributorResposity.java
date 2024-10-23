@@ -12,4 +12,6 @@ public interface DistributorResposity extends JpaRepository<Distributor,Integer>
     List<Distributor> findByDeletedFalse();
     Page<Distributor> findByNameDistributorContainingOrAddressContaining(String nameDistributor,String address, Pageable pageable);
     Page<Distributor> findAllByDeletedFalse(Pageable pageable);
+
+    boolean existsByDistributorCode(String distributorCode);
 }

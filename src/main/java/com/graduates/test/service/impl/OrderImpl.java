@@ -1,6 +1,7 @@
 package com.graduates.test.service.impl;
 
 import ch.qos.logback.core.status.Status;
+import com.graduates.test.dto.BookRespone;
 import com.graduates.test.dto.CartResponse;
 import com.graduates.test.dto.CategorySalesDTO;
 import com.graduates.test.dto.OrderResponse;
@@ -131,6 +132,14 @@ public class OrderImpl implements OrderService {
                         .map(this::convertToOrderResponse)) // Chuyển đổi từng CartDetail sang CartResponse
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Order getOrderById(Integer idOrder) {
+        return orderRepository.findById(idOrder)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + idOrder));
+    }
+
+
     private OrderResponse convertToOrderResponse(OrderDetail orderDetail) {
         Book book = orderDetail.getBook();
         List<String> imageUrls = getImageUrlsFromBook(book);
@@ -157,7 +166,11 @@ public class OrderImpl implements OrderService {
                 status.getStatus(),
                 order.getNote(),
                 order.getDeliveryDate()
+
         );
+
+
+
     }
 
     private List<String> getImageUrlsFromBook(Book book) {

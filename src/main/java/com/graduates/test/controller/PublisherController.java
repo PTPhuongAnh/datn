@@ -37,7 +37,9 @@ public class PublisherController {
             @RequestParam(value = "namePublisher", required = true) String namePublisher,
             @RequestParam(value = "addressPublisher", required = true) String addressPublisher,
             @RequestParam(value = "phonePublisher", required = true) String phonePublisher,
-            @RequestParam(value = "emailPublisher", required = true) String emailPublisher
+            @RequestParam(value = "emailPublisher", required = true) String emailPublisher,
+            @RequestParam(value = "publisherCode", required = false) String publisherCode
+
 
     ) {
 
@@ -48,6 +50,7 @@ public class PublisherController {
             publisher.setAddressPublisher(addressPublisher);
             publisher.setEmailPublisher(emailPublisher);
             publisher.setPhonePublisher(phonePublisher);
+            publisher.setPublisherCode(publisherCode);
             // Tạo nhà xuất bản mới
             String result = publisherService.createPublisher(publisher);
 
@@ -141,6 +144,7 @@ public class PublisherController {
         response.setPhonePublisher(publisher.getPhonePublisher());
       //  response.setAddressPublisher(distributor.getAddress());
         //   response.setImageUrl(imageUrl);
+        response.setPublisherCode(publisher.getPublisherCode());
         response.setEmailPublisher(publisher.getEmailPublisher());
         response.setCreateAt(publisher.getCreateAt());
         response.setUpdateAt(publisher.getUpdateAt());

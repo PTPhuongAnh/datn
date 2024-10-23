@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class DistributorImpl implements DistributorService {
@@ -27,9 +28,23 @@ public class DistributorImpl implements DistributorService {
 
     @Override
     public String createDistributor(Distributor distributor) {
+//        distributorResposity.save(distributor);
+//        return "create distributor success";
+        if(distributor.getDistributorCode()==null || distributor.getDistributorCode().isEmpty()){
+            distributor.setDistributorCode(generateDistributorCode());
+        }
+        if (distributorResposity.existsByDistributorCode(distributor.getDistributorCode())) {
+            return "Distributor code already exists!";
+        }
+
         distributorResposity.save(distributor);
-        return "create distributor success";
+        return "Create distributor success";
     }
+    private String generateDistributorCode() {
+        // Bạn có thể thay đổi cách sinh mã này để phù hợp với yêu cầu của bạn
+        return  UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
 
     @Override
     public String updateDistributor(Distributor distributor) {
@@ -42,14 +57,6 @@ public class DistributorImpl implements DistributorService {
         return null;
     }
 
-//    @Override
-//    public String deleteDistributor(Integer idDistributor) {
-//        if (idDistributorUsed(idDistributor)) {
-//            throw new IllegalStateException("Cannot delete category. It is used in one or more books.");
-//        }
-//       distributorResposity.deleteById(idDistributor);
-//        return "Category deleted successfully.";
-//    }
 
     @Override
     public Distributor getDistributor(Integer idDistributor) {

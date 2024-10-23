@@ -1,6 +1,7 @@
 package com.graduates.test.dto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderResponse {
@@ -22,6 +23,7 @@ public class OrderResponse {
     private String status;
     private String note;
     private LocalDateTime deliveryDate;
+    private List<BookRespone> books = new ArrayList<>();
 
     public OrderResponse() {
     }
@@ -45,6 +47,14 @@ public class OrderResponse {
         this.status = status;
         this.note = note;
         this.deliveryDate = deliveryDate;
+    }
+
+    public List<BookRespone> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<BookRespone> books) {
+        this.books = books;
     }
 
     public Integer getId() {

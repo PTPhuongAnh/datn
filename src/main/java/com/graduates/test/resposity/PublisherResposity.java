@@ -9,4 +9,8 @@ public interface PublisherResposity extends JpaRepository<Publisher,Integer> {
     Page<Publisher> findAllByDeletedFalse(Pageable pageable);
 
     Page<Publisher> findByNamePublisherContainingOrAddressPublisherContaining(String namePublisher, String addressPublisher, Pageable pageable);
+
+
+
+    boolean existsByPublisherCode(String publisherCode);
 }

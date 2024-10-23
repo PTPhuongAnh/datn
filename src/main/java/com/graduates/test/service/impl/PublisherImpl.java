@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PublisherImpl implements PublisherService {
@@ -28,10 +29,22 @@ public class PublisherImpl implements PublisherService {
 
     @Override
     public String createPublisher(Publisher publisher) {
+//        publisherResposity.save(publisher);
+//        return "create publisher thành công";
+        if(publisher.getPublisherCode()== null || publisher.getPublisherCode().isEmpty()){
+            publisher.setPublisherCode(generatePublisherCode());
+        }
+        if (publisherResposity.existsByPublisherCode(publisher.getPublisherCode())) {
+            return "Publisher code already exists!";
+        }
         publisherResposity.save(publisher);
-        return "create publisher thành công";
-    }
+        return "Create publisher success";
 
+    }
+    private String generatePublisherCode() {
+        // Bạn có thể thay đổi cách sinh mã này để phù hợp với yêu cầu của bạn
+        return  UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
     public Publisher findById(Integer idPublisher) {
         // Tìm kiếm nhà xuất bản theo id
         return publisherResposity.findById(idPublisher)

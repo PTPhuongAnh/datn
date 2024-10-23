@@ -28,5 +28,7 @@ public interface OrderService {
    Map<String, Object> getStatistics();
 
     List<OrderResponse> getOrdersByUserId(Integer userId);
+
+    Order getOrderById(Integer idOrder);
     // Page<OrderResponse> getOrdersByUserIdAndOptionalStatus(Integer userId, Integer statusId, Pageable pageable);
 }

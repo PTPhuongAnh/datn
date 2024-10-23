@@ -11,11 +11,12 @@ public class Distributor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idDistributor;
-
     private String nameDistributor;
     private String address;
     private String phone;
     private String email;
+    @Column(unique = true)
+    private String distributorCode;
 
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
@@ -32,15 +33,25 @@ public class Distributor {
         this.updateAt = LocalDateTime.now();
     }
 
-    public Distributor(Integer idDistributor, String nameDistributor, String address, String phone, String email) {
+
+    public Distributor(Integer idDistributor, String nameDistributor, String address, String phone, String email, String distributorCode) {
         this.idDistributor = idDistributor;
         this.nameDistributor = nameDistributor;
         this.address = address;
         this.phone = phone;
         this.email = email;
+        this.distributorCode = distributorCode;
     }
 
     public Distributor() {
+    }
+
+    public String getDistributorCode() {
+        return distributorCode;
+    }
+
+    public void setDistributorCode(String distributorCode) {
+        this.distributorCode = distributorCode;
     }
 
     public Distributor(Integer idDistributor) {

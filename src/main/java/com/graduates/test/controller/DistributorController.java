@@ -146,6 +146,7 @@ public class DistributorController {
         response.setEmail(distributor.getEmail());
         response.setCreateAt(distributor.getCreateAt());
         response.setUpdateAt(distributor.getUpdateAt());
+        response.setCode(distributor.getDistributorCode());
      //   response.setDeleted(distributor.isDeleted());
         return response;
     }

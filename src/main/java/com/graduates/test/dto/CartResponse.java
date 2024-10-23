@@ -16,7 +16,7 @@ public class CartResponse {
     private String author; // Tác giả sách
     private String description; // Mô tả sách
     private int quantity; // Số lượng sách trong giỏ
-    private double price; // Giá sách
+    private Integer price; // Giá sách
     private List<String> imageUrls; // Danh sách URL ảnh của sách
     private double total;
 
@@ -26,7 +26,7 @@ public class CartResponse {
     public CartResponse() {
     }
 
-    public CartResponse(Integer idCartDetail, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total) {
+    public CartResponse(Integer idCartDetail, Integer bookId, String title, String author, String description, int quantity, Integer price, List<String> imageUrls, Integer total) {
         this.idCartDetail = idCartDetail;
         this.bookId = bookId;
         this.title = title;
@@ -91,7 +91,7 @@ public class CartResponse {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 

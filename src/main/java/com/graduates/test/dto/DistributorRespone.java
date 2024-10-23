@@ -12,10 +12,11 @@ public class DistributorRespone {
     private String address;
     private String phone;
     private String email;
+    private String code;
 
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
-  //  private boolean deleted=false;
+//    private boolean deleted=false;
 
     @PrePersist
     protected void onCreate() {
@@ -30,6 +31,14 @@ public class DistributorRespone {
 
 
     public DistributorRespone() {
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public Integer getIdDistributor() {
@@ -95,4 +104,5 @@ public class DistributorRespone {
 //    public void setDeleted(boolean deleted) {
 //        this.deleted = deleted;
 //    }
+
 }

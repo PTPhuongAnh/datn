@@ -10,11 +10,12 @@ import java.time.LocalDateTime;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Integer idCategory;
+    private Integer idCategory;
     private String nameCategory;
     private String image;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+    private String CategoryCode;
     private boolean deleted = false;
 
     public Category( String nameCategory,String image) {
