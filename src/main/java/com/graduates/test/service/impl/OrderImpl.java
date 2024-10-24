@@ -5,6 +5,7 @@ import com.graduates.test.dto.BookRespone;
 import com.graduates.test.dto.CartResponse;
 import com.graduates.test.dto.CategorySalesDTO;
 import com.graduates.test.dto.OrderResponse;
+import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
 import com.graduates.test.resposity.*;
 import com.graduates.test.service.OrderService;
@@ -124,13 +125,16 @@ public class OrderImpl implements OrderService {
     @Override
     public List<OrderResponse> getOrdersByUserId(Integer userId) {
         List<Order> orders;
-
-            orders = orderRepository.findByUser_idUser(userId);
-
+        orders = orderRepository.findByUser_idUser(userId);
         return orders.stream()
-                .flatMap(order -> order.getOrderDetails().stream()
-                        .map(this::convertToOrderResponse)) // Chuyển đổi từng CartDetail sang CartResponse
+                .map(this::convertToOrderResponse) // Chuyển đổi từng Order sang OrderResponse
                 .collect(Collectors.toList());
+
+
+//        return orders.stream()
+//                .flatMap(order -> order.getOrderDetails().stream()
+//                        .map(this::convertToOrderResponse)) // Chuyển đổi từng CartDetail sang CartResponse
+//                .collect(Collectors.toList());
     }
 
     @Override
@@ -140,36 +144,43 @@ public class OrderImpl implements OrderService {
     }
 
 
-    private OrderResponse convertToOrderResponse(OrderDetail orderDetail) {
-        Book book = orderDetail.getBook();
-        List<String> imageUrls = getImageUrlsFromBook(book);
-        Order order = orderDetail.getOrder();
-        Shipment shipment = order.getShipment();
-        Payment payment = order.getPayment();
-        OrderStatus status = order.getOrderStatus();
-        return new OrderResponse(
-                order.getId(),
-                book.getIdBook(),
-                book.getNameBook(),
-                book.getAuthor(),
-                book.getDescription_short(),
-                orderDetail.getQuantity(),
-                orderDetail.getPrice(),
-                imageUrls,
-                order.getTotalAmount(),
-                shipment.getShippingMethod(),
-                payment.getPaymentMethod(),
-                order.getPhone(),
-                order.getShippingAddress(),
-                order.getReceivingName(),
-                order.getCreatedAt(),
-                status.getStatus(),
-                order.getNote(),
-                order.getDeliveryDate()
+    private OrderResponse convertToOrderResponse(Order order) {
+        OrderResponse response = new OrderResponse();
+        response.setId(order.getId());
+        response.setShipment(order.getShipment().getShippingMethod());
+        response.setPayment(order.getPayment().getPaymentMethod());
+       response.setCreatedAt(order.getCreatedAt());
+        response.setStatus(order.getOrderStatus().getStatus());
+        response.setPhone(order.getPhone());
+        response.setShippingAdrress(order.getShippingAddress());
+        response.setReceiveName(order.getReceivingName());
+        response.setNote(order.getNote());
+        response.setDeliveryDate(order.getDeliveryDate());
 
-        );
+        // Chuyển đổi danh sách OrderDetails thành danh sách BookDetail
+        List<BookRespone> bookDetails = order.getOrderDetails().stream()
+                .map(orderDetail -> {
+                    BookRespone bookDetail = new BookRespone();
+                    bookDetail.setIdBook(orderDetail.getBook().getIdBook());
+                    bookDetail.setNameBook(orderDetail.getBook().getNameBook());
+                    bookDetail.setAuthor(orderDetail.getBook().getAuthor());
+                  //  bookDetail.setDescription_short(orderDetail.getBook().getDescription_short());
+                    bookDetail.setQuantity(orderDetail.getQuantity());
+                    bookDetail.setPrice(orderDetail.getPrice());
+                    bookDetail.setImageUrls(getImageUrlsFromBook(orderDetail.getBook()));
+                    return bookDetail;
+                })
+                .collect(Collectors.toList());
 
+        response.setBooks(bookDetails);
 
+        // Tính tổng tiền của đơn hàng
+        double totalAmount = order.getOrderDetails().stream()
+                .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
+                .sum();
+        response.setTotal(totalAmount);
+
+        return response;
 
     }
 
@@ -194,7 +205,7 @@ public class OrderImpl implements OrderService {
                 .orElseThrow(() -> new Exception("Order not found"));
         OrderStatus pendingStatus;
         try {
-            pendingStatus = statusRespository.findByStatus("Pending");
+            pendingStatus = statusRespository.findByStatus("Processing");
             if (pendingStatus == null) {
                 throw new Exception("Pending status not found");
             }
@@ -228,32 +239,38 @@ public class OrderImpl implements OrderService {
             bookCategoryResposity.save(product);
         }
     }
+    public Map<String, Object> getAllOrdersWithPagination(Pageable pageable) {
+        Page<Order> orderPage = orderRepository.findAll(pageable);
 
-
-    public Page<OrderResponse> getAllOrdersForAdmin(Pageable pageable) {
-        // return orderRepository.findAll(pageable);
-        Page<Order> orders = orderRepository.findAll(pageable);
-
-        // Chuyển mỗi đối tượng Order thành OrderResponse
-        List<OrderResponse> orderResponses = orders.stream()
-                .flatMap(order -> order.getOrderDetails().stream()
-                        .map(this::convertToOrderResponse)) // Chuyển đổi từng OrderDetail sang OrderResponse
+        List<OrderResponse> orderResponses = orderPage.getContent().stream()
+                .map(this::convertToOrderResponse)
                 .collect(Collectors.toList());
 
-        // Trả về PageImpl để chuyển List thành Page
-        return new PageImpl<>(orderResponses, pageable, orders.getTotalElements());
+        Map<String, Object> response = new HashMap<>();
+        response.put("orders", orderResponses);
+        response.put("currentPage", orderPage.getNumber());
+     //   response.put("totalItems", orderPage.getTotalElements());
+        response.put("totalPages", orderPage.getTotalPages());
+
+        return response;
     }
-    public OrderResponse getOrderDetails(Integer orderId) {
-        // Tìm đơn hàng theo orderId
-        OrderDetail order = orderDetailRepository.findById(orderId).orElse(null);
 
-        if (order == null) {
-            return null; // Nếu đơn hàng không tồn tại
-        }
+    // Lấy chi tiết đơn hàng cho user
+    public OrderResponse getOrderDetailForUser(Integer orderId, Integer userId) {
+        Order order = orderRepository.findByIdAndUser_idUser(orderId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
-        // Chuyển đổi Order thành OrderResponse (bao gồm các thông tin chi tiết)
         return convertToOrderResponse(order);
     }
+
+    public OrderResponse getOrderDetailForAdmin(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+        return convertToOrderResponse(order);
+    }
+
+
 
     public boolean updateOrderStatus(Integer orderId, Integer statusId) {
         Optional<Order> optionalOrder = orderRepository.findById(orderId);

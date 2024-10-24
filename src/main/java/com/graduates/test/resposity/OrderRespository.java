@@ -43,5 +43,5 @@ public interface OrderRespository extends JpaRepository<Order,Integer> {
     List<Object[]> getMonthlyRevenue(@Param("currentYear") int currentYear);
 
 
-
+  //  Optional<Order> findByIdAndUserId(Integer orderId, Integer userId);
 }

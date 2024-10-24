@@ -1,9 +1,11 @@
 package com.graduates.test.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderResponse {
     private Integer id;
     private Integer bookId; // ID của sách
@@ -24,11 +26,11 @@ public class OrderResponse {
     private String note;
     private LocalDateTime deliveryDate;
     private List<BookRespone> books = new ArrayList<>();
-
+    private LocalDateTime createdAt;
     public OrderResponse() {
     }
 
-    public OrderResponse(Integer id, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate) {
+    public OrderResponse(Integer id, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt) {
         this.id = id;
         this.bookId = bookId;
         this.title = title;
@@ -47,6 +49,8 @@ public class OrderResponse {
         this.status = status;
         this.note = note;
         this.deliveryDate = deliveryDate;
+        this.books = books;
+        this.createdAt = createdAt;
     }
 
     public List<BookRespone> getBooks() {
@@ -199,5 +203,13 @@ public class OrderResponse {
 
     public void setDeliveryDate(LocalDateTime deliveryDate) {
         this.deliveryDate = deliveryDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

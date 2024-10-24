@@ -1,10 +1,11 @@
 package com.graduates.test.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
 import java.time.LocalDateTime;
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PublisherRespone {
     private Integer idPublisher;
     private String namePublisher;

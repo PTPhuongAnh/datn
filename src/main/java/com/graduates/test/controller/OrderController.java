@@ -1,7 +1,9 @@
 package com.graduates.test.controller;
 
+import com.graduates.test.dto.BookRespone;
 import com.graduates.test.dto.CartResponse;
 import com.graduates.test.dto.OrderResponse;
+import com.graduates.test.model.Book;
 import com.graduates.test.model.Order;
 import com.graduates.test.model.OrderRequest;
 import com.graduates.test.model.UserEntity;
@@ -19,9 +21,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/orders")
@@ -35,7 +41,6 @@ public class OrderController {
         this.orderService = orderService;
         this.userService = userService;
     }
-
     @PostMapping("/create")
 
     public ResponseEntity<?> createOrder(
@@ -74,7 +79,7 @@ public class OrderController {
     }
 
 
-    @GetMapping("/list")
+    @GetMapping("/list/order_user")
     public ResponseEntity<?> getOrdersByUserIdAndOptionalStatus(@RequestParam Integer userId) {
 
         List<OrderResponse> responses = orderService.getOrdersByUserId(userId);
@@ -95,52 +100,30 @@ public class OrderController {
                     e.getMessage());
         }
     }
-
-
     @GetMapping("/list/admin")
-    public ResponseEntity<?> getAllOrdersForAdmin(@RequestParam Integer userId,
-                                                  @RequestParam(value = "page", defaultValue = "0") int page,
-                                                  @RequestParam(value = "size", defaultValue = "10") int size) {
-        // Kiểm tra quyền admin
-        if (!userService.isAdmin(userId)) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,true,
-                    "You are not authorized to view orders");
-        }
+    public ResponseEntity<?> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        // Nếu là admin, lấy danh sách đơn hàng với phân trang
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<OrderResponse> orders = orderService.getAllOrdersForAdmin(pageable);
-
-        // Chuyển đổi kết quả thành phản hồi với thông tin phân trang
-        Map<String, Object> response = new HashMap<>();
-        response.put("orders", orders.getContent());
-        response.put("currentPage", orders.getNumber());
-        response.put("totalItems", orders.getTotalElements());
-        response.put("totalPages", orders.getTotalPages());
+        Pageable pageable = PageRequest.of(page, size);
+        Map<String, Object> response = orderService.getAllOrdersWithPagination(pageable);
 
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
+                //new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // Lấy chi tiết đơn hàng cho user
+    @GetMapping("/detail_user")
+    public ResponseEntity<?> getOrderDetailForUser(@RequestParam Integer orderId, @RequestParam Integer userId) {
+        OrderResponse orderResponse = orderService.getOrderDetailForUser(orderId, userId);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,orderResponse);
+    }
 
-    @GetMapping("/details")
-    public ResponseEntity<?> getOrderDetails(@RequestParam("orderId") Integer orderId,
-                                             @RequestParam("userId") Integer userId) {
-        // Kiểm tra quyền admin
-        if (!userService.isAdmin(userId)) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//                    .body("You are not authorized to view this order");
-            return  ResponseHandler.responeBuilder(HttpStatus.OK,true,"You are not authorized to view this order");
-        }
-        // Nếu là admin, lấy chi tiết đơn hàng
-        OrderResponse orderResponse = orderService.getOrderDetails(orderId);
-        if (orderResponse != null) {
-          //  return ResponseEntity.ok(orderResponse);
-            return  ResponseHandler.responeBuilder(HttpStatus.OK,true,orderResponse);
-        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body("Order not found");
-            return  ResponseHandler.responeBuilder(HttpStatus.OK,false,"Order not found");
-        }
+    // Lấy chi tiết đơn hàng cho admin
+    @GetMapping("/detail_admin")
+    public ResponseEntity<?> getOrderDetailForAdmin(@RequestParam Integer orderId) {
+        OrderResponse orderResponse = orderService.getOrderDetailForAdmin(orderId);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,orderResponse);
     }
 
 

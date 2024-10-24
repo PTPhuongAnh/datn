@@ -13,7 +13,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail,Integer
     @Query("SELECT od.book.idBook, SUM(od.quantity) as totalSold " +
             "FROM OrderDetail od " +
             "JOIN od.order o " +  // Tham gia với bảng Order
-            "WHERE o.orderStatus.status = 'Delivery' " +  // Điều kiện chỉ lấy các đơn hàng có trạng thái giao thành công
+            "WHERE o.orderStatus.status = 'Completed' " +  // Điều kiện chỉ lấy các đơn hàng có trạng thái giao thành công
             "GROUP BY od.book.idBook " +  // Nhóm theo sách để tính tổng số lượng bán
             "ORDER BY totalSold DESC")  // Sắp xếp theo số lượng bán, từ cao đến thấp
     List<Object[]> findBooksByTotalSoldWithDeliveredStatus();
