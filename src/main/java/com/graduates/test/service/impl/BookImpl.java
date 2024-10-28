@@ -1,6 +1,7 @@
 package com.graduates.test.service.impl;
 
 import com.graduates.test.dto.BookRespone;
+import com.graduates.test.dto.FeedbackRespone;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
 import com.graduates.test.resposity.*;
@@ -47,9 +48,9 @@ public class BookImpl implements BookService {
 
 
     private ImageResposity imageResposity;
+    private  FeedbackRepository feedbackRepository;
 
-    public BookImpl( BookCategoryResposity bookCategoryResposity, CategoryResposity categoryRepository, PublisherResposity publisherRepository, DistributorResposity distributorResposity, OrderRespository orderRespository, OrderDetailRepository orderDetailRepository, ImageResposity imageResposity) {
-
+    public BookImpl(BookCategoryResposity bookCategoryResposity, CategoryResposity categoryRepository, PublisherResposity publisherRepository, DistributorResposity distributorResposity, OrderRespository orderRespository, OrderDetailRepository orderDetailRepository, ImageResposity imageResposity, FeedbackRepository feedbackRepository) {
         this.bookCategoryResposity = bookCategoryResposity;
         this.categoryRepository = categoryRepository;
         this.publisherRepository = publisherRepository;
@@ -57,7 +58,9 @@ public class BookImpl implements BookService {
         this.orderRespository = orderRespository;
         this.orderDetailRepository = orderDetailRepository;
         this.imageResposity = imageResposity;
+        this.feedbackRepository = feedbackRepository;
     }
+
     @Value("${file.upload-dirs}")
     private String bookUploadDir;
 
@@ -93,6 +96,7 @@ public class BookImpl implements BookService {
     }
 
     private BookRespone convertToBookResponse(Book book) {
+
         String baseUrl = "http://localhost:8080/book/image/";
 
         List<String> imageUrls = book.getImageBooks().stream()
@@ -117,11 +121,27 @@ public class BookImpl implements BookService {
         response.setCreateAt(book.getCreateAt());
         response.setUpdateAt(book.getUpdateAt());
         response.setImageUrls(imageUrls);
+      //  response.setFeedbacks(getFeedbacksForBook(book.getIdBook()));
+        List<Feedback> feedbacks = getFeedbacksForBook(book.getIdBook());
 
+        // Chuyển đổi feedback thành FeedbackResponse
+        List<FeedbackRespone> feedbackResponses = feedbacks.stream()
+                .map(feedback -> {
+                    FeedbackRespone feedbackResponse = new FeedbackRespone();
+                    feedbackResponse.setUsername(feedback.getUser().getUsername()); // Giả sử có phương thức getUsername() trong UserEntity
+                    feedbackResponse.setComment(feedback.getComment());
+                    feedbackResponse.setRating(feedback.getRating());
+                    return feedbackResponse;
+                })
+                .collect(Collectors.toList());
 
+        response.setFeedbacks(feedbackResponses); // Thiết lập feedbacks vào response
         return response;
     }
-
+    // Phương thức mới để lấy feedback cho cuốn sách
+    private List<Feedback> getFeedbacksForBook(Integer bookId) {
+        return feedbackRepository.findByOrderDetail_Book_IdBook(bookId);
+    }
     // Mã hóa URL
     private String encodeURIComponent(String value) {
         try {

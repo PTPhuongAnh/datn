@@ -33,9 +33,11 @@ public interface OrderService {
 
     Map<String, Object> getAllOrdersWithPagination(Pageable pageable);
 
-    OrderResponse getOrderDetailForUser(Integer orderId, Integer userId);
+  //  OrderResponse getOrderDetailForUser(Integer orderId, Integer userId);
 
     OrderResponse getOrderDetailForAdmin(Integer orderId);
+
+    OrderResponse getOrderDetailForUser(Integer orderId, Integer userId);
 
     //  Page<OrderResponse> getAllOrders(Pageable pageable);
 

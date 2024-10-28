@@ -12,11 +12,6 @@ import java.util.Optional;
 
 public interface UserResposity extends JpaRepository<UserEntity,Integer> {
     Optional<UserEntity> findByUsername(String username);
-  //  Boolean existsByUsername(String username);
-
-
-
-
     @Query(value = "SELECT u FROM UserEntity u " +
             "JOIN u.roles r " +
             "JOIN u.address a " + // Thực hiện phép nối với Address

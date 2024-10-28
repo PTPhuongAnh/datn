@@ -1,7 +1,9 @@
 package com.graduates.test.dto;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.time.LocalDateTime;
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FeedbackRespone {
 
     private Integer idFeedback;

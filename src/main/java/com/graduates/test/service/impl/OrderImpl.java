@@ -1,10 +1,7 @@
 package com.graduates.test.service.impl;
 
 import ch.qos.logback.core.status.Status;
-import com.graduates.test.dto.BookRespone;
-import com.graduates.test.dto.CartResponse;
-import com.graduates.test.dto.CategorySalesDTO;
-import com.graduates.test.dto.OrderResponse;
+import com.graduates.test.dto.*;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
 import com.graduates.test.resposity.*;
@@ -48,8 +45,11 @@ public class OrderImpl implements OrderService {
     @Autowired
     private BookCategoryResposity bookCategoryResposity;
 
+    @Autowired
+    private  FeedbackRepository feedbackRepository;
 
-    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository) {
+
+    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
@@ -58,6 +58,8 @@ public class OrderImpl implements OrderService {
         this.paymentRepository = paymentRepository;
         this.shipmentRepository = shipmentRepository;
         this.statusRespository = statusRespository;
+        this.bookCategoryResposity = bookCategoryResposity;
+        this.feedbackRepository = feedbackRepository;
     }
 
     @Override
@@ -149,6 +151,21 @@ public class OrderImpl implements OrderService {
     }
 
 
+    // Phương thức lấy feedback cho sách của một user
+//    private List<FeedbackRespone> getFeedbackForBookAndUser(Integer bookId, Integer userId) {
+//        List<Feedback> feedbacks = feedbackRepository.findByBook_IdBookAndUser_IdUser(bookId, userId);
+//
+//        return feedbacks.stream()
+//                .map(feedback -> {
+//                    FeedbackRespone feedbackResponse = new FeedbackRespone();
+//                    feedbackResponse.setUsername(feedback.getUser().getUsername());
+//                    feedbackResponse.setComment(feedback.getComment());
+//                    feedbackResponse.setRating(feedback.getRating());
+//                    return feedbackResponse;
+//                })
+//                .collect(Collectors.toList());
+//    }
+
     private OrderResponse convertToOrderResponse(Order order) {
         OrderResponse response = new OrderResponse();
         response.setId(order.getId());
@@ -161,8 +178,6 @@ public class OrderImpl implements OrderService {
         response.setReceiveName(order.getReceivingName());
         response.setNote(order.getNote());
         response.setDeliveryDate(order.getDeliveryDate());
-
-        // Chuyển đổi danh sách OrderDetails thành danh sách BookDetail
         List<BookRespone> bookDetails = order.getOrderDetails().stream()
                 .map(orderDetail -> {
                     BookRespone bookDetail = new BookRespone();
@@ -173,6 +188,20 @@ public class OrderImpl implements OrderService {
                     bookDetail.setQuantity(orderDetail.getQuantity());
                     bookDetail.setPrice(orderDetail.getPrice());
                     bookDetail.setImageUrls(getImageUrlsFromBook(orderDetail.getBook()));
+                    List<Feedback> feedbacks = getFeedbacksForBook(orderDetail.getBook().getIdBook());
+
+                    // Chuyển đổi feedback thành FeedbackResponse
+                    List<FeedbackRespone> feedbackResponses = feedbacks.stream()
+                            .map(feedback -> {
+                                FeedbackRespone feedbackResponse = new FeedbackRespone();
+                                feedbackResponse.setUsername(feedback.getUser().getUsername()); // Giả sử có phương thức getUsername() trong UserEntity
+                                feedbackResponse.setComment(feedback.getComment());
+                                feedbackResponse.setRating(feedback.getRating());
+                                return feedbackResponse;
+                            })
+                            .collect(Collectors.toList());
+
+                    bookDetail.setFeedbacks(feedbackResponses);
                     return bookDetail;
                 })
                 .collect(Collectors.toList());
@@ -188,6 +217,10 @@ public class OrderImpl implements OrderService {
         return response;
 
     }
+    private List<Feedback> getFeedbacksForBook(Integer bookId) {
+        return feedbackRepository.findByOrderDetail_Book_IdBook(bookId);
+    }
+
 
     private List<String> getImageUrlsFromBook(Book book) {
         String baseUrl = "http://localhost:8080/book/image/";
@@ -267,6 +300,8 @@ public class OrderImpl implements OrderService {
 
         return convertToOrderResponse(order);
     }
+
+
 
     public OrderResponse getOrderDetailForAdmin(Integer orderId) {
         Order order = orderRepository.findById(orderId)

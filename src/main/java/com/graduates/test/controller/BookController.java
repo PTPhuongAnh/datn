@@ -109,7 +109,7 @@ public class BookController {
             );
         } catch (IOException e) {
             return ResponseHandler.responeBuilder(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    HttpStatus.OK,
                     false,
                     null
             );

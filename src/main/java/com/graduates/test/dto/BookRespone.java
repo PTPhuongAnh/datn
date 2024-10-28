@@ -1,6 +1,7 @@
 package com.graduates.test.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.graduates.test.model.Feedback;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
@@ -30,6 +31,7 @@ public class BookRespone {
 
     private List<String> imageUrls;
 
+    private List<FeedbackRespone> feedbacks;
 
     public BookRespone() {
     }
@@ -46,7 +48,7 @@ public class BookRespone {
         this.imageUrls = imageUrls;
     }
 
-    public BookRespone(Integer idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, String categoryName, String publisherName, String distributorName, Integer quantity, Integer price, Integer categoryId, Integer publisherId, Integer distributorId, List<String> imageUrls) {
+    public BookRespone(Integer idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, String categoryName, String publisherName, String distributorName, Integer quantity, Integer price, Integer categoryId, Integer publisherId, Integer distributorId, List<String> imageUrls, List<FeedbackRespone> feedbacks, LocalDateTime createAt, LocalDateTime updateAt) {
         this.idBook = idBook;
         this.nameBook = nameBook;
         this.author = author;
@@ -65,6 +67,9 @@ public class BookRespone {
         this.publisherId = publisherId;
         this.distributorId = distributorId;
         this.imageUrls = imageUrls;
+        this.feedbacks = feedbacks;
+        this.createAt = createAt;
+        this.updateAt = updateAt;
     }
 
     @PrePersist
@@ -237,4 +242,13 @@ public class BookRespone {
     public void setDistributorId(Integer distributorId) {
         this.distributorId = distributorId;
     }
+
+    public List<FeedbackRespone> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<FeedbackRespone> feedbacks) {
+        this.feedbacks = feedbacks;
+    }
 }
+
