@@ -47,6 +47,8 @@ public class Order {
     private LocalDateTime createdAt;
     private String note;
     private LocalDateTime deliveryDate;
+    @Column(unique = true)
+    private  String orderCode;
     public Order(UserEntity user, Payment payment, Shipment shipment, double totalAmount, String shippingAddress, LocalDateTime createdAt) {
         this.user = user;
         this.totalAmount = totalAmount;
@@ -56,7 +58,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(Integer id, UserEntity user, double totalAmount, String shippingAddress, OrderStatus orderStatus, Payment payment, Shipment shipment, List<OrderDetail> orderDetails, Cart cart, String phone, String receivingName, LocalDateTime createdAt, String note, LocalDateTime deliveryDate) {
+    public Order(Integer id, UserEntity user, double totalAmount, String shippingAddress, OrderStatus orderStatus, Payment payment, Shipment shipment, List<OrderDetail> orderDetails, Cart cart, String phone, String receivingName, LocalDateTime createdAt, String note, LocalDateTime deliveryDate, String orderCode) {
         this.id = id;
         this.user = user;
         this.totalAmount = totalAmount;
@@ -71,6 +73,7 @@ public class Order {
         this.createdAt = createdAt;
         this.note = note;
         this.deliveryDate = deliveryDate;
+        this.orderCode = orderCode;
     }
 
     public Integer getId() {
@@ -204,5 +207,13 @@ public class Order {
 
     public void setDeliveryDate(LocalDateTime deliveryDate) {
         this.deliveryDate = deliveryDate;
+    }
+
+    public String getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
     }
 }

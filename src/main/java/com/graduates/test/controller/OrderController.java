@@ -87,7 +87,7 @@ public class OrderController {
     }
 
 
-    @PutMapping("/cancel")
+    @DeleteMapping("/cancel")
     public ResponseEntity<?> cancelOrder(
             @RequestParam Integer userId,
             @RequestParam Integer orderId) {
@@ -105,7 +105,7 @@ public class OrderController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt"));
         Map<String, Object> response = orderService.getAllOrdersWithPagination(pageable);
 
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);

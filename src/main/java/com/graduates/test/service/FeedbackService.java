@@ -6,6 +6,8 @@ import com.graduates.test.model.Feedback;
 import java.util.List;
 
 public interface FeedbackService {
-    List<FeedbackRespone> getFeedbackResponsesByBookId(Integer bookId);
-    String addFeedback(Integer userId, Integer orderDetailId, Integer bookId,String comment, Integer rating);
+    String addFeedbacks(Integer userId, List<FeedbackRespone> feedbackDTOs);
+
+    String updateFeedbacks(Integer userId, List<FeedbackRespone> feedbackUpdates);
+
 }

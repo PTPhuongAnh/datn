@@ -38,4 +38,9 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
                                Pageable pageable);
 
     List<UserEntity> findByRoles_Name(String roleName);
+   // @Query("SELECT COUNT(o) FROM user_roles o where role_id=1 ")
+   @Query("SELECT COUNT(u) FROM UserEntity u " +
+           "JOIN u.roles r " +
+           "WHERE r.name = 'ROLE_USER'")
+    long countTotalUser();
 }

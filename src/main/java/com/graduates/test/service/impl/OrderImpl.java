@@ -91,11 +91,16 @@ public class OrderImpl implements OrderService {
         order.setOrderStatus(pendingStatus);
         order.setNote(note);
         order.setDeliveryDate(LocalDateTime.now().plusDays(5));
+        if (order.getOrderCode() == null || order.getOrderCode().isEmpty()) {
+            // Tạo mã đơn hàng theo UUID hoặc quy tắc khác
+            order.setOrderCode(generateUniqueOrderCode());
+        }
+        if(orderRepository.existsByOrderCode(order.getOrderCode())){
+             throw  new Exception("order code already exists!");
+        }
 
         // Thiết lập chi tiết đơn hàng
         for (Integer detailId : selectedCartDetailIds) {
-            //        CartDetail cartDetail = cartDetailRepository.findById(detailId)
-            //              .orElseThrow(() -> new Exception("Cart detail not found with ID: " + detailId));
 
             CartDetail cartDetail = cartDetailRepository.findByIdAndCart_IdCart(detailId, cart.getIdCart())
 
@@ -122,6 +127,11 @@ public class OrderImpl implements OrderService {
         return orderRepository.save(order);
     }
 
+
+    private String generateUniqueOrderCode() {
+        return  UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
     @Override
     public List<OrderResponse> getOrdersByUserId(Integer userId) {
         List<Order> orders;
@@ -130,11 +140,6 @@ public class OrderImpl implements OrderService {
                 .map(this::convertToOrderResponse) // Chuyển đổi từng Order sang OrderResponse
                 .collect(Collectors.toList());
 
-
-//        return orders.stream()
-//                .flatMap(order -> order.getOrderDetails().stream()
-//                        .map(this::convertToOrderResponse)) // Chuyển đổi từng CartDetail sang CartResponse
-//                .collect(Collectors.toList());
     }
 
     @Override
@@ -297,7 +302,8 @@ public class OrderImpl implements OrderService {
     public Map<String, Object> getStatistics() {
         // Lấy tổng số đơn hàng
         long totalOrders = orderRepository.countTotalOrders();
-
+        long totalUsers=userRepository.countTotalUser();
+        long totalBook=bookCategoryResposity.countTotalsBook();
         // Lấy tổng số nhân viên
 
 
@@ -311,8 +317,10 @@ public class OrderImpl implements OrderService {
 
         // Chuẩn bị dữ liệu phản hồi
         Map<String, Object> response = new HashMap<>();
+        response.put("totalUsers", totalUsers);
+        response.put("totalBook", totalBook);
         response.put("totalOrders", totalOrders);
-        response.put("totalRevenueInt", totalRevenueInt);
+        response.put("totalIcomes", totalRevenueInt);
 
         return response;
     }

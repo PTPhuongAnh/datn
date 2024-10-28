@@ -215,7 +215,7 @@ public class AuthorController {
         Map<String, Object> response = new HashMap<>();
         response.put("users", userDTOs);
         response.put("currentPage", userPage.getNumber());
-        response.put("totalItems", userPage.getTotalElements());
+        response.put("totalUser", userPage.getTotalElements());
         response.put("totalPages", userPage.getTotalPages());
 
         //   return ResponseEntity.ok(response);

@@ -42,6 +42,8 @@ public interface OrderRespository extends JpaRepository<Order,Integer> {
             "ORDER BY MONTH(o.createdAt)")
     List<Object[]> getMonthlyRevenue(@Param("currentYear") int currentYear);
 
+    boolean existsByOrderCode(String orderCode);
 
-  //  Optional<Order> findByIdAndUserId(Integer orderId, Integer userId);
+
+    //  Optional<Order> findByIdAndUserId(Integer orderId, Integer userId);
 }

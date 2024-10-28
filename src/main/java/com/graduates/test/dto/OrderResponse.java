@@ -8,6 +8,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderResponse {
     private Integer id;
+    private String orderCode;
     private Integer bookId; // ID của sách
     private String title; // Tiêu đề sách
     private String author; // Tác giả sách
@@ -30,8 +31,9 @@ public class OrderResponse {
     public OrderResponse() {
     }
 
-    public OrderResponse(Integer id, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt) {
+    public OrderResponse(Integer id, String orderCode, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt) {
         this.id = id;
+        this.orderCode = orderCode;
         this.bookId = bookId;
         this.title = title;
         this.author = author;
@@ -211,5 +213,13 @@ public class OrderResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
     }
 }

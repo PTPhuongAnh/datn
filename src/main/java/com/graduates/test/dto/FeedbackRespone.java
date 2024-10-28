@@ -13,11 +13,12 @@ public class FeedbackRespone {
     private String comment;
     private Integer rating;
     private LocalDateTime createdAt;
+    private LocalDateTime updateAt;
 
     public FeedbackRespone() {
     }
 
-    public FeedbackRespone(Integer idFeedback, Integer userId, String username, Integer orderDetailId, Integer bookId, String bookTitle, String comment, Integer rating, LocalDateTime createdAt) {
+    public FeedbackRespone(Integer idFeedback, Integer userId, String username, Integer orderDetailId, Integer bookId, String bookTitle, String comment, Integer rating, LocalDateTime createdAt, LocalDateTime updateAt) {
         this.idFeedback = idFeedback;
         this.userId = userId;
         this.username = username;
@@ -27,6 +28,7 @@ public class FeedbackRespone {
         this.comment = comment;
         this.rating = rating;
         this.createdAt = createdAt;
+        this.updateAt = updateAt;
     }
 
     // Getters and Setters
@@ -102,4 +104,11 @@ public class FeedbackRespone {
         this.createdAt = createdAt;
     }
 
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
+    }
 }

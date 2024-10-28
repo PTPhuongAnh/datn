@@ -28,67 +28,66 @@ public class FeedbackServiceImpl implements FeedbackService {
         this.orderDetailRepository = orderDetailRepository;
     }
 
-    @Override
-    public List<FeedbackRespone> getFeedbackResponsesByBookId(Integer bookId) {
-        List<Feedback> feedbacks = feedbackRepository.findByOrderDetailBookIdBook(bookId);
 
-        // Chuyển đổi danh sách Feedback sang danh sách FeedbackResponse
-        return feedbacks.stream()
-                .map(this::convertToFeedbackDTO)
-                .collect(Collectors.toList());
-    }
-
-    public String addFeedback(Integer userId, Integer orderDetailId, Integer bookId, String comment, Integer rating) {
-        // Logic như bạn đã viết trước đó
+    public String addFeedbacks(Integer userId, List<FeedbackRespone> feedbackDTOs) {
         UserEntity user = userResposity.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId)
-                .orElseThrow(() -> new RuntimeException("Order Detail not found"));
+        for (FeedbackRespone feedbackDTO : feedbackDTOs) {
+            OrderDetail orderDetail = orderDetailRepository.findById(feedbackDTO.getOrderDetailId())
+                    .orElseThrow(() -> new RuntimeException("Order Detail not found"));
 
-        Order order = orderDetail.getOrder();
-        if (order.getOrderStatus().getIdStatus() != 4) {
-            return "Order status is not 'DELIVERY'. Feedback cannot be added.";
+            Order order = orderDetail.getOrder();
+            if (order.getOrderStatus().getIdStatus() != 4) {
+                return "Order status is not 'DELIVERY'. Feedback cannot be added.";
+            }
+
+            if (!order.getUser().getIdUser().equals(userId)) {
+                return "User does not own this order detail.";
+            }
+
+            Book book = orderDetail.getBook();
+            if (book == null || !book.getIdBook().equals(feedbackDTO.getBookId())) {
+                return "The book does not belong to this order detail.";
+            }
+
+            Feedback feedback = new Feedback();
+            feedback.setUser(user);
+            feedback.setOrderDetail(orderDetail);
+            feedback.setComment(feedbackDTO.getComment());
+            feedback.setRating(feedbackDTO.getRating());
+            feedback.setCreatedAt(LocalDateTime.now());
+
+            feedbackRepository.save(feedback);
         }
 
-        if (!orderDetail.getOrder().getUser().getIdUser().equals(userId)) {
-            return "User does not own this order detail.";
-        }
-
-        Book book = orderDetail.getBook();
-        if (book == null || !book.getIdBook().equals(bookId)) {
-            return "The book does not belong to this order detail.";
-        }
-
-        Feedback feedback = new Feedback();
-        feedback.setUser(user);
-        feedback.setOrderDetail(orderDetail);
-        feedback.setComment(comment);
-        feedback.setRating(rating);
-        feedback.setCreatedAt(LocalDateTime.now());
-
-        feedbackRepository.save(feedback);
-
-        return "Feedback added successfully";
+        return "Feedbacks added successfully";
     }
 
 
-    private FeedbackRespone convertToFeedbackDTO(Feedback feedback) {
-        Book book = feedback.getOrderDetail().getBook(); // Lấy thông tin sách từ OrderDetail
-        //  List<String> imageUrls = getImageUrlsFromBook(book); // Lấy các đường dẫn ảnh từ sách
-        UserEntity user = feedback.getUser(); // Lấy thông tin người dùng
-        OrderDetail orderDetail = feedback.getOrderDetail();
-        return new FeedbackRespone(
-                feedback.getIdFeedback(),
-                user.getIdUser(),
-                user.getUsername(),
-                orderDetail.getIdOrderDetail(),
-                book.getIdBook(),
-                book.getNameBook(),
-                feedback.getComment(),
-                feedback.getRating(),
-                feedback.getCreatedAt()
-        );
+    public String updateFeedbacks(Integer userId, List<FeedbackRespone> feedbackUpdates) {
+        UserEntity user = userResposity.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        for (FeedbackRespone feedbackUpdate : feedbackUpdates) {
+            // Tìm Feedback theo feedbackId
+            Feedback feedback = feedbackRepository.findById(feedbackUpdate.getIdFeedback())
+                    .orElseThrow(() -> new RuntimeException("Feedback not found with ID: " + feedbackUpdate.getIdFeedback()));
+
+            // Kiểm tra người dùng có quyền cập nhật feedback hay không
+            if (!feedback.getUser().getIdUser().equals(userId)) {
+                return "User does not have permission to update feedback with ID: " + feedbackUpdate.getIdFeedback();
+            }
+
+            // Cập nhật các thông tin
+            feedback.setComment(feedbackUpdate.getComment());
+            feedback.setRating(feedbackUpdate.getRating());
+            feedback.setUpdateAt(LocalDateTime.now());
+
+            // Lưu thay đổi
+            feedbackRepository.save(feedback);
+        }
+        return "All feedbacks updated successfully";
     }
+
 }
 

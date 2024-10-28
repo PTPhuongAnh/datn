@@ -25,6 +25,7 @@ public class Feedback {
     private String comment;
     private Integer rating;
     private LocalDateTime createdAt;
+    private  LocalDateTime updateAt;
     public Integer getIdFeedback() {
         return idFeedback;
     }
@@ -71,5 +72,13 @@ public class Feedback {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 }

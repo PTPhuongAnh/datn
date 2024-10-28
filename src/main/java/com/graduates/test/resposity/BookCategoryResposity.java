@@ -32,4 +32,6 @@ Page<Book> searchBooks(
     boolean existsByPublisher_IdPublisher(Integer publisherId);
 
     boolean existsByDistributor_IdDistributor(Integer idDistributor);
+    @Query("SELECT COUNT(o) FROM Book o")
+    long countTotalsBook();
 }
