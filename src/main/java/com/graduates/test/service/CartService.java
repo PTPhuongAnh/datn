@@ -17,11 +17,9 @@ public interface CartService {
     List<Cart> findByUser_idUser(Integer userId);
 
 
-  //  List<CartResponse> getCartByUserId(Integer userId) throws Exception;
-   // Page<CartResponse> getCartByUserId(Integer userId,int page,int size);
 
     void updateCartQuantity(Integer userId, Integer bookId, String operation) throws Exception;
-    void deleteBookFromCart(Integer userId, Integer idBook);
+
     void deleteBooksFromCart(Integer userId, List<Integer> idBooks);
 
     Page<CartResponse> getCartByUserId(Integer userId, Pageable pageable) throws Exception;

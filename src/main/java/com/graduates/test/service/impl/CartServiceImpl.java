@@ -62,7 +62,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = user.getCart();
         // Kiểm tra xem sách đã tồn tại trong giỏ hàng và chưa bị xóa mềm
         Optional<CartDetail> existingCartDetailOpt = cart.getCartDetails().stream()
-                .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && !cartDetail.isDeleted()&& !cartDetail.isPurchased())
+                .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && !cartDetail.isDeleted() && !cartDetail.isPurchased())
                 .findFirst();
 
         if (existingCartDetailOpt.isPresent()) {
@@ -78,7 +78,7 @@ public class CartServiceImpl implements CartService {
         } else {
             // Nếu sách đã tồn tại nhưng bị xóa mềm (delete = true)
             Optional<CartDetail> softDeletedCartDetailOpt = cart.getCartDetails().stream()
-                    .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && cartDetail.isDeleted() && cartDetail.isPurchased())
+                    .filter(cartDetail -> cartDetail.getBook().getIdBook().equals(book.getIdBook()) && cartDetail.isDeleted() && !cartDetail.isPurchased())
                     .findFirst();
 
             if (softDeletedCartDetailOpt.isPresent()) {
@@ -110,18 +110,20 @@ public class CartServiceImpl implements CartService {
     public List<Cart> findByUser_idUser(Integer userId) {
         return null;
     }
-   @Override
-     public Page<CartResponse> getCartByUserId(Integer userId, Pageable pageable) throws Exception {
+
+    @Override
+    public Page<CartResponse> getCartByUserId(Integer userId, Pageable pageable) throws Exception {
         // Tìm giỏ hàng dựa trên userId
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new Exception("Không tìm thấy giỏ hàng của người dùng với ID: " + userId));
         Page<CartDetail> cartDetailsPage = cartDetailRepository.findByCartAndIsDeletedFalseAndIsPurchasedFalse(cart, pageable);
         return cartDetailsPage.map(this::convertToCartResponse);
     }
+
     private CartResponse convertToCartResponse(CartDetail cartDetail) {
         Book book = cartDetail.getBook();
         List<String> imageUrls = getImageUrlsFromBook(book);
-         Cart cart=cartDetail.getCart();
+        Cart cart = cartDetail.getCart();
 
         return new CartResponse(
                 cartDetail.getId(),
@@ -156,7 +158,7 @@ public class CartServiceImpl implements CartService {
     public void updateCartQuantity(Integer userId, Integer bookId, String operation) throws Exception {
 
         Cart cart = cartRepository.findByUserIdUser(userId)
-                .orElseThrow(() -> new Exception ("Không tìm thấy giỏ hàng của người dùng với ID: " + userId));
+                .orElseThrow(() -> new Exception("Không tìm thấy giỏ hàng của người dùng với ID: " + userId));
         if (!cart.getUser().getIdUser().equals(userId)) {
             throw new Exception("Giỏ hàng không thuộc về người dùng với ID: " + userId);
         }
@@ -172,7 +174,7 @@ public class CartServiceImpl implements CartService {
             }
             cartDetail.setQuantity(cartDetail.getQuantity() + 1);
         } else if (operation.equals("decrease")) {
-            if (cartDetail.getQuantity() ==0) {
+            if (cartDetail.getQuantity() == 0) {
                 cartDetailRepository.delete(cartDetail); // Xóa sản phẩm nếu số lượng = 1
                 return;
             }
@@ -183,46 +185,35 @@ public class CartServiceImpl implements CartService {
 
         cartDetailRepository.save(cartDetail);
     }
-    public void deleteBookFromCart(Integer userId, Integer idBook) {
 
-        Cart cart = cartRepository.findByUserIdUser(userId)
-                .orElseThrow(() -> new IllegalStateException("Cart not found for user ID: " + userId));
-
-
-        CartDetail cartDetail = cartDetailRepository.findByBook_IdBookAndCart_IdCart(idBook, cart.getIdCart())
-                .orElseThrow(() -> new IllegalStateException("Book not found in user's cart."));
-
-
-        if (!cart.getUser().getIdUser().equals(userId)) {
-            throw new IllegalStateException("You are not authorized to delete this item from the cart.");
-        }
-
-
-        cartDetail.setDeleted(true);
-        cartDetailRepository.save(cartDetail);
-    }
 
 
     public void deleteBooksFromCart(Integer userId, List<Integer> idBooks) {
-        // Tìm kiếm giỏ hàng dựa trên userId
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new IllegalStateException("Cart not found for user ID: " + userId));
 
         // Lặp qua danh sách idBooks và đánh dấu các CartDetail tương ứng là đã xóa
         for (Integer idBook : idBooks) {
-            CartDetail cartDetail = cartDetailRepository.findByBook_IdBookAndCart_IdCart(idBook, cart.getIdCart())
-                    .orElseThrow(() -> new IllegalStateException("Book with ID " + idBook + " not found in user's cart."));
+            // Lấy danh sách các chi tiết giỏ hàng khớp với bookId và cartId
+            List<CartDetail> cartDetails = cartDetailRepository.findAllByBook_IdBookAndCart_IdCart(idBook, cart.getIdCart());
 
-            // Kiểm tra quyền sở hữu giỏ hàng
-            if (!cart.getUser().getIdUser().equals(userId)) {
-                throw new IllegalStateException("You are not authorized to delete this item from the cart.");
+            if (cartDetails.isEmpty()) {
+                throw new IllegalStateException("Book with ID " + idBook + " not found in user's cart.");
             }
 
-            // Đánh dấu chi tiết giỏ hàng là đã xóa
-            cartDetail.setDeleted(true);
+            // Lặp qua danh sách và đánh dấu là đã xóa
+            for (CartDetail cartDetail : cartDetails) {
+                // Kiểm tra quyền sở hữu giỏ hàng
+                if (!cart.getUser().getIdUser().equals(userId)) {
+                    throw new IllegalStateException("You are not authorized to delete this item from the cart.");
+                }
 
-            // Lưu thay đổi
-            cartDetailRepository.save(cartDetail);
+                // Đánh dấu chi tiết giỏ hàng là đã xóa
+                cartDetail.setDeleted(true);
+
+                // Lưu thay đổi
+                cartDetailRepository.save(cartDetail);
+            }
         }
     }
 }

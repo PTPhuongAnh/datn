@@ -42,15 +42,18 @@ public class FeedbackController {
 //        return ResponseHandler.responeBuilder(HttpStatus.OK,true,feedbacks);
 //    }
      @PostMapping("/create")
-    public ResponseEntity<?> addFeedbacks(
-            @RequestParam Integer userId,
-            @RequestBody List<FeedbackRespone> feedbackDTOs) {
-        String result = feedbackService.addFeedbacks(userId, feedbackDTOs);
-        if (result.equals("Feedbacks added successfully")) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,true,result);
-        }
-        return ResponseHandler.responeBuilder(HttpStatus.OK,false,result);
-    }
+     public ResponseEntity<?> addFeedbacks(
+             @RequestParam("userId") Integer userId,
+             @RequestParam("orderId") Integer orderId,
+             @RequestBody List<FeedbackRespone> feedbackDTOs) {
+         try {
+             String response = feedbackService.addFeedbacks(userId, orderId, feedbackDTOs);
+             return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
+         } catch (Exception e) {
+             return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
+         }
+     }
+
 
     @PutMapping("/update")
     public ResponseEntity<?> updateFeedbacks(

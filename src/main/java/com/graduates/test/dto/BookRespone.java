@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BookRespone {
+    private Integer orderDetailId;
     private Integer idBook;
 
     private String nameBook;
@@ -48,7 +49,8 @@ public class BookRespone {
         this.imageUrls = imageUrls;
     }
 
-    public BookRespone(Integer idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, String categoryName, String publisherName, String distributorName, Integer quantity, Integer price, Integer categoryId, Integer publisherId, Integer distributorId, List<String> imageUrls, List<FeedbackRespone> feedbacks, LocalDateTime createAt, LocalDateTime updateAt) {
+    public BookRespone(Integer orderDetailId, Integer idBook, String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, String categoryName, String publisherName, String distributorName, Integer quantity, Integer price, Integer categoryId, Integer publisherId, Integer distributorId, List<String> imageUrls, List<FeedbackRespone> feedbacks, LocalDateTime createAt, LocalDateTime updateAt) {
+        this.orderDetailId = orderDetailId;
         this.idBook = idBook;
         this.nameBook = nameBook;
         this.author = author;
@@ -76,6 +78,14 @@ public class BookRespone {
     protected void onCreate() {
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
+    }
+
+    public Integer getOrderDetailId() {
+        return orderDetailId;
+    }
+
+    public void setOrderDetailId(Integer orderDetailId) {
+        this.orderDetailId = orderDetailId;
     }
 
     @PreUpdate

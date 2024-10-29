@@ -27,9 +27,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         this.userResposity = userResposity;
         this.orderDetailRepository = orderDetailRepository;
     }
-
-
-    public String addFeedbacks(Integer userId, List<FeedbackRespone> feedbackDTOs) {
+    @Override
+    public String addFeedbacks(Integer userId, Integer orderId, List<FeedbackRespone> feedbackDTOs) {
         UserEntity user = userResposity.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -37,7 +36,12 @@ public class FeedbackServiceImpl implements FeedbackService {
             OrderDetail orderDetail = orderDetailRepository.findById(feedbackDTO.getOrderDetailId())
                     .orElseThrow(() -> new RuntimeException("Order Detail not found"));
 
+            // Kiểm tra xem orderDetail có thuộc về orderId hay không
             Order order = orderDetail.getOrder();
+            if (!order.getId().equals(orderId)) {
+                return "Order detail does not belong to the given order.";
+            }
+
             if (order.getOrderStatus().getIdStatus() != 4) {
                 return "Order status is not 'DELIVERY'. Feedback cannot be added.";
             }
@@ -63,6 +67,43 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         return "Feedbacks added successfully";
     }
+
+
+
+//    public String addFeedbacks(Integer userId, List<FeedbackRespone> feedbackDTOs) {
+//        UserEntity user = userResposity.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        for (FeedbackRespone feedbackDTO : feedbackDTOs) {
+//            OrderDetail orderDetail = orderDetailRepository.findById(feedbackDTO.getOrderDetailId())
+//                    .orElseThrow(() -> new RuntimeException("Order Detail not found"));
+//
+//            Order order = orderDetail.getOrder();
+//            if (order.getOrderStatus().getIdStatus() != 4) {
+//                return "Order status is not 'DELIVERY'. Feedback cannot be added.";
+//            }
+//
+//            if (!order.getUser().getIdUser().equals(userId)) {
+//                return "User does not own this order detail.";
+//            }
+//
+//            Book book = orderDetail.getBook();
+//            if (book == null || !book.getIdBook().equals(feedbackDTO.getBookId())) {
+//                return "The book does not belong to this order detail.";
+//            }
+//
+//            Feedback feedback = new Feedback();
+//            feedback.setUser(user);
+//            feedback.setOrderDetail(orderDetail);
+//            feedback.setComment(feedbackDTO.getComment());
+//            feedback.setRating(feedbackDTO.getRating());
+//            feedback.setCreatedAt(LocalDateTime.now());
+//
+//            feedbackRepository.save(feedback);
+//        }
+//
+//        return "Feedbacks added successfully";
+//    }
 
 
     public String updateFeedbacks(Integer userId, List<FeedbackRespone> feedbackUpdates) {

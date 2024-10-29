@@ -15,10 +15,13 @@ public interface CartDetailRepository extends JpaRepository<CartDetail,Integer> 
     Optional<CartDetail> findByBook_IdBook(Integer idBook);
 
     Optional<CartDetail> findByIdAndCart_IdCart(Integer detailId, Integer idCart);
-   // Optional<CartDetail> findByCartInAndIsDeletedFalseAndIsPurchasedFalse(Optional<Cart> carts);
+
    List<CartDetail> findByCartAndIsDeletedFalseAndIsPurchasedFalse(Cart cart);
-  //  Optional<CartDetail> findByCartAndIsDeletedFalseAndIsPurchasedFalse(Cart cart);
+
   Page<CartDetail> findByCartAndIsDeletedFalseAndIsPurchasedFalse(Cart cart, Pageable pageable);
 
-    Optional<CartDetail> findByBook_IdBookAndCart_IdCart(Integer idBook, Integer idCart);
+
+   List<CartDetail> findAllByBook_IdBookAndCart_IdCart(Integer idBook, Integer idCart);
+
+
 }

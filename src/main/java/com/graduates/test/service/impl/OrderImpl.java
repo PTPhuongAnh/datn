@@ -181,6 +181,7 @@ public class OrderImpl implements OrderService {
         List<BookRespone> bookDetails = order.getOrderDetails().stream()
                 .map(orderDetail -> {
                     BookRespone bookDetail = new BookRespone();
+                    bookDetail.setOrderDetailId(orderDetail.getIdOrderDetail());
                     bookDetail.setIdBook(orderDetail.getBook().getIdBook());
                     bookDetail.setNameBook(orderDetail.getBook().getNameBook());
                     bookDetail.setAuthor(orderDetail.getBook().getAuthor());
