@@ -1,5 +1,6 @@
 package com.graduates.test.service.impl;
 
+import com.graduates.test.dto.UpdateUserRequest;
 import com.graduates.test.model.UserEntity;
 import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.UserService;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.graduates.test.model.Role;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserImpl implements UserService {
@@ -54,7 +56,35 @@ public class UserImpl implements UserService {
 
         return false;
     }
+
+
+    public String updateUser(Integer userId, UpdateUserRequest updateUserRequest) {
+        Optional<UserEntity> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+
+        UserEntity user = userOpt.get();
+
+        // Cập nhật các thông tin
+        if (updateUserRequest.getUsername() != null) {
+            user.setUsername(updateUserRequest.getUsername());
+        }
+        if (updateUserRequest.getEmail() != null) {
+            user.setEmail(updateUserRequest.getEmail());
+        }
+        if (updateUserRequest.getPhone() != null) {
+            user.setPhone(updateUserRequest.getPhone());
+        }
+        if (updateUserRequest.getDob() != null) {
+            user.setDob(updateUserRequest.getDob());
+        }
+
+        userRepository.save(user);
+        return "User updated successfully";
     }
+}
+
 
 
 

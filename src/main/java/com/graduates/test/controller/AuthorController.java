@@ -2,6 +2,7 @@ package com.graduates.test.controller;
 
 import com.graduates.test.dto.BookRespone;
 import com.graduates.test.dto.LoginDto;
+import com.graduates.test.dto.UpdateUserRequest;
 import com.graduates.test.dto.UserResponseDTO;
 import com.graduates.test.model.*;
 import com.graduates.test.response.ResponseHandler;
@@ -234,6 +235,25 @@ public class AuthorController {
         List<UserEntity> users = userService.getUsersByRole("ROLE_USER");
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,users);
 
+    }
+
+
+    @PutMapping("update_info")
+    public ResponseEntity<?> updateUser(
+            @RequestParam Integer userId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String dob) {
+
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
+        updateUserRequest.setUsername(name);
+        updateUserRequest.setEmail(email);
+        updateUserRequest.setPhone(phone);
+        updateUserRequest.setDob(dob);
+
+        String response = userService.updateUser(userId, updateUserRequest);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
     }
 
 }

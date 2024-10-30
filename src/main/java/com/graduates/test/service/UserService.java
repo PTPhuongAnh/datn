@@ -1,5 +1,6 @@
 package com.graduates.test.service;
 
+import com.graduates.test.dto.UpdateUserRequest;
 import com.graduates.test.model.UserEntity;
 import org.springframework.data.domain.Page;
 
@@ -12,4 +13,6 @@ public interface UserService {
 
     List<UserEntity> getUsersByRole(String roleName);
     boolean isAdmin(Integer userId);
+
+    String updateUser(Integer userId, UpdateUserRequest updateUserRequest);
 }
