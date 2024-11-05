@@ -140,7 +140,7 @@ public class BookImpl implements BookService {
     }
     // Phương thức mới để lấy feedback cho cuốn sách
     private List<Feedback> getFeedbacksForBook(Integer bookId) {
-        return feedbackRepository.findByOrderDetail_Book_IdBook(bookId);
+        return feedbackRepository.findByOrderDetail_Book_IdBookOrderByCreatedAtDesc(bookId);
     }
     // Mã hóa URL
     private String encodeURIComponent(String value) {

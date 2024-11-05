@@ -28,10 +28,11 @@ public class OrderResponse {
     private LocalDateTime deliveryDate;
     private List<BookRespone> books = new ArrayList<>();
     private LocalDateTime createdAt;
+    private List<FeedbackRespone> feedbacks;
     public OrderResponse() {
     }
 
-    public OrderResponse(Integer id, String orderCode, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt) {
+    public OrderResponse(Integer id, String orderCode, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt, List<FeedbackRespone> feedbacks) {
         this.id = id;
         this.orderCode = orderCode;
         this.bookId = bookId;
@@ -53,6 +54,7 @@ public class OrderResponse {
         this.deliveryDate = deliveryDate;
         this.books = books;
         this.createdAt = createdAt;
+        this.feedbacks = feedbacks;
     }
 
     public List<BookRespone> getBooks() {
@@ -221,5 +223,13 @@ public class OrderResponse {
 
     public void setOrderCode(String orderCode) {
         this.orderCode = orderCode;
+    }
+
+    public List<FeedbackRespone> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<FeedbackRespone> feedbacks) {
+        this.feedbacks = feedbacks;
     }
 }

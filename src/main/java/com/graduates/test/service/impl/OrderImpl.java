@@ -137,7 +137,7 @@ public class OrderImpl implements OrderService {
     @Override
     public List<OrderResponse> getOrdersByUserId(Integer userId) {
         List<Order> orders;
-        orders = orderRepository.findByUser_idUser(userId);
+        orders = orderRepository.findByUser_idUserOrderByCreatedAtDesc(userId);
         return orders.stream()
                 .map(this::convertToOrderResponse) // Chuyển đổi từng Order sang OrderResponse
                 .collect(Collectors.toList());
@@ -151,20 +151,7 @@ public class OrderImpl implements OrderService {
     }
 
 
-    // Phương thức lấy feedback cho sách của một user
-//    private List<FeedbackRespone> getFeedbackForBookAndUser(Integer bookId, Integer userId) {
-//        List<Feedback> feedbacks = feedbackRepository.findByBook_IdBookAndUser_IdUser(bookId, userId);
-//
-//        return feedbacks.stream()
-//                .map(feedback -> {
-//                    FeedbackRespone feedbackResponse = new FeedbackRespone();
-//                    feedbackResponse.setUsername(feedback.getUser().getUsername());
-//                    feedbackResponse.setComment(feedback.getComment());
-//                    feedbackResponse.setRating(feedback.getRating());
-//                    return feedbackResponse;
-//                })
-//                .collect(Collectors.toList());
-//    }
+
 
     private OrderResponse convertToOrderResponse(Order order) {
         OrderResponse response = new OrderResponse();
@@ -185,7 +172,6 @@ public class OrderImpl implements OrderService {
                     bookDetail.setIdBook(orderDetail.getBook().getIdBook());
                     bookDetail.setNameBook(orderDetail.getBook().getNameBook());
                     bookDetail.setAuthor(orderDetail.getBook().getAuthor());
-                  //  bookDetail.setDescription_short(orderDetail.getBook().getDescription_short());
                     bookDetail.setQuantity(orderDetail.getQuantity());
                     bookDetail.setPrice(orderDetail.getPrice());
                     bookDetail.setImageUrls(getImageUrlsFromBook(orderDetail.getBook()));
@@ -219,7 +205,7 @@ public class OrderImpl implements OrderService {
 
     }
     private List<Feedback> getFeedbacksForBook(Integer bookId) {
-        return feedbackRepository.findByOrderDetail_Book_IdBook(bookId);
+        return feedbackRepository.findByOrderDetail_Book_IdBookOrderByCreatedAtDesc(bookId);
     }
 
 
@@ -296,11 +282,70 @@ public class OrderImpl implements OrderService {
 
     // Lấy chi tiết đơn hàng cho user
     public OrderResponse getOrderDetailForUser(Integer orderId, Integer userId) {
+//
+//        List<Object[]> results = orderRepository.findOrderWithFeedbackByUser(orderId, userId);
+//
+//        if (results.isEmpty()) {
+//            throw new ResourceNotFoundException("Order not found with id: " + orderId + " for user id: " + userId);
+//        }
+//
+//        OrderResponse orderResponse = null;
+//        List<FeedbackRespone> feedbackResponses = new ArrayList<>();
+//
+//        for (Object[] row : results) {
+//            if (orderResponse == null) {
+//                orderResponse = new OrderResponse(
+//                        (Integer) row[0],         // id
+//                        (String) row[1],          // orderCode
+//                        (Integer) row[2],         // bookId
+//                        (String) row[3],          // title
+//                        (String) row[4],          // author
+//                        (String) row[5],          // description
+//                        (int) row[6],             // quantity
+//                        (double) row[7],          // price
+//                        (List<String>) row[8],    // imageUrls
+//                        (double) row[9],          // total
+//                        (String) row[10],         // shipment
+//                        (String) row[11],         // payment
+//                        (String) row[12],         // phone
+//                        (String) row[13],         // shippingAddress
+//                        (String) row[14],         // receiveName
+//                        (LocalDateTime) row[15],  // date
+//                        (String) row[16],         // status
+//                        (String) row[17],         // note
+//                        (LocalDateTime) row[18],  // deliveryDate
+//                        (List<BookRespone>) row[19],  // books
+//                        (LocalDateTime) row[20],  // createdAt
+//                        feedbackResponses
+//                );
+//            }
+//
+//            Integer feedbackId = (Integer) row[21];
+//            if (feedbackId != null) {
+//                FeedbackRespone feedbackResponse = new FeedbackRespone(
+//                        feedbackId,
+//                        (Integer) row[22],              // userId
+//                        (String) row[23],               // username
+//                        (Integer) row[24],              // orderDetailId
+//                        (Integer) row[25],              // bookId
+//                        (String) row[26],               // bookTitle
+//                        (String) row[27],               // comment
+//                        (Integer) row[28],              // rating
+//                        (LocalDateTime) row[29],        // createdAt
+//                        (LocalDateTime) row[30]         // updateAt
+//                );
+//                feedbackResponses.add(feedbackResponse);
+//            }
+//        }
+//
+//        return orderResponse;
         Order order = orderRepository.findByIdAndUser_idUser(orderId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
         return convertToOrderResponse(order);
     }
+
+
 
 
 
@@ -321,7 +366,9 @@ public class OrderImpl implements OrderService {
         if (optionalOrder.isPresent() && optionalStatus.isPresent()) {
             Order order = optionalOrder.get();
             OrderStatus status = optionalStatus.get();
-
+            if (order.getOrderStatus().getIdStatus().equals(4)) {
+                return false; // Không cho phép chuyển trạng thái nếu đã là "completed"
+            }
             // Cập nhật trạng thái mới
             order.setOrderStatus(status);
 
@@ -393,7 +440,38 @@ public class OrderImpl implements OrderService {
         return response;
     }
 
-
+//    public OrderResponse getOrderWithDetailsAndFeedbacks(Integer orderId) {
+//        Order order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException("Order not found"));
+//
+//        List<OrderDetailResponse> orderDetailResponses = order.getOrderDetails().stream()
+//                .map(orderDetail -> {
+//                    OrderDetailResponse response = new OrderDetailResponse();
+//                    response.setIdOrderDetail(orderDetail.getIdOrderDetail());
+//                    response.set(orderDetail.getProductName());
+//                    response.setQuantity(orderDetail.getQuantity());
+//                    response.set(orderDetail.getPrice());
+//                    return response;
+//                }).collect(Collectors.toList());
+//
+//        List<FeedbackRespone> feedbackResponses = feedbackRepository.findByOrderDetailOrderId(orderId).stream()
+//                .map(feedback -> {
+//                    FeedbackRespone response = new FeedbackRespone();
+//                    response.setIdFeedback(feedback.getIdFeedback());
+//                  //  response.setUserName(feedback.getUser().getUsername());
+//                    response.setComment(feedback.getComment());
+//                    response.setRating(feedback.getRating());
+//                    response.setCreatedAt(feedback.getCreatedAt());
+//                    return response;
+//                }).collect(Collectors.toList());
+//
+//        OrderResponse orderResponse = new OrderResponse();
+//        orderResponse.setIdOrder(order.getIdOrder());
+//        orderResponse.setUserName(order.getUser().getUsername());
+//        orderResponse.setOrderDetails(orderDetailResponses);
+//        orderResponse.setFeedbacks(feedbackResponses);
+//
+//        return orderResponse;
+//    }
 
 
 }

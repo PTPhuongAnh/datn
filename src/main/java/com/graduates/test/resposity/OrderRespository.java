@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public interface OrderRespository extends JpaRepository<Order,Integer> {
     boolean existsByCart(Cart cart);
-    List<Order> findByUser_idUser(Integer userId);
+    List<Order> findByUser_idUserOrderByCreatedAtDesc(Integer userId);
     Optional<Order> findByIdAndUser_idUser(Integer orderId, Integer userId);
     List<Order> findByUser_IdUserAndOrderStatus_IdStatus(Integer userId, Integer statusId);
 
@@ -45,5 +45,18 @@ public interface OrderRespository extends JpaRepository<Order,Integer> {
     boolean existsByOrderCode(String orderCode);
 
 
+    @Query(value = """
+            SELECT o.*, f.id_feedback , f.user_id, u.username, f.order_detail_id,  b.name_book,
+                   f.comment, f.rating, f.created_at, f.update_at
+            FROM orders o
+            LEFT JOIN feedback f ON o.id_order = f.order_id
+            LEFT JOIN book b ON f.book_id = b.id
+            LEFT JOIN user u ON f.user_id = u.id_user
+            WHERE o.id = :orderId
+              AND o.user_id = :userId
+            """, nativeQuery = true)
+    List<Object[]> findOrderWithFeedbackByUser(@Param("orderId") Integer orderId, @Param("userId") Integer userId);
+
     //  Optional<Order> findByIdAndUserId(Integer orderId, Integer userId);
 }
+// em đang bị bug bên be phần get  fb ở detail orde

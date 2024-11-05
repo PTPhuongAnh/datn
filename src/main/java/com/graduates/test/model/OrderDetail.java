@@ -4,6 +4,8 @@ package com.graduates.test.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Data
 @Table(name = "order_details")
@@ -20,7 +22,8 @@ public class OrderDetail {
     @ManyToOne
     @JoinColumn(name = "book_id", referencedColumnName = "id_book")
     private Book book; // Sản phẩm sách trong đơn hàng
-
+    @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Feedback> feedbacks; // Danh sách feedback cho OrderDetail
     private int quantity; // Số lượng sách trong đơn hàng
 
     private Integer price; // Giá của sản phẩm
@@ -72,5 +75,13 @@ public class OrderDetail {
 
     public void setPrice(Integer price) {
         this.price = price;
+    }
+
+    public List<Feedback> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<Feedback> feedbacks) {
+        this.feedbacks = feedbacks;
     }
 }

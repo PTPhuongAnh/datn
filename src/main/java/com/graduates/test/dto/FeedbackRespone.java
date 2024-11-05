@@ -33,6 +33,12 @@ public class FeedbackRespone {
         this.updateAt = updateAt;
     }
 
+    public FeedbackRespone(Integer idFeedback, String comment, Integer rating) {
+        this.idFeedback = idFeedback;
+        this.comment = comment;
+        this.rating = rating;
+    }
+
     // Getters and Setters
     public Integer getIdFeedback() {
         return idFeedback;

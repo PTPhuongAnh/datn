@@ -1,16 +1,22 @@
 package com.graduates.test.service.impl;
 
 import com.graduates.test.dto.UpdateUserRequest;
+import com.graduates.test.exception.ResourceNotFoundException;
+import com.graduates.test.model.Category;
 import com.graduates.test.model.UserEntity;
 import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.graduates.test.model.Role;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +25,9 @@ public class UserImpl implements UserService {
     @Autowired
     private UserResposity userRepository;
 
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
 
     public List<String> getRolesByUserId(Integer userId) {
@@ -83,6 +92,69 @@ public class UserImpl implements UserService {
         userRepository.save(user);
         return "User updated successfully";
     }
+
+
+    @Override
+    public UserEntity getUser(Integer idUser) {
+        return userRepository.findById(idUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher with ID " + idUser + " not found"));
+
+    }
+    @Override
+    public String updateAccount(int idUser, String fullname,String email, String dob, MultipartFile file) {
+        Optional<UserEntity> existingCategory = userRepository.findById(idUser);
+        if (existingCategory.isPresent()) {
+            UserEntity updatedCategory = existingCategory.get();
+            updatedCategory.setFullname(fullname);
+            updatedCategory.setEmail(email);
+            updatedCategory.setDob(dob);
+
+            if (file != null && !file.isEmpty()) {
+                String fileName = saveImage(file);
+                updatedCategory.setImage(fileName);
+            }
+
+           userRepository.save(updatedCategory);
+            return "Update category success";
+        } else {
+            return "Category not found";
+        }
+    }
+
+    @Override
+    public String saveImage(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+
+        try {
+            // Xác định đường dẫn lưu trữ
+            Path path = Paths.get(uploadDir);
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+
+            // Tạo tên tệp duy nhất để tránh xung đột
+            String originalFileName = file.getOriginalFilename();
+            String fileName = System.currentTimeMillis() + "_" + originalFileName;  // Sử dụng timestamp để tạo tên file duy nhất
+            Path filePath = path.resolve(fileName);
+
+            // Sao chép tệp vào thư mục đích
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Ghi thông báo thành công
+            System.out.println("Saved file: " + filePath.toString());
+
+            return fileName;
+
+        } catch (FileAlreadyExistsException e) {
+            throw new RuntimeException("File already exists: " + e.getMessage(), e);
+        } catch (IOException e) {
+            // Ném lỗi nếu có vấn đề trong quá trình lưu trữ
+            throw new RuntimeException("Failed to store image file", e);
+        }
+    }
+
 }
 
 

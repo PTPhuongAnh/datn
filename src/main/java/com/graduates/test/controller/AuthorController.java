@@ -4,6 +4,7 @@ import com.graduates.test.dto.BookRespone;
 import com.graduates.test.dto.LoginDto;
 import com.graduates.test.dto.UpdateUserRequest;
 import com.graduates.test.dto.UserResponseDTO;
+import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
 import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.resposity.CartRepository;
@@ -23,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -84,7 +86,7 @@ public class AuthorController {
         cartRepository.save(cart);
 
         // Lưu vào database qua JPA repository
-      //  userResposity.save(user);
+        //  userResposity.save(user);
 
         // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
@@ -226,34 +228,54 @@ public class AuthorController {
     @GetMapping("/roles")
     public ResponseEntity<?> getUserRoles(@RequestParam Integer userId) {
         List<String> roles = userService.getRolesByUserId(userId);
-        return ResponseHandler.responeBuilder(HttpStatus.OK,true,roles);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, roles);
     }
 
 
     @GetMapping("/list/user")
     public ResponseEntity<?> getUsersByRole() {
         List<UserEntity> users = userService.getUsersByRole("ROLE_USER");
-        return ResponseHandler.responeBuilder(HttpStatus.OK,true,users);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
 
     }
 
+    @PutMapping("/update_info")
+    public ResponseEntity<?> updateCategoryDetails(
+            @RequestParam Integer idUser,
+            @RequestParam(value = "fullname", required = false) String fullname,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "dob", required = false) String dob,
+            @RequestPart(value = "image", required = false) MultipartFile file
+    ) {
+        try {
+            // Kiểm tra xem nameCategory có tồn tại hay không
 
-    @PutMapping("update_info")
-    public ResponseEntity<?> updateUser(
-            @RequestParam Integer userId,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String phone,
-            @RequestParam(required = false) String dob) {
 
-        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
-        updateUserRequest.setUsername(name);
-        updateUserRequest.setEmail(email);
-        updateUserRequest.setPhone(phone);
-        updateUserRequest.setDob(dob);
+            // Kiểm tra xem idCategory có tồn tại hay không
+            UserEntity existingCategory = userService.getUser(idUser);
+            if (existingCategory == null) {
+                // Nếu không tồn tại, ném ngoại lệ ResourceNotFoundException
+                throw new ResourceNotFoundException("User with ID " + idUser + " not found");
+            }
 
-        String response = userService.updateUser(userId, updateUserRequest);
-        return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
+            // Nếu file có, gọi service để cập nhật cả tên và ảnh, nếu không, chỉ cập nhật tên
+            String result=" ";
+            if (file != null && !file.isEmpty()) {
+                result = userService.updateAccount(idUser, fullname, email, dob, file);
+            }
+
+
+            // Trả về phản hồi thành công với thông điệp từ service
+            return ResponseHandler.responeBuilder(HttpStatus.OK, true, result);
+
+        } catch (ResourceNotFoundException e) {
+            // Xử lý trường hợp danh mục không tồn tại
+            return ResponseHandler.responeBuilder(HttpStatus.NOT_FOUND, false, e.getMessage());
+
+        } catch (Exception e) {
+            // Xử lý các ngoại lệ khác nếu có
+            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while updating the user");
+        }
     }
-
 }
+

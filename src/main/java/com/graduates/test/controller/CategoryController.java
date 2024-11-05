@@ -124,42 +124,7 @@ public class CategoryController {
     }
     @PutMapping("/{idCategory}")
     public ResponseEntity<?> updateCategoryDetails(
-//            @PathVariable("idCategory") Integer idCategory,
-//            @RequestParam(value = "nameCategory",required = false) String nameCategory,
-//            @RequestPart(value = "image", required = false) MultipartFile file
-//    ) {
-//
-//        try {
-//            if (nameCategory == null || nameCategory.trim().isEmpty()) {
-//                return ResponseHandler.responeBuilder( HttpStatus.BAD_REQUEST, false, null);
-//            }
-//
-//            // Kiểm tra xem file có bị thiếu hay không
-//            if (file == null || file.isEmpty()) {
-//                return ResponseHandler.responeBuilder( HttpStatus.BAD_REQUEST, false, null);
-//            }
-//
-//            // Kiểm tra xem idCategory có tồn tại hay không
-//            Category existingCategory = categoryService.getCategory(idCategory);
-//            if (existingCategory == null) {
-//                // Nếu không tồn tại, ném ngoại lệ ResourceNotFoundException
-//                throw new ResourceNotFoundException("Category with ID " + idCategory + " not found");
-//            }
-//
-//            // Nếu tồn tại, tiến hành cập nhật danh mục
-//            String result = categoryService.updateCategory(idCategory, nameCategory, file);
-//
-//            // Trả về phản hồi thành công với thông điệp từ service
-//            return ResponseHandler.responeBuilder( HttpStatus.OK, true, result);
-//
-//        } catch (ResourceNotFoundException e) {
-//            // Xử lý trường hợp danh mục không tồn tại
-//            return ResponseHandler.responeBuilder( HttpStatus.NOT_FOUND, false, e.getMessage());
-//
-//        } catch (Exception e) {
-//            // Xử lý các ngoại lệ khác nếu có
-//            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while updating the category");
-//        }
+
             @PathVariable("idCategory") Integer idCategory,
             @RequestParam(value = "nameCategory", required = false) String nameCategory,
             @RequestPart(value = "image", required = false) MultipartFile file

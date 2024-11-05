@@ -30,18 +30,15 @@ public class UserEntity {
     private LocalDateTime updateAt;
     @OneToOne(cascade = CascadeType.ALL)
     private Address address; // Mối quan hệ một-một với Address
-//    @OneToOne(mappedBy = "cart",cascade = CascadeType.ALL)
-//    private Cart cart; // Mối quan hệ một-một với Cart
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart; // Mối quan hệ với Cart
 
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<Order> orders; // Liên kết với các Order
-
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders = new ArrayList<>();  // Quan hệ 1-nhiều với Order
+    private String image;
 
     public LocalDateTime getCreateAt() {
         return createAt;
@@ -165,5 +162,21 @@ public class UserEntity {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

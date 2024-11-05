@@ -140,11 +140,11 @@ public class OrderController {
         // Cập nhật trạng thái đơn hàng dựa vào statusId
         boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);
 
-        if (isUpdated) {
+        if (isUpdated==true) {
            return ResponseHandler.responeBuilder(HttpStatus.OK,true,"Order status updated successfully");
         } else {
             return ResponseHandler.responeBuilder(HttpStatus.OK,false,
-                    "Order not found or status not updated");
+                    "Không thể chuyển trạng thái vì đơn hàng đã hoàn thành hoặc không tồn tại.");
         }
     }
 
