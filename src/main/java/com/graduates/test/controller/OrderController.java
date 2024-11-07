@@ -44,7 +44,6 @@ public class OrderController {
     @PostMapping("/create")
 
     public ResponseEntity<?> createOrder(
-            @RequestParam("userId") Integer userId, // Lấy userId từ tham số
             @RequestParam("shippingAddress") String shippingAddress, // Địa chỉ giao hàng
             @RequestParam("selectedCartDetailIds") List<Integer> selectedCartDetailIds, // Danh sách ID chi tiết giỏ hàng đã chọn
             @RequestParam("paymentId") Integer paymentId, // ID thanh toán
@@ -60,7 +59,6 @@ public class OrderController {
         try {
             // Gọi service để tạo đơn hàng từ giỏ hàng
             Order newOrder = orderService.createOrder(
-                    userId,
                     shippingAddress,
                     selectedCartDetailIds,
                     paymentId,

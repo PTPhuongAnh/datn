@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface OrderService {
-   Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone,String receivingName,String note) throws Exception;
+   Order createOrder( String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone,String receivingName,String note) throws Exception;
 
 
    void cancelOrder(Integer userId, Integer orderId) throws Exception;

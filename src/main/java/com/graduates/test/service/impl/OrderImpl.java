@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -63,8 +65,16 @@ public class OrderImpl implements OrderService {
     }
 
     @Override
-    public Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note) throws Exception {
+    public Order createOrder( String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note) throws Exception {
         // Tìm giỏ hàng của người dùng
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // Lấy username từ token
+
+        // Tìm user dựa trên username
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new Exception("User not found for username: " + username));
+
+        Integer userId = user.getIdUser(); // Lấy userId từ đối tượng User
 
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new Exception("Cart not found for user ID: " + userId));
@@ -130,6 +140,7 @@ public class OrderImpl implements OrderService {
     }
 
 
+
     private String generateUniqueOrderCode() {
         return  UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
@@ -139,7 +150,7 @@ public class OrderImpl implements OrderService {
         List<Order> orders;
         orders = orderRepository.findByUser_idUserOrderByCreatedAtDesc(userId);
         return orders.stream()
-                .map(this::convertToOrderResponse) // Chuyển đổi từng Order sang OrderResponse
+                .map(this::convertToOrderResponse)
                 .collect(Collectors.toList());
 
     }
@@ -282,63 +293,6 @@ public class OrderImpl implements OrderService {
 
     // Lấy chi tiết đơn hàng cho user
     public OrderResponse getOrderDetailForUser(Integer orderId, Integer userId) {
-//
-//        List<Object[]> results = orderRepository.findOrderWithFeedbackByUser(orderId, userId);
-//
-//        if (results.isEmpty()) {
-//            throw new ResourceNotFoundException("Order not found with id: " + orderId + " for user id: " + userId);
-//        }
-//
-//        OrderResponse orderResponse = null;
-//        List<FeedbackRespone> feedbackResponses = new ArrayList<>();
-//
-//        for (Object[] row : results) {
-//            if (orderResponse == null) {
-//                orderResponse = new OrderResponse(
-//                        (Integer) row[0],         // id
-//                        (String) row[1],          // orderCode
-//                        (Integer) row[2],         // bookId
-//                        (String) row[3],          // title
-//                        (String) row[4],          // author
-//                        (String) row[5],          // description
-//                        (int) row[6],             // quantity
-//                        (double) row[7],          // price
-//                        (List<String>) row[8],    // imageUrls
-//                        (double) row[9],          // total
-//                        (String) row[10],         // shipment
-//                        (String) row[11],         // payment
-//                        (String) row[12],         // phone
-//                        (String) row[13],         // shippingAddress
-//                        (String) row[14],         // receiveName
-//                        (LocalDateTime) row[15],  // date
-//                        (String) row[16],         // status
-//                        (String) row[17],         // note
-//                        (LocalDateTime) row[18],  // deliveryDate
-//                        (List<BookRespone>) row[19],  // books
-//                        (LocalDateTime) row[20],  // createdAt
-//                        feedbackResponses
-//                );
-//            }
-//
-//            Integer feedbackId = (Integer) row[21];
-//            if (feedbackId != null) {
-//                FeedbackRespone feedbackResponse = new FeedbackRespone(
-//                        feedbackId,
-//                        (Integer) row[22],              // userId
-//                        (String) row[23],               // username
-//                        (Integer) row[24],              // orderDetailId
-//                        (Integer) row[25],              // bookId
-//                        (String) row[26],               // bookTitle
-//                        (String) row[27],               // comment
-//                        (Integer) row[28],              // rating
-//                        (LocalDateTime) row[29],        // createdAt
-//                        (LocalDateTime) row[30]         // updateAt
-//                );
-//                feedbackResponses.add(feedbackResponse);
-//            }
-//        }
-//
-//        return orderResponse;
         Order order = orderRepository.findByIdAndUser_idUser(orderId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
