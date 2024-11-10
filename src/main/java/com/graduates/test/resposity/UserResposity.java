@@ -40,4 +40,6 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
     long countTotalUser();
 
     UserEntity findAllByUsername(String username);
+
+    boolean existsByUsername(String username);
 }

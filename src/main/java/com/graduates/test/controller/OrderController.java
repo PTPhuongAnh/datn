@@ -1,5 +1,6 @@
 package com.graduates.test.controller;
 
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.BookRespone;
 import com.graduates.test.dto.CartResponse;
 import com.graduates.test.dto.OrderResponse;
@@ -8,6 +9,7 @@ import com.graduates.test.model.Order;
 import com.graduates.test.model.OrderRequest;
 import com.graduates.test.model.UserEntity;
 import com.graduates.test.response.ResponseHandler;
+import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.OrderService;
 import com.graduates.test.service.UserService;
 import com.graduates.test.service.impl.CustomUserDetails;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +42,8 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
+    private JwtService jwtService;
+    private UserResposity userResposity;
     public OrderController(OrderService orderService, UserService userService) {
         this.orderService = orderService;
         this.userService = userService;
@@ -44,6 +51,7 @@ public class OrderController {
     @PostMapping("/create")
 
     public ResponseEntity<?> createOrder(
+            @RequestHeader("Authorization") String token,
             @RequestParam("shippingAddress") String shippingAddress, // Địa chỉ giao hàng
             @RequestParam("selectedCartDetailIds") List<Integer> selectedCartDetailIds, // Danh sách ID chi tiết giỏ hàng đã chọn
             @RequestParam("paymentId") Integer paymentId, // ID thanh toán
@@ -57,8 +65,11 @@ public class OrderController {
        // Integer userId = userDetails.getUserEntity().getIdUser(); // Lấy ID người dùng từ thông tin xác thực
 
         try {
+         //   String token = authorizationHeader.substring(7); // "Bearer " có độ dài 7 ký tự
+            token = token.replace("Bearer ", "");
             // Gọi service để tạo đơn hàng từ giỏ hàng
             Order newOrder = orderService.createOrder(
+                    token,
                     shippingAddress,
                     selectedCartDetailIds,
                     paymentId,
@@ -78,20 +89,21 @@ public class OrderController {
 
 
     @GetMapping("/list/order_user")
-    public ResponseEntity<?> getOrdersByUserIdAndOptionalStatus(@RequestParam Integer userId) {
-
-        List<OrderResponse> responses = orderService.getOrdersByUserId(userId);
+    public ResponseEntity<?> getOrdersByUserIdAndOptionalStatus( @RequestHeader("Authorization") String token) {
+        token = token.replace("Bearer ", "");
+        List<OrderResponse> responses = orderService.getOrdersByUserId(token);
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, responses);
     }
 
 
     @DeleteMapping("/cancel")
     public ResponseEntity<?> cancelOrder(
-            @RequestParam Integer userId,
+            @RequestHeader("Authorization") String token,
             @RequestParam Integer orderId) {
         try {
+            token = token.replace("Bearer ", "");
             // Gọi service để hủy đơn hàng
-            orderService.cancelOrder(userId, orderId);
+            orderService.cancelOrder(token, orderId);
             return ResponseHandler.responeBuilder(HttpStatus.OK,true,"Order canceled successfully.");
         } catch (Exception e) {
             return ResponseHandler.responeBuilder(HttpStatus.OK,false,
@@ -101,19 +113,25 @@ public class OrderController {
     @GetMapping("/list/admin")
     public ResponseEntity<?> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(value = "orderCode", required = false) String orderCode,
+            @RequestParam(required = false)
+            @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime startDate,
+            @RequestParam(required = false)
+            @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime endDate) {
 
-        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt"));
-        Map<String, Object> response = orderService.getAllOrdersWithPagination(pageable);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
-                //new ResponseEntity<>(response, HttpStatus.OK);
+        // Tìm kiếm các đơn hàng trong khoảng ngày
+       // List<Order> orders = orderService.getAllOrdersWithPagination(orderCode, startDate, endDate);
+        Map<String, Object> response = orderService.getAllOrdersWithPagination(pageable, orderCode, startDate, endDate);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
     }
-
     // Lấy chi tiết đơn hàng cho user
     @GetMapping("/detail_user")
-    public ResponseEntity<?> getOrderDetailForUser(@RequestParam Integer orderId, @RequestParam Integer userId) {
-        OrderResponse orderResponse = orderService.getOrderDetailForUser(orderId, userId);
+    public ResponseEntity<?> getOrderDetailForUser(@RequestParam Integer orderId,@RequestHeader("Authorization") String token ) {
+        token = token.replace("Bearer ", "");
+        OrderResponse orderResponse = orderService.getOrderDetailForUser(orderId,token);
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,orderResponse);
     }
 
@@ -125,28 +143,64 @@ public class OrderController {
     }
 
 
+//    @PutMapping("/update-status")
+//    public ResponseEntity<?> updateOrderStatus(@RequestParam("orderId") Integer orderId,
+//                                               @RequestParam("statusId") Integer statusId,
+//                                               @RequestParam("userId") Integer userId) {
+//        // Kiểm tra quyền admin
+//        if (!userService.isAdmin(userId)) {
+//            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
+//                    "You are not authorized to update this order");
+//        }
+//
+//        // Cập nhật trạng thái đơn hàng dựa vào statusId
+//        boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);
+//
+//        if (isUpdated==true) {
+//           return ResponseHandler.responeBuilder(HttpStatus.OK,true,"Order status updated successfully");
+//        } else {
+//            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
+//                    "Không thể chuyển trạng thái vì đơn hàng đã hoàn thành hoặc không tồn tại.");
+//        }
+//    }
+//
+
     @PutMapping("/update-status")
     public ResponseEntity<?> updateOrderStatus(@RequestParam("orderId") Integer orderId,
                                                @RequestParam("statusId") Integer statusId,
-                                               @RequestParam("userId") Integer userId) {
-        // Kiểm tra quyền admin
-        if (!userService.isAdmin(userId)) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
-                    "You are not authorized to update this order");
-        }
+                                               @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            // Lấy token từ header "Authorization" (cắt bỏ phần "Bearer ")
+            String token = authorizationHeader.substring(7); // "Bearer " có độ dài 7 ký tự
 
-        // Cập nhật trạng thái đơn hàng dựa vào statusId
-        boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);
+            // Lấy username từ token và xác thực quyền admin
+            String username = jwtService.extractUsername(token); // Lấy username từ token
 
-        if (isUpdated==true) {
-           return ResponseHandler.responeBuilder(HttpStatus.OK,true,"Order status updated successfully");
-        } else {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
-                    "Không thể chuyển trạng thái vì đơn hàng đã hoàn thành hoặc không tồn tại.");
+            // Kiểm tra quyền Admin từ username (Lấy userId từ username)
+            UserEntity user = userResposity.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
+
+            Integer userId = user.getIdUser();
+
+            // Kiểm tra xem người dùng có quyền admin không
+            if (!userService.isAdmin(userId)) {
+                return ResponseHandler.responeBuilder(HttpStatus.FORBIDDEN, false,
+                        "You are not authorized to update this order");
+            }
+
+            // Cập nhật trạng thái đơn hàng
+            boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);
+
+            if (isUpdated) {
+                return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Order status updated successfully");
+            } else {
+                return ResponseHandler.responeBuilder(HttpStatus.BAD_REQUEST, false,
+                        "Cannot update status because the order is completed or does not exist.");
+            }
+        } catch (Exception e) {
+            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, e.getMessage());
         }
     }
-
-
 
     @GetMapping("/sales")
     public ResponseEntity<?> getStatistics() {

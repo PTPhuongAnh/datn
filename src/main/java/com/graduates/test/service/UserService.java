@@ -18,11 +18,11 @@ public interface UserService {
     List<UserEntity> getUsersByRole(String roleName);
     boolean isAdmin(Integer userId);
 
-    String updateUser(Integer userId, UpdateUserRequest updateUserRequest);
+   // String updateUser(Integer userId, UpdateUserRequest updateUserRequest);
 
     String saveImage(MultipartFile file);
     UserEntity getUser(Integer idUser);
-    String updateAccount(int idUser, String fullname,String email, String dob, MultipartFile file);
+    String updateAccount(String token, String fullname,String email, String dob,String phone) throws Exception;
 
     UserDto getProfileUser(String authorizationHeader);
 

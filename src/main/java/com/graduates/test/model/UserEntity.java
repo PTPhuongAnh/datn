@@ -39,7 +39,7 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders = new ArrayList<>();  // Quan hệ 1-nhiều với Order
-    private String image;
+
 
     public LocalDateTime getCreateAt() {
         return createAt;
@@ -173,11 +173,11 @@ public class UserEntity {
         this.orders = orders;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
+//    public String getImage() {
+//        return image;
+//    }
+//
+//    public void setImage(String image) {
+//        this.image = image;
+//    }
 }

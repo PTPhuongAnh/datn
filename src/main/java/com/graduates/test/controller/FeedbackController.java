@@ -43,11 +43,12 @@ public class FeedbackController {
 //    }
      @PostMapping("/create")
      public ResponseEntity<?> addFeedbacks(
-             @RequestParam("userId") Integer userId,
+             @RequestHeader("Authorization") String token,
              @RequestParam("orderId") Integer orderId,
              @RequestBody List<FeedbackRespone> feedbackDTOs) {
          try {
-             String response = feedbackService.addFeedbacks(userId, orderId, feedbackDTOs);
+             token = token.replace("Bearer ", "");
+             String response = feedbackService.addFeedbacks(token, orderId, feedbackDTOs);
              return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
          } catch (Exception e) {
              return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
@@ -57,10 +58,11 @@ public class FeedbackController {
 
     @PutMapping("/update")
     public ResponseEntity<?> updateFeedbacks(
-            @RequestParam Integer userId,
-            @RequestBody List<FeedbackRespone> feedbackUpdates) {
+            @RequestHeader("Authorization") String token,
+            @RequestBody List<FeedbackRespone> feedbackUpdates) throws Exception {
 
-        String result = feedbackService.updateFeedbacks(userId, feedbackUpdates);
+        token = token.replace("Bearer ", "");
+        String result = feedbackService.updateFeedbacks(token, feedbackUpdates);
         if (result.equals("All feedbacks updated successfully")) {
             return ResponseHandler.responeBuilder(HttpStatus.OK,true,result);
         } else {

@@ -49,6 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/publisher/**").hasRole("ADMIN")
                         .requestMatchers("/distributor/**").hasRole("ADMIN")
                         .requestMatchers("/orders/**").permitAll()
+                        .requestMatchers("/orders/update-status/**").hasRole("ADMIN")
+                      //  .requestMatchers("/orders/list/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/orders/detail_admin/**").hasRole("ADMIN")
                         .requestMatchers("/feedback/**").permitAll()
                         .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
                 );

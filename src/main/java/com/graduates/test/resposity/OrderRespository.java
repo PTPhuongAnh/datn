@@ -1,6 +1,7 @@
 package com.graduates.test.resposity;
 
 import com.graduates.test.dto.CategorySalesDTO;
+import com.graduates.test.dto.OrderResponse;
 import com.graduates.test.model.Cart;
 import com.graduates.test.model.Order;
 import org.springframework.data.domain.Page;
@@ -57,6 +58,16 @@ public interface OrderRespository extends JpaRepository<Order,Integer> {
             """, nativeQuery = true)
     List<Object[]> findOrderWithFeedbackByUser(@Param("orderId") Integer orderId, @Param("userId") Integer userId);
 
-    //  Optional<Order> findByIdAndUserId(Integer orderId, Integer userId);
+//    @Query("SELECT o FROM Order o WHERE " +
+//            "(:orderCode IS NULL OR o.orderCode LIKE %:orderCode%) AND " +
+//            "(:startDate IS NULL OR o.createdAt >= :startDate) AND " +
+//            "(:endDate IS NULL OR o.createdAt <= :endDate)")
+
+    @Query("SELECT o FROM Order o WHERE (:orderCode IS NULL OR o.orderCode LIKE %:orderCode%) " +
+            "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
+            "AND (:endDate IS NULL OR o.createdAt <= :endDate)")
+    Page<Order> findOrdersWithSearch(@Param("orderCode") String orderCode,
+                                             @Param("startDate") LocalDateTime startDate,
+                                             @Param("endDate") LocalDateTime endDate,
+                                             Pageable pageable);
 }
-// em đang bị bug bên be phần get  fb ở detail orde

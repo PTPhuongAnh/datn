@@ -7,6 +7,7 @@ import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,11 +205,15 @@ public class CategoryController {
     @GetMapping("/list")
     public ResponseEntity<?> getCategoryList(
            @RequestParam(value = "nameCategory", required = false) String nameCategory,
-//            @RequestParam(value = "autho", required = false) String author,
+           @RequestParam(required = false) String categoryCode,
+           @RequestParam(required = false)
+           @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime startDate,
+           @RequestParam(required = false)
+           @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime endDate,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Page<Category> categoryPage = categoryService.getList(nameCategory,page, size);
+        Page<Category> categoryPage = categoryService.getList(categoryCode,nameCategory,page, size,startDate,endDate);
 
         if (categoryPage.isEmpty()) {
             return ResponseHandler.responeBuilder( HttpStatus.OK, false, "No categories found");

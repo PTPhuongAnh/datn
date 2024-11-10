@@ -1,6 +1,7 @@
 package com.graduates.test.service.impl;
 
 import ch.qos.logback.core.status.Status;
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.*;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
@@ -38,10 +39,10 @@ public class OrderImpl implements OrderService {
     @Autowired
     private OrderDetailRepository orderDetailRepository;
     @Autowired
-    private PaymentResponsitory paymentRepository; // Để lấy thông tin phương thức thanh toán
+    private PaymentResponsitory paymentRepository;
 
     @Autowired
-    private ShipmentRespository shipmentRepository; // Để lấy thông tin phương thức vận chuyển
+    private ShipmentRespository shipmentRepository;
     @Autowired
     private StatusRespository statusRespository;
     @Autowired
@@ -49,9 +50,10 @@ public class OrderImpl implements OrderService {
 
     @Autowired
     private  FeedbackRepository feedbackRepository;
+    @Autowired
+    private JwtService jwtService;
 
-
-    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository) {
+    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository, JwtService jwtService) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
@@ -62,19 +64,19 @@ public class OrderImpl implements OrderService {
         this.statusRespository = statusRespository;
         this.bookCategoryResposity = bookCategoryResposity;
         this.feedbackRepository = feedbackRepository;
+        this.jwtService = jwtService;
     }
 
     @Override
-    public Order createOrder( String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note) throws Exception {
-        // Tìm giỏ hàng của người dùng
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName(); // Lấy username từ token
+    public Order createOrder(String token, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note) throws Exception {
+        String username = jwtService.extractUsername(token); // Lấy username từ token
 
         // Tìm user dựa trên username
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new Exception("User not found for username: " + username));
 
-        Integer userId = user.getIdUser(); // Lấy userId từ đối tượng User
+        Integer userId = user.getIdUser(); // Lấy userId từ đối tượng UserEntity
+
 
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new Exception("Cart not found for user ID: " + userId));
@@ -108,7 +110,7 @@ public class OrderImpl implements OrderService {
             order.setOrderCode(generateUniqueOrderCode());
         }
         if(orderRepository.existsByOrderCode(order.getOrderCode())){
-             throw  new Exception("order code already exists!");
+            throw  new Exception("order code already exists!");
         }
 
         // Thiết lập chi tiết đơn hàng
@@ -141,18 +143,34 @@ public class OrderImpl implements OrderService {
 
 
 
+
     private String generateUniqueOrderCode() {
         return  UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
     @Override
-    public List<OrderResponse> getOrdersByUserId(Integer userId) {
-        List<Order> orders;
-        orders = orderRepository.findByUser_idUserOrderByCreatedAtDesc(userId);
+    public List<OrderResponse> getOrdersByUserId(String token) {
+//        List<Order> orders;
+//        orders = orderRepository.findByUser_idUserOrderByCreatedAtDesc(userId);
+//        return orders.stream()
+//                .map(this::convertToOrderResponse)
+//                .collect(Collectors.toList());
+        String username = jwtService.extractUsername(token); // Extract username từ token
+
+        // Tìm người dùng dựa trên username (token đã giải mã)
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
+
+        // Lấy userId từ đối tượng UserEntity
+        Integer userId = user.getIdUser();
+
+        // Lấy danh sách đơn hàng của người dùng theo userId
+        List<Order> orders = orderRepository.findByUser_idUserOrderByCreatedAtDesc(userId);
+
+        // Chuyển đổi danh sách Order thành OrderResponse
         return orders.stream()
                 .map(this::convertToOrderResponse)
                 .collect(Collectors.toList());
-
     }
 
     @Override
@@ -236,7 +254,15 @@ public class OrderImpl implements OrderService {
     }
 
 
-    public void cancelOrder(Integer userId, Integer orderId) throws Exception {
+    public void cancelOrder(String token, Integer orderId) throws Exception {
+        String username = jwtService.extractUsername(token); // Extract username từ token
+
+        // Tìm người dùng dựa trên username (token đã giải mã)
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
+
+        // Lấy userId từ đối tượng UserEntity
+        Integer userId = user.getIdUser();
         Order order = orderRepository.findByIdAndUser_idUser(orderId, userId)
                 .orElseThrow(() -> new Exception("Order not found"));
         OrderStatus pendingStatus;
@@ -275,24 +301,50 @@ public class OrderImpl implements OrderService {
             bookCategoryResposity.save(product);
         }
     }
-    public Map<String, Object> getAllOrdersWithPagination(Pageable pageable) {
-        Page<Order> orderPage = orderRepository.findAll(pageable);
+//    public Map<String, Object> getAllOrdersWithPagination(Pageable pageable) {
+//        Page<Order> orderPage = orderRepository.findAll(pageable);
+//
+//        List<OrderResponse> orderResponses = orderPage.getContent().stream()
+//                .map(this::convertToOrderResponse)
+//                .collect(Collectors.toList());
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("orders", orderResponses);
+//        response.put("currentPage", orderPage.getNumber());
+//     //   response.put("totalItems", orderPage.getTotalElements());
+//        response.put("totalPages", orderPage.getTotalPages());
+//
+//        return response;
+//    }
+public Map<String, Object> getAllOrdersWithPagination(Pageable pageable,
+                                                      String orderCode,
+                                                      LocalDateTime startDate,
+                                                      LocalDateTime endDate) {
 
-        List<OrderResponse> orderResponses = orderPage.getContent().stream()
-                .map(this::convertToOrderResponse)
-                .collect(Collectors.toList());
+    Page<Order> ordersPage = orderRepository.findOrdersWithSearch(orderCode, startDate, endDate, pageable);
+    List<OrderResponse> orderResponses = ordersPage.getContent().stream()
+               .map(this::convertToOrderResponse)
+               .collect(Collectors.toList());
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("orders", orderResponses);
-        response.put("currentPage", orderPage.getNumber());
-     //   response.put("totalItems", orderPage.getTotalElements());
-        response.put("totalPages", orderPage.getTotalPages());
+    Map<String, Object> response = new HashMap<>();
+    response.put("orders", orderResponses);
+    response.put("currentPage", ordersPage.getNumber());
+    response.put("totalItems", ordersPage.getTotalElements());
+    response.put("totalPages", ordersPage.getTotalPages());
 
-        return response;
-    }
+    return response;
+}
 
     // Lấy chi tiết đơn hàng cho user
-    public OrderResponse getOrderDetailForUser(Integer orderId, Integer userId) {
+    public OrderResponse getOrderDetailForUser(Integer orderId, String token) {
+        String username = jwtService.extractUsername(token); // Extract username từ token
+
+        // Tìm người dùng dựa trên username (token đã giải mã)
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
+
+        // Lấy userId từ đối tượng UserEntity
+        Integer userId = user.getIdUser();
         Order order = orderRepository.findByIdAndUser_idUser(orderId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 

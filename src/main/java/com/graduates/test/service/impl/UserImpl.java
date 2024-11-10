@@ -68,7 +68,8 @@ public class UserImpl implements UserService {
 
     @Override
     public List<UserEntity> getUsersByRole(String roleName) {
-            return userRepository. findByRoles_Name(roleName);
+
+        return userRepository. findByRoles_Name(roleName);
         }
 
     public boolean isAdmin(Integer userId) {
@@ -84,34 +85,6 @@ public class UserImpl implements UserService {
         return false;
     }
 
-
-    public String updateUser(Integer userId, UpdateUserRequest updateUserRequest) {
-        Optional<UserEntity> userOpt = userRepository.findById(userId);
-        if (!userOpt.isPresent()) {
-            throw new RuntimeException("User not found with id: " + userId);
-        }
-
-        UserEntity user = userOpt.get();
-
-        // Cập nhật các thông tin
-        if (updateUserRequest.getUsername() != null) {
-            user.setUsername(updateUserRequest.getUsername());
-        }
-        if (updateUserRequest.getEmail() != null) {
-            user.setEmail(updateUserRequest.getEmail());
-        }
-        if (updateUserRequest.getPhone() != null) {
-            user.setPhone(updateUserRequest.getPhone());
-        }
-        if (updateUserRequest.getDob() != null) {
-            user.setDob(updateUserRequest.getDob());
-        }
-
-        userRepository.save(user);
-        return "User updated successfully";
-    }
-
-
     @Override
     public UserEntity getUser(Integer idUser) {
         return userRepository.findById(idUser)
@@ -119,18 +92,21 @@ public class UserImpl implements UserService {
 
     }
     @Override
-    public String updateAccount(int idUser, String fullname,String email, String dob, MultipartFile file) {
-        Optional<UserEntity> existingCategory = userRepository.findById(idUser);
+    public String updateAccount(String token, String fullname,String email, String dob,String phone) throws Exception {
+        String username = jwtService.extractUsername(token);  // Lấy username từ token
+
+        // Tìm userId dựa trên username
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new Exception("Không tìm thấy người dùng với username: " + username));
+        Integer userId = user.getIdUser();  // Lấy userId từ đối tượng UserEntity
+
+        Optional<UserEntity> existingCategory = userRepository.findById(userId);
         if (existingCategory.isPresent()) {
             UserEntity updatedCategory = existingCategory.get();
             updatedCategory.setFullname(fullname);
             updatedCategory.setEmail(email);
             updatedCategory.setDob(dob);
-
-            if (file != null && !file.isEmpty()) {
-                String fileName = saveImage(file);
-                updatedCategory.setImage(fileName);
-            }
+            updatedCategory.setPhone(phone);
 
            userRepository.save(updatedCategory);
             return "Update category success";
@@ -203,7 +179,6 @@ public class UserImpl implements UserService {
         String token = authorizationHeader.substring(7);
         String username = jwtService.extractUsername(token);
         UserEntity entity = userRepository.findAllByUsername(username);
-//        List<RoleDto> roleDtos = roleRespository.findAllByIdRoles();
         return UserDto.builder()
                 .idUser(entity.getIdUser())
                 .username(entity.getUsername())
@@ -214,6 +189,8 @@ public class UserImpl implements UserService {
                 .roles(entity.getRoles())
                 .build();
     }
+
+
 
 }
 

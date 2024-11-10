@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 import java.util.function.Function;
 
 
@@ -93,6 +94,9 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+
+
+
     /**
      * Kiểm tra xem token hợp lệ không
      * @param token
@@ -104,4 +108,7 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()))
                 && !isTokenExpired(token);
     }
+
+
+
 }
