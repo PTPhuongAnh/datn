@@ -44,22 +44,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-//    @Bean
-//    public UserDetailsService users(){
-//        UserDetails admin= User.builder()
-//                .username("admin")
-//                .password("admin")
-//                .roles("ADMNIN")
-//                .build();
-//        UserDetails user=User.builder()
-//                .username("user")
-//                .password("user")
-//                .roles("USER")
-//                .build();
-//        return new InMemoryUserDetailsManager(admin,user);
-//
-//
-//    }
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
