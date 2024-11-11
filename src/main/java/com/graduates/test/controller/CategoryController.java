@@ -204,7 +204,7 @@ public class CategoryController {
 
     @GetMapping("/list")
     public ResponseEntity<?> getCategoryList(
-           @RequestParam(value = "nameCategory", required = false) String nameCategory,
+           @RequestParam( required = false) String nameCategory,
            @RequestParam(required = false) String categoryCode,
            @RequestParam(required = false)
            @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime startDate,

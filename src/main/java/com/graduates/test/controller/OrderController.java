@@ -143,28 +143,6 @@ public class OrderController {
     }
 
 
-//    @PutMapping("/update-status")
-//    public ResponseEntity<?> updateOrderStatus(@RequestParam("orderId") Integer orderId,
-//                                               @RequestParam("statusId") Integer statusId,
-//                                               @RequestParam("userId") Integer userId) {
-//        // Kiểm tra quyền admin
-//        if (!userService.isAdmin(userId)) {
-//            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
-//                    "You are not authorized to update this order");
-//        }
-//
-//        // Cập nhật trạng thái đơn hàng dựa vào statusId
-//        boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);
-//
-//        if (isUpdated==true) {
-//           return ResponseHandler.responeBuilder(HttpStatus.OK,true,"Order status updated successfully");
-//        } else {
-//            return ResponseHandler.responeBuilder(HttpStatus.OK,false,
-//                    "Không thể chuyển trạng thái vì đơn hàng đã hoàn thành hoặc không tồn tại.");
-//        }
-//    }
-//
-
     @PutMapping("/update-status")
     public ResponseEntity<?> updateOrderStatus(@RequestParam("orderId") Integer orderId,
                                                @RequestParam("statusId") Integer statusId,

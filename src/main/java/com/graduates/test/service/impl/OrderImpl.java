@@ -52,8 +52,10 @@ public class OrderImpl implements OrderService {
     private  FeedbackRepository feedbackRepository;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private  PaymentStatusMRepository paymentStatusMRepository;
 
-    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository, JwtService jwtService) {
+    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository, JwtService jwtService, PaymentStatusMRepository paymentStatusMRepository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
@@ -65,6 +67,7 @@ public class OrderImpl implements OrderService {
         this.bookCategoryResposity = bookCategoryResposity;
         this.feedbackRepository = feedbackRepository;
         this.jwtService = jwtService;
+        this.paymentStatusMRepository = paymentStatusMRepository;
     }
 
     @Override
@@ -103,6 +106,8 @@ public class OrderImpl implements OrderService {
         order.setUser(cart.getUser());
         OrderStatus pendingStatus = statusRespository.findByStatus("Processing"); // Tìm trạng thái "Pending" từ bảng Status
         order.setOrderStatus(pendingStatus);
+        PaymentStatusM statusM =paymentStatusMRepository.findByStatusName("UNPAID");
+        order.setPaymentStatusM(statusM);
         order.setNote(note);
         order.setDeliveryDate(LocalDateTime.now().plusDays(5));
         if (order.getOrderCode() == null || order.getOrderCode().isEmpty()) {
@@ -150,11 +155,6 @@ public class OrderImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrdersByUserId(String token) {
-//        List<Order> orders;
-//        orders = orderRepository.findByUser_idUserOrderByCreatedAtDesc(userId);
-//        return orders.stream()
-//                .map(this::convertToOrderResponse)
-//                .collect(Collectors.toList());
         String username = jwtService.extractUsername(token); // Extract username từ token
 
         // Tìm người dùng dựa trên username (token đã giải mã)
@@ -194,6 +194,8 @@ public class OrderImpl implements OrderService {
         response.setReceiveName(order.getReceivingName());
         response.setNote(order.getNote());
         response.setDeliveryDate(order.getDeliveryDate());
+        response.setOrderCode(order.getOrderCode());
+        response.setStatusPayment(order.getPaymentStatusM().getStatusName());
         List<BookRespone> bookDetails = order.getOrderDetails().stream()
                 .map(orderDetail -> {
                     BookRespone bookDetail = new BookRespone();
@@ -301,21 +303,7 @@ public class OrderImpl implements OrderService {
             bookCategoryResposity.save(product);
         }
     }
-//    public Map<String, Object> getAllOrdersWithPagination(Pageable pageable) {
-//        Page<Order> orderPage = orderRepository.findAll(pageable);
-//
-//        List<OrderResponse> orderResponses = orderPage.getContent().stream()
-//                .map(this::convertToOrderResponse)
-//                .collect(Collectors.toList());
-//
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("orders", orderResponses);
-//        response.put("currentPage", orderPage.getNumber());
-//     //   response.put("totalItems", orderPage.getTotalElements());
-//        response.put("totalPages", orderPage.getTotalPages());
-//
-//        return response;
-//    }
+
 public Map<String, Object> getAllOrdersWithPagination(Pageable pageable,
                                                       String orderCode,
                                                       LocalDateTime startDate,
@@ -334,6 +322,13 @@ public Map<String, Object> getAllOrdersWithPagination(Pageable pageable,
 
     return response;
 }
+
+
+
+//    @Override
+//    public String getOrderIdByOrderCode(String orderCode) {
+//        return null;
+//    }
 
     // Lấy chi tiết đơn hàng cho user
     public OrderResponse getOrderDetailForUser(Integer orderId, String token) {

@@ -25,15 +25,35 @@ List<Category> findByDeletedFalse();
 //            @Param("nameCategory") String nameCategory,
 //            Pageable pageable);
 
-    @Query("SELECT o FROM Category o WHERE (:categoryCode IS NULL OR o.categoryCode LIKE %:categoryCode%) " +
-            "AND (:nameCategory IS NULL OR o.nameCategory LIKE %:nameCategory%)"+
+//    @Query("SELECT o FROM Category o WHERE (:categoryCode IS NULL OR o.categoryCode LIKE %:categoryCode%) " +
+//            "AND (:nameCategory IS NULL OR o.nameCategory LIKE %:nameCategory%)"+
+//            "AND (:startDate IS NULL OR o.createAt >= :startDate) " +
+//            "AND (:endDate IS NULL OR o.createAt <= :endDate)")
+//    Page<Category> findCategoryWithSearch(@Param("nameCategory") String nameCategory,
+//                                      @Param("categoryCode") String categoryCode,
+//                                     @Param("startDate") LocalDateTime startDate,
+//                                     @Param("endDate") LocalDateTime endDate,
+//                                     Pageable pageable);
+//@Query("SELECT o FROM Category o WHERE :categoryCode IS NULL OR category_code LIKE CONCAT('%', :categoryCode, '%'))" +
+//        "    AND (:nameCategory IS NULL OR name_category LIKE CONCAT('%', :nameCategory, '%'))" +
+//        "    AND (:startDate IS NULL OR create_at >= :startDate)" +
+//        "    AND (:endDate IS NULL OR create_at <= :endDate)")
+//Page<Category> findCategoryWithSearch(@Param("nameCategory") String nameCategory,
+//                                      @Param("categoryCode") String categoryCode,
+//                                      @Param("startDate") LocalDateTime startDate,
+//                                      @Param("endDate") LocalDateTime endDate,
+//                                      Pageable pageable);
+
+    @Query("SELECT o FROM Category o WHERE " +
+            "(:categoryCode IS NULL OR o.categoryCode LIKE %:categoryCode%) " +
+            "AND (:nameCategory IS NULL OR o.nameCategory LIKE %:nameCategory%) " +
             "AND (:startDate IS NULL OR o.createAt >= :startDate) " +
             "AND (:endDate IS NULL OR o.createAt <= :endDate)")
-    Page<Category> findCategoryWithSearch(@Param("nameCategory") String categoryName,
-                                      @Param("categoryCode") String categoryCode,
-                                     @Param("startDate") LocalDateTime startDate,
-                                     @Param("endDate") LocalDateTime endDate,
-                                     Pageable pageable);
-
+    Page<Category> searchCategories(
+            @Param("categoryCode") String categoryCode,
+            @Param("nameCategory") String nameCategory,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+           Pageable pageable);
     boolean existsByCategoryCode(String categoryCode);
 }

@@ -8,7 +8,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
+import lombok.NonNull;
+import org.springframework.validation.annotation.Validated;
+
 @Data
 @Entity
 @Table(name = "book")
@@ -17,18 +24,39 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
    @Column(name = "id_book")
     private Integer idBook;
-
-
+    @NotNull(message = "this is required")
+    @NotBlank(message = "this is required")
     private String nameBook;
-   private String author;
+    @NotNull(message = "this is required")
+    @NotBlank(message = "this is required")
+    private String author;
+    @NotNull(message = "this is required")
+    @NotBlank(message = "this is required")
     private String description_short;
+    @NotNull(message = "this is required")
+    @NotBlank(message = "this is required")
     private String description_long;
+    @NotNull(message = "this is required")
+    @NotBlank(message = "this is required")
     private String size;
+    @NotNull(message = "this is required")
+    @NotBlank(message = "this is required")
     private String year_publisher;
+    @NotNull(message = "this is required")
+    @NotBlank(message = "this is required")
     private String page_number;
+    @NotNull(message = "this is required")
+    @NotBlank(message = "this is required")
     private String barcode;
+    @NotNull(message = "Price is required")
+    @Positive(message = "Price must be a positive number")
+    @Min(value = 1, message = "Price must be at least 1")
     private Integer quantity;
+    @NotNull(message = "Price is required")
+    @Positive(message = "Price must be a positive number")
+    @Min(value = 1, message = "Price must be at least 1")
     private Integer price;
+
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     @ManyToOne // Xác định rằng có nhiều sách có thể thuộc một thể loại (Category)

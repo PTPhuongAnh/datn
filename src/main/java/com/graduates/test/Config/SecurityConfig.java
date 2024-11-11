@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .authorizeRequests(requests -> requests
                         .requestMatchers("/user/auth/**").permitAll() // Cho phép truy cập không cần xác thực
                         .requestMatchers("/category/**").hasRole("ADMIN")
-                        .requestMatchers("/category/list/**").permitAll()
+                        .requestMatchers("/category/list/**").hasRole("ADMIN")
                         .requestMatchers("/cart/**").permitAll()
                         .requestMatchers("/book/**").hasRole("ADMIN")
                         .requestMatchers("/book/list/**").permitAll()

@@ -32,13 +32,6 @@ public class PublisherImpl implements PublisherService {
 
     @Override
     public String createPublisher(Publisher publisher) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        // Kiểm tra nếu người dùng không có vai trò "ROLE_ADMIN", trả về lỗi
-//        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-//            return "Unauthorized: Only admin can create a publisher";
-//        }
-
         // Kiểm tra và tạo mã publisher
         if (publisher.getPublisherCode() == null || publisher.getPublisherCode().isEmpty()) {
             publisher.setPublisherCode(generatePublisherCode());
@@ -51,14 +44,7 @@ public class PublisherImpl implements PublisherService {
         publisherResposity.save(publisher);
         return "Create publisher success";
     }
-//        if(publisher.getPublisherCode()== null || publisher.getPublisherCode().isEmpty()){
-//            publisher.setPublisherCode(generatePublisherCode());
-//        }
-//        if (publisherResposity.existsByPublisherCode(publisher.getPublisherCode())) {
-//            return "Publisher code already exists!";
-//        }
-//        publisherResposity.save(publisher);
-//        return "Create publisher success";
+
 
     private String generatePublisherCode() {
         // Bạn có thể thay đổi cách sinh mã này để phù hợp với yêu cầu của bạn
@@ -71,15 +57,6 @@ public class PublisherImpl implements PublisherService {
     }
 
     public String updatePublisher(Publisher publisher) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        // Kiểm tra nếu người dùng không có vai trò "ROLE_ADMIN", trả về lỗi
-//        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-//            return "Unauthorized: Only admin can update a publisher";
-//        }
-        // Thực hiện logic cập nhật nhà xuất bản trong cơ sở dữ liệu
-//      publisherResposity.save(publisher);
-//        return "Publisher updated successfully.";
         publisherResposity.save(publisher);
         return "Publisher updated successfully.";
     }
@@ -117,12 +94,6 @@ public class PublisherImpl implements PublisherService {
     }
     @Override
     public String deletePublisher(Integer idPublisher) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        // Kiểm tra nếu người dùng không có vai trò "ROLE_ADMIN", trả về lỗi
-//        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-//            throw new IllegalStateException("Unauthorized: Only admin can delete a publisher");
-//        }
         if (isPublisherUsed(idPublisher)) {
             throw new IllegalStateException("Cannot delete category. It is used in one or more books.");
         }

@@ -171,14 +171,15 @@ public class CategoryImpl implements CategoryService {
     }
     public Page<Category> getList(String categoryCode, String categoryName, int page, int sizes, LocalDateTime startDate, LocalDateTime endDate) {
         Pageable pageable = PageRequest.of(page, sizes,Sort.by(Sort.Direction.DESC, "createAt"));
-        if ((categoryName != null && !categoryName.isEmpty()) ||
-                (categoryCode != null && !categoryCode.isEmpty()) ||
-                startDate != null ||
-                endDate != null) {
-
-            return categoryResposity.findCategoryWithSearch(categoryCode,categoryName,startDate,endDate,pageable);
-        } else {
+        if ((categoryName == null ) &&
+                (categoryCode == null) &&
+                (startDate) == null &&
+                ( endDate) == null) {
             return categoryResposity.findAllByDeletedFalse(pageable);
+          //  return categoryResposity.findCategoryWithSearch(categoryCode,categoryName,startDate,endDate,pageable);
+        } else {
+           // return categoryResposity.findAllByDeletedFalse(pageable);
+            return categoryResposity.searchCategories(categoryName,categoryCode,startDate,endDate,pageable);
         }
     }
 
@@ -188,8 +189,6 @@ public class CategoryImpl implements CategoryService {
         if (existingCategory.isPresent()) {
             Category updatedCategory = existingCategory.get();
             updatedCategory.setNameCategory(nameCategory);
-
-            // Cập nhật vào cơ sở dữ liệu
             categoryResposity.save(updatedCategory);
             return "Category updated successfully with no new image";
         } else {

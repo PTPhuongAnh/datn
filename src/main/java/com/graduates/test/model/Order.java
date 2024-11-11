@@ -49,6 +49,19 @@ public class Order {
     private LocalDateTime deliveryDate;
     @Column(unique = true)
     private  String orderCode;
+
+    @ManyToOne
+    @JoinColumn(name = "payment_status_id")
+    private PaymentStatusM paymentStatusM;
+
+    public PaymentStatusM getPaymentStatusM() {
+        return paymentStatusM;
+    }
+
+    public void setPaymentStatusM(PaymentStatusM paymentStatusM) {
+        this.paymentStatusM = paymentStatusM;
+    }
+
     public Order(UserEntity user, Payment payment, Shipment shipment, double totalAmount, String shippingAddress, LocalDateTime createdAt) {
         this.user = user;
         this.totalAmount = totalAmount;
@@ -58,7 +71,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(Integer id, UserEntity user, double totalAmount, String shippingAddress, OrderStatus orderStatus, Payment payment, Shipment shipment, List<OrderDetail> orderDetails, Cart cart, String phone, String receivingName, LocalDateTime createdAt, String note, LocalDateTime deliveryDate, String orderCode) {
+    public Order(Integer id, UserEntity user, double totalAmount, String shippingAddress, OrderStatus orderStatus, Payment payment, Shipment shipment, List<OrderDetail> orderDetails, Cart cart, String phone, String receivingName, LocalDateTime createdAt, String note, LocalDateTime deliveryDate, String orderCode, PaymentStatusM paymentStatusM) {
         this.id = id;
         this.user = user;
         this.totalAmount = totalAmount;
@@ -74,6 +87,7 @@ public class Order {
         this.note = note;
         this.deliveryDate = deliveryDate;
         this.orderCode = orderCode;
+        this.paymentStatusM = paymentStatusM;
     }
 
     public Integer getId() {

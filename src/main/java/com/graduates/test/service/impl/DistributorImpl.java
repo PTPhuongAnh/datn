@@ -75,9 +75,6 @@ public class DistributorImpl implements DistributorService {
         return distributorResposity.findById(idDistributor)
                 .orElse(null); // Trả về null nếu không tìm thấy
     }
-//    public boolean idDistributorUsed(Integer idPublisher) {
-//        return bookCategoryResposity.existsByPublisher_IdPublisher(idPublisher);
-//    }
 
     public boolean idDistributorUsed(Integer idDistributor) {
         return bookCategoryResposity.existsByDistributor_IdDistributor(idDistributor);
@@ -99,7 +96,6 @@ public class DistributorImpl implements DistributorService {
 
     public Page<Distributor> getList(String nameDistributor,String address, int page, int sizes) {
         Pageable pageable = PageRequest.of(page, sizes);
-//        return categoryResposity.searchCategory(nameCategory,pageable);
         if (nameDistributor != null && !nameDistributor.isEmpty()||address!=null&&address.isEmpty()) {
             return distributorResposity.findByNameDistributorContainingOrAddressContaining(nameDistributor,address, pageable);
         } else {

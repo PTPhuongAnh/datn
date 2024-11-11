@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.graduates.test.model.Feedback;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.aspectj.bridge.IMessage;
 
 
 import java.time.LocalDateTime;
@@ -12,20 +15,33 @@ import java.util.List;
 public class BookRespone {
     private Integer orderDetailId;
     private Integer idBook;
-
     private String nameBook;
     private String author;
+
     private String description_short;
+
     private String description_long;
+
     private String size;
+
+
     private String year_publisher;
+
+
     private String page_number;
+
     private String barcode;
+
     private String categoryName;
+
     private String publisherName;
+
     private String distributorName;
+
     private Integer quantity;
+
     private Integer price;
+
     private Integer categoryId;
     private Integer publisherId;
     private Integer distributorId;

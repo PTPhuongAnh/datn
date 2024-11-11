@@ -41,4 +41,7 @@ public interface OrderService {
     OrderResponse getOrderDetailForUser(Integer orderId, String token);
 
     Map<String, Object> getAllOrdersWithPagination(Pageable pageable, String orderCode, LocalDateTime startDate, LocalDateTime endDate);
+   // Integer getOrderIdByOrderCode(String orderCode);
+
+    //  String getOrderIdByOrderCode(String orderCode);
 }
