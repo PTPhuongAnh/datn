@@ -50,7 +50,7 @@ public class Book {
     private String barcode;
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be a positive number")
-    @Min(value = 1, message = "Price must be at least 1")gi
+    @Min(value = 1, message = "Price must be at least 1")
     private Integer quantity;
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be a positive number")
