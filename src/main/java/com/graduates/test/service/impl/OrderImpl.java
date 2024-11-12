@@ -195,7 +195,7 @@ public class OrderImpl implements OrderService {
         response.setNote(order.getNote());
         response.setDeliveryDate(order.getDeliveryDate());
         response.setOrderCode(order.getOrderCode());
-        response.setStatusPayment(order.getPaymentStatusM().getStatusName());
+      //  response.setStatusPayment(order.getPaymentStatusM().getStatusName());
         List<BookRespone> bookDetails = order.getOrderDetails().stream()
                 .map(orderDetail -> {
                     BookRespone bookDetail = new BookRespone();

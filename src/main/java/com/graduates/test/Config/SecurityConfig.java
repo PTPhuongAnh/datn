@@ -41,17 +41,17 @@ public class SecurityConfig {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT filter trước filter của Username/Password
                 .authorizeRequests(requests -> requests
                         .requestMatchers("/user/auth/**").permitAll() // Cho phép truy cập không cần xác thực
-                        .requestMatchers("/category/**").hasRole("ADMIN")
-                        .requestMatchers("/category/list/**").hasRole("ADMIN")
+                        .requestMatchers("/category/**").permitAll()
+                    //    .requestMatchers("/category/list/**").permitAll()
                         .requestMatchers("/cart/**").permitAll()
-                        .requestMatchers("/book/**").hasRole("ADMIN")
+                        .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/book/list/**").permitAll()
                         .requestMatchers("/publisher/**").hasRole("ADMIN")
                         .requestMatchers("/distributor/**").hasRole("ADMIN")
                         .requestMatchers("/orders/**").permitAll()
-                        .requestMatchers("/orders/update-status/**").hasRole("ADMIN")
-                      //  .requestMatchers("/orders/list/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/orders/detail_admin/**").hasRole("ADMIN")
+                    //    .requestMatchers("/orders/update-status/**").permitAll()
+                        .requestMatchers("/orders/list/admin").hasRole("ADMIN")
+                   //     .requestMatchers("/orders/detail_admin/**").permitAll()
                         .requestMatchers("/feedback/**").permitAll()
                         .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
                 );
