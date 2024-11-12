@@ -1,5 +1,6 @@
 package com.graduates.test.service.impl;
 
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.CartResponse;
 import com.graduates.test.model.Book;
 import com.graduates.test.model.Cart;
@@ -32,11 +33,27 @@ public class CartServiceImpl implements CartService {
     private UserResposity userResposity;
     private CartDetailRepository cartDetailRepository;
 
-    public CartServiceImpl(CartRepository cartRepository, BookCategoryResposity bookRepository, UserResposity userResposity, CartDetailRepository cartDetailRepository) {
+    private JwtService jwtService;
+
+    public CartServiceImpl(CartRepository cartRepository, BookCategoryResposity bookRepository, UserResposity userResposity, CartDetailRepository cartDetailRepository, JwtService jwtService) {
         this.cartRepository = cartRepository;
         this.bookRepository = bookRepository;
         this.userResposity = userResposity;
         this.cartDetailRepository = cartDetailRepository;
+        this.jwtService = jwtService;
+    }
+
+    @Override
+    public void addToCartWithToken(String token, Integer bookId, int quantity) throws Exception {
+        // Trích xuất username từ token
+        String username = jwtService.extractUsername(token.replace("Bearer ", ""));
+
+        // Tìm user dựa trên username
+        UserEntity user = userResposity.findByUsername(username)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        // Gọi phương thức addToCart với userId lấy được
+        addToCart(user.getIdUser(), bookId, quantity);
     }
 
     @Override
@@ -110,15 +127,32 @@ public class CartServiceImpl implements CartService {
     public List<Cart> findByUser_idUser(Integer userId) {
         return null;
     }
-
     @Override
-    public Page<CartResponse> getCartByUserId(Integer userId, Pageable pageable) throws Exception {
+    public Page<CartResponse> getCartByUserToken(String token, Pageable pageable) throws Exception {
+        // Trích xuất username từ token
+        String username = jwtService.extractUsername(token);  // jwtUtil là lớp hỗ trợ xử lý JWT
+
+        // Tìm userId dựa trên username
+        UserEntity user = userResposity.findByUsername(username)
+                .orElseThrow(() -> new Exception("Không tìm thấy người dùng với tên đăng nhập: " + username));
+        Integer userId = user.getIdUser();
+
         // Tìm giỏ hàng dựa trên userId
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new Exception("Không tìm thấy giỏ hàng của người dùng với ID: " + userId));
         Page<CartDetail> cartDetailsPage = cartDetailRepository.findByCartAndIsDeletedFalseAndIsPurchasedFalse(cart, pageable);
+
         return cartDetailsPage.map(this::convertToCartResponse);
     }
+
+//    @Override
+//    public Page<CartResponse> getCartByUserId(Integer userId, Pageable pageable) throws Exception {
+//        // Tìm giỏ hàng dựa trên userId
+//        Cart cart = cartRepository.findByUserIdUser(userId)
+//                .orElseThrow(() -> new Exception("Không tìm thấy giỏ hàng của người dùng với ID: " + userId));
+//        Page<CartDetail> cartDetailsPage = cartDetailRepository.findByCartAndIsDeletedFalseAndIsPurchasedFalse(cart, pageable);
+//        return cartDetailsPage.map(this::convertToCartResponse);
+//    }
 
     private CartResponse convertToCartResponse(CartDetail cartDetail) {
         Book book = cartDetail.getBook();
@@ -155,13 +189,51 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    public void updateCartQuantity(Integer userId, Integer bookId, String operation) throws Exception {
+//    public void updateCartQuantity(Integer userId, Integer bookId, String operation) throws Exception {
+//
+//        Cart cart = cartRepository.findByUserIdUser(userId)
+//                .orElseThrow(() -> new Exception("Không tìm thấy giỏ hàng của người dùng với ID: " + userId));
+//        if (!cart.getUser().getIdUser().equals(userId)) {
+//            throw new Exception("Giỏ hàng không thuộc về người dùng với ID: " + userId);
+//        }
+//        Book book = bookRepository.findById(bookId)
+//                .orElseThrow(() -> new Exception("Không tìm thấy sách với ID: " + bookId));
+//
+//        CartDetail cartDetail = cartDetailRepository.findByCartAndBook(cart, book)
+//                .orElseThrow(() -> new Exception("Không tìm thấy sản phẩm trong giỏ hàng với ID sách: " + bookId));
+//
+//        if (operation.equals("increase")) {
+//            if (book.getQuantity() <= cartDetail.getQuantity()) {
+//                throw new Exception("Không đủ số lượng trong kho cho sách: " + book.getNameBook());
+//            }
+//            cartDetail.setQuantity(cartDetail.getQuantity() + 1);
+//        } else if (operation.equals("decrease")) {
+//            if (cartDetail.getQuantity() == 0) {
+//                cartDetailRepository.delete(cartDetail); // Xóa sản phẩm nếu số lượng = 1
+//                return;
+//            }
+//            cartDetail.setQuantity(cartDetail.getQuantity() - 1);
+//        } else {
+//            throw new Exception("Operation không hợp lệ: " + operation);
+//        }
+//
+//        cartDetailRepository.save(cartDetail);
+//    }
+//
 
+    public void updateCartQuantity(String token, Integer bookId, String operation) throws Exception {
+        // Trích xuất username từ token
+        String username = jwtService.extractUsername(token);  // Lấy username từ token
+
+        // Tìm userId dựa trên username
+        UserEntity user = userResposity.findByUsername(username)
+                .orElseThrow(() -> new Exception("Không tìm thấy người dùng với username: " + username));
+        Integer userId = user.getIdUser();  // Lấy userId từ đối tượng UserEntity
+
+        // Tiến hành xử lý như cũ
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new Exception("Không tìm thấy giỏ hàng của người dùng với ID: " + userId));
-        if (!cart.getUser().getIdUser().equals(userId)) {
-            throw new Exception("Giỏ hàng không thuộc về người dùng với ID: " + userId);
-        }
+
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new Exception("Không tìm thấy sách với ID: " + bookId));
 
@@ -175,7 +247,7 @@ public class CartServiceImpl implements CartService {
             cartDetail.setQuantity(cartDetail.getQuantity() + 1);
         } else if (operation.equals("decrease")) {
             if (cartDetail.getQuantity() == 0) {
-                cartDetailRepository.delete(cartDetail); // Xóa sản phẩm nếu số lượng = 1
+                cartDetailRepository.delete(cartDetail); // Xóa sản phẩm nếu số lượng = 0
                 return;
             }
             cartDetail.setQuantity(cartDetail.getQuantity() - 1);
@@ -186,9 +258,13 @@ public class CartServiceImpl implements CartService {
         cartDetailRepository.save(cartDetail);
     }
 
+    public void deleteBooksFromCart(String token, List<Integer> idBooks) throws Exception {
+        String username = jwtService.extractUsername(token);  // Lấy username từ token
 
-
-    public void deleteBooksFromCart(Integer userId, List<Integer> idBooks) {
+        // Tìm userId dựa trên username
+        UserEntity user = userResposity.findByUsername(username)
+                .orElseThrow(() -> new Exception("Không tìm thấy người dùng với username: " + username));
+        Integer userId = user.getIdUser();  // Lấy userId từ đối tượng UserEntity
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new IllegalStateException("Cart not found for user ID: " + userId));
 

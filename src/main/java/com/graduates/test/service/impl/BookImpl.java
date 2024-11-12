@@ -27,11 +27,6 @@ import java.util.stream.Collectors;
 @Service
 public class BookImpl implements BookService {
 
-//    @Value("${file.upload-dirs}")
-//    private String bookUploadDir;
-
-
-
     @Autowired
     private BookCategoryResposity bookCategoryResposity;
 

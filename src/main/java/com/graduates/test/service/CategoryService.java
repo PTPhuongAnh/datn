@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CategoryService {
@@ -24,7 +25,7 @@ public interface CategoryService {
 
 
     void markCategoryAsDeleted(Integer idCategory);
-    Page<Category> getList(String nameCategory, int page, int sizes);
+    Page<Category> getList(String categoryCode, String nameCategory, int page, int sizes, LocalDateTime startDate,LocalDateTime endDate);
 
     String updateCategoryNameOnly(Integer idCategory, String nameCategory);
 }

@@ -6,9 +6,8 @@ import com.graduates.test.model.Feedback;
 import java.util.List;
 
 public interface FeedbackService {
-   // String addFeedbacks(Integer userId, List<FeedbackRespone> feedbackDTOs);
 
-    String updateFeedbacks(Integer userId, List<FeedbackRespone> feedbackUpdates);
-  String addFeedbacks(Integer userId, Integer orderId, List<FeedbackRespone> feedbackDTOs);
+    String updateFeedbacks(String token, List<FeedbackRespone> feedbackUpdates) throws Exception;
+  String addFeedbacks(String token, Integer orderId, List<FeedbackRespone> feedbackDTOs) throws Exception;
 
 }

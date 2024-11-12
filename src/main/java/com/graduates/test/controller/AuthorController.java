@@ -1,9 +1,6 @@
 package com.graduates.test.controller;
 
-import com.graduates.test.dto.BookRespone;
-import com.graduates.test.dto.LoginDto;
-import com.graduates.test.dto.UpdateUserRequest;
-import com.graduates.test.dto.UserResponseDTO;
+import com.graduates.test.dto.*;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
 import com.graduates.test.response.ResponseHandler;
@@ -60,7 +57,9 @@ public class AuthorController {
             @RequestParam("street") String street,
             @RequestParam("city") String city
     ) {
-
+        if (userResposity.existsByUsername(username)) {
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false, "Username already exists");
+        }
         // Tạo UserEntity
         UserEntity user = new UserEntity();
         user.setUsername(username);
@@ -104,7 +103,9 @@ public class AuthorController {
             @RequestParam("street") String street,
             @RequestParam("city") String city
     ) {
-
+        if (userResposity.existsByUsername(username)) {
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false, "Username already exists");
+        }
         // Tạo UserEntity
         UserEntity user = new UserEntity();
         user.setUsername(username);
@@ -125,47 +126,52 @@ public class AuthorController {
 
         // Lưu vào database qua JPA repository
         userResposity.save(user);
+        Cart cart = new Cart();
+        cart.setUser(user);
+
+        // Lưu Cart vào cơ sở dữ liệu
+        cartRepository.save(cart);
 
         // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
     }
 
-    @PostMapping("/login1")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
-                loginDto.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("User sigin success", HttpStatus.OK);
-
-
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(
-            @RequestParam("username") String username,
-            @RequestParam("password") String password) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            // Ép kiểu thành CustomUserDetails
-            CustomUserDetails loggedInUser = (CustomUserDetails) authentication.getPrincipal();
-
-            // Trả về thông tin người dùng và vai trò của họ
-            UserEntity userEntity = loggedInUser.getUserEntity();
-
-            // Chuyển đổi sang DTO
-            UserResponseDTO responseDTO = convertToDTO(userEntity);
-
-            return ResponseHandler.responeBuilder(HttpStatus.OK, true, responseDTO);
-        } catch (BadCredentialsException e) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK, false, null);
-        } catch (Exception e) {
-            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, null);
-        }
-    }
+//    @PostMapping("/login1")
+//    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
+//        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
+//                loginDto.getPassword()));
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        return new ResponseEntity<>("User sigin success", HttpStatus.OK);
+//
+//
+//    }
+//
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(
+//            @RequestParam("username") String username,
+//            @RequestParam("password") String password) {
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(username, password));
+//
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//            // Ép kiểu thành CustomUserDetails
+//            CustomUserDetails loggedInUser = (CustomUserDetails) authentication.getPrincipal();
+//
+//            // Trả về thông tin người dùng và vai trò của họ
+//            UserEntity userEntity = loggedInUser.getUserEntity();
+//
+//            // Chuyển đổi sang DTO
+//            UserResponseDTO responseDTO = convertToDTO(userEntity);
+//
+//            return ResponseHandler.responeBuilder(HttpStatus.OK, true, responseDTO);
+//        } catch (BadCredentialsException e) {
+//            return ResponseHandler.responeBuilder(HttpStatus.OK, false, null);
+//        } catch (Exception e) {
+//            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, null);
+//        }
+//    }
 
     private UserResponseDTO convertToDTO(UserEntity userEntity) {
         UserResponseDTO response = new UserResponseDTO();
@@ -241,32 +247,18 @@ public class AuthorController {
 
     @PutMapping("/update_info")
     public ResponseEntity<?> updateCategoryDetails(
-            @RequestParam Integer idUser,
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "fullname", required = false) String fullname,
             @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "dob", required = false) String dob,
-            @RequestPart(value = "image", required = false) MultipartFile file
+            @RequestParam(value = "phone", required = false) String phone
     ) {
         try {
             // Kiểm tra xem nameCategory có tồn tại hay không
+            token = token.replace("Bearer ", "");
 
-
-            // Kiểm tra xem idCategory có tồn tại hay không
-            UserEntity existingCategory = userService.getUser(idUser);
-            if (existingCategory == null) {
-                // Nếu không tồn tại, ném ngoại lệ ResourceNotFoundException
-                throw new ResourceNotFoundException("User with ID " + idUser + " not found");
-            }
-
-            // Nếu file có, gọi service để cập nhật cả tên và ảnh, nếu không, chỉ cập nhật tên
-            String result=" ";
-            if (file != null && !file.isEmpty()) {
-                result = userService.updateAccount(idUser, fullname, email, dob, file);
-            }
-
-
-            // Trả về phản hồi thành công với thông điệp từ service
-            return ResponseHandler.responeBuilder(HttpStatus.OK, true, result);
+            userService.updateAccount(token, fullname, email, dob, phone);
+            return ResponseHandler.responeBuilder(HttpStatus.OK, true, "User information updated successfully");
 
         } catch (ResourceNotFoundException e) {
             // Xử lý trường hợp danh mục không tồn tại
@@ -276,6 +268,38 @@ public class AuthorController {
             // Xử lý các ngoại lệ khác nếu có
             return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while updating the user");
         }
+    }
+
+
+
+    @PostMapping("/login-token")
+    public ResponseEntity<?> createToken(
+            @RequestParam("username") String username,
+            @RequestParam("password") String password
+    ) {
+        TokenDTO tokenDTO = userService.login(username, password);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,tokenDTO);
+                //ResponseEntity.ok().body(tokenDTO);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(
+            @RequestParam("refreshToken") String refreshToken
+    ) {
+        RefreshTokenDTO refreshTokenDTO = userService.refreshToken(refreshToken);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,refreshTokenDTO);
+                //ResponseEntity.ok().body(refreshTokenDTO);
+
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getProfileUser(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        UserDto refreshTokenDTO = userService.getProfileUser(authorizationHeader);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,refreshTokenDTO);
+                //ResponseEntity.ok().body(refreshTokenDTO);
+
     }
 }
 

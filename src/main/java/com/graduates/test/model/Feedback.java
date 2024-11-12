@@ -26,6 +26,7 @@ public class Feedback {
     private Integer rating;
     private LocalDateTime createdAt;
     private  LocalDateTime updateAt;
+    private Boolean isVisible;
     public Integer getIdFeedback() {
         return idFeedback;
     }
@@ -80,5 +81,13 @@ public class Feedback {
 
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Boolean getVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(Boolean visible) {
+        isVisible = visible;
     }
 }

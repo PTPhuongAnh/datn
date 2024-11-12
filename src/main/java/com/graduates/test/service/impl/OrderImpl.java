@@ -1,6 +1,7 @@
 package com.graduates.test.service.impl;
 
 import ch.qos.logback.core.status.Status;
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.*;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -36,10 +39,10 @@ public class OrderImpl implements OrderService {
     @Autowired
     private OrderDetailRepository orderDetailRepository;
     @Autowired
-    private PaymentResponsitory paymentRepository; // Để lấy thông tin phương thức thanh toán
+    private PaymentResponsitory paymentRepository;
 
     @Autowired
-    private ShipmentRespository shipmentRepository; // Để lấy thông tin phương thức vận chuyển
+    private ShipmentRespository shipmentRepository;
     @Autowired
     private StatusRespository statusRespository;
     @Autowired
@@ -47,9 +50,12 @@ public class OrderImpl implements OrderService {
 
     @Autowired
     private  FeedbackRepository feedbackRepository;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private  PaymentStatusMRepository paymentStatusMRepository;
 
-
-    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository) {
+    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository, JwtService jwtService, PaymentStatusMRepository paymentStatusMRepository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
@@ -60,11 +66,20 @@ public class OrderImpl implements OrderService {
         this.statusRespository = statusRespository;
         this.bookCategoryResposity = bookCategoryResposity;
         this.feedbackRepository = feedbackRepository;
+        this.jwtService = jwtService;
+        this.paymentStatusMRepository = paymentStatusMRepository;
     }
 
     @Override
-    public Order createOrder(Integer userId, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note) throws Exception {
-        // Tìm giỏ hàng của người dùng
+    public Order createOrder(String token, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note) throws Exception {
+        String username = jwtService.extractUsername(token); // Lấy username từ token
+
+        // Tìm user dựa trên username
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new Exception("User not found for username: " + username));
+
+        Integer userId = user.getIdUser(); // Lấy userId từ đối tượng UserEntity
+
 
         Cart cart = cartRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new Exception("Cart not found for user ID: " + userId));
@@ -91,6 +106,8 @@ public class OrderImpl implements OrderService {
         order.setUser(cart.getUser());
         OrderStatus pendingStatus = statusRespository.findByStatus("Processing"); // Tìm trạng thái "Pending" từ bảng Status
         order.setOrderStatus(pendingStatus);
+        PaymentStatusM statusM =paymentStatusMRepository.findByStatusName("UNPAID");
+        order.setPaymentStatusM(statusM);
         order.setNote(note);
         order.setDeliveryDate(LocalDateTime.now().plusDays(5));
         if (order.getOrderCode() == null || order.getOrderCode().isEmpty()) {
@@ -98,7 +115,7 @@ public class OrderImpl implements OrderService {
             order.setOrderCode(generateUniqueOrderCode());
         }
         if(orderRepository.existsByOrderCode(order.getOrderCode())){
-             throw  new Exception("order code already exists!");
+            throw  new Exception("order code already exists!");
         }
 
         // Thiết lập chi tiết đơn hàng
@@ -130,18 +147,30 @@ public class OrderImpl implements OrderService {
     }
 
 
+
+
     private String generateUniqueOrderCode() {
         return  UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
     @Override
-    public List<OrderResponse> getOrdersByUserId(Integer userId) {
-        List<Order> orders;
-        orders = orderRepository.findByUser_idUserOrderByCreatedAtDesc(userId);
-        return orders.stream()
-                .map(this::convertToOrderResponse) // Chuyển đổi từng Order sang OrderResponse
-                .collect(Collectors.toList());
+    public List<OrderResponse> getOrdersByUserId(String token) {
+        String username = jwtService.extractUsername(token); // Extract username từ token
 
+        // Tìm người dùng dựa trên username (token đã giải mã)
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
+
+        // Lấy userId từ đối tượng UserEntity
+        Integer userId = user.getIdUser();
+
+        // Lấy danh sách đơn hàng của người dùng theo userId
+        List<Order> orders = orderRepository.findByUser_idUserOrderByCreatedAtDesc(userId);
+
+        // Chuyển đổi danh sách Order thành OrderResponse
+        return orders.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -165,6 +194,8 @@ public class OrderImpl implements OrderService {
         response.setReceiveName(order.getReceivingName());
         response.setNote(order.getNote());
         response.setDeliveryDate(order.getDeliveryDate());
+        response.setOrderCode(order.getOrderCode());
+      //  response.setStatusPayment(order.getPaymentStatusM().getStatusName());
         List<BookRespone> bookDetails = order.getOrderDetails().stream()
                 .map(orderDetail -> {
                     BookRespone bookDetail = new BookRespone();
@@ -225,7 +256,15 @@ public class OrderImpl implements OrderService {
     }
 
 
-    public void cancelOrder(Integer userId, Integer orderId) throws Exception {
+    public void cancelOrder(String token, Integer orderId) throws Exception {
+        String username = jwtService.extractUsername(token); // Extract username từ token
+
+        // Tìm người dùng dựa trên username (token đã giải mã)
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
+
+        // Lấy userId từ đối tượng UserEntity
+        Integer userId = user.getIdUser();
         Order order = orderRepository.findByIdAndUser_idUser(orderId, userId)
                 .orElseThrow(() -> new Exception("Order not found"));
         OrderStatus pendingStatus;
@@ -264,81 +303,43 @@ public class OrderImpl implements OrderService {
             bookCategoryResposity.save(product);
         }
     }
-    public Map<String, Object> getAllOrdersWithPagination(Pageable pageable) {
-        Page<Order> orderPage = orderRepository.findAll(pageable);
 
-        List<OrderResponse> orderResponses = orderPage.getContent().stream()
-                .map(this::convertToOrderResponse)
-                .collect(Collectors.toList());
+public Map<String, Object> getAllOrdersWithPagination(Pageable pageable,
+                                                      String orderCode,
+                                                      LocalDateTime startDate,
+                                                      LocalDateTime endDate) {
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("orders", orderResponses);
-        response.put("currentPage", orderPage.getNumber());
-     //   response.put("totalItems", orderPage.getTotalElements());
-        response.put("totalPages", orderPage.getTotalPages());
+    Page<Order> ordersPage = orderRepository.findOrdersWithSearch(orderCode, startDate, endDate, pageable);
+    List<OrderResponse> orderResponses = ordersPage.getContent().stream()
+               .map(this::convertToOrderResponse)
+               .collect(Collectors.toList());
 
-        return response;
-    }
+    Map<String, Object> response = new HashMap<>();
+    response.put("orders", orderResponses);
+    response.put("currentPage", ordersPage.getNumber());
+    response.put("totalItems", ordersPage.getTotalElements());
+    response.put("totalPages", ordersPage.getTotalPages());
+
+    return response;
+}
+
+
+
+//    @Override
+//    public String getOrderIdByOrderCode(String orderCode) {
+//        return null;
+//    }
 
     // Lấy chi tiết đơn hàng cho user
-    public OrderResponse getOrderDetailForUser(Integer orderId, Integer userId) {
-//
-//        List<Object[]> results = orderRepository.findOrderWithFeedbackByUser(orderId, userId);
-//
-//        if (results.isEmpty()) {
-//            throw new ResourceNotFoundException("Order not found with id: " + orderId + " for user id: " + userId);
-//        }
-//
-//        OrderResponse orderResponse = null;
-//        List<FeedbackRespone> feedbackResponses = new ArrayList<>();
-//
-//        for (Object[] row : results) {
-//            if (orderResponse == null) {
-//                orderResponse = new OrderResponse(
-//                        (Integer) row[0],         // id
-//                        (String) row[1],          // orderCode
-//                        (Integer) row[2],         // bookId
-//                        (String) row[3],          // title
-//                        (String) row[4],          // author
-//                        (String) row[5],          // description
-//                        (int) row[6],             // quantity
-//                        (double) row[7],          // price
-//                        (List<String>) row[8],    // imageUrls
-//                        (double) row[9],          // total
-//                        (String) row[10],         // shipment
-//                        (String) row[11],         // payment
-//                        (String) row[12],         // phone
-//                        (String) row[13],         // shippingAddress
-//                        (String) row[14],         // receiveName
-//                        (LocalDateTime) row[15],  // date
-//                        (String) row[16],         // status
-//                        (String) row[17],         // note
-//                        (LocalDateTime) row[18],  // deliveryDate
-//                        (List<BookRespone>) row[19],  // books
-//                        (LocalDateTime) row[20],  // createdAt
-//                        feedbackResponses
-//                );
-//            }
-//
-//            Integer feedbackId = (Integer) row[21];
-//            if (feedbackId != null) {
-//                FeedbackRespone feedbackResponse = new FeedbackRespone(
-//                        feedbackId,
-//                        (Integer) row[22],              // userId
-//                        (String) row[23],               // username
-//                        (Integer) row[24],              // orderDetailId
-//                        (Integer) row[25],              // bookId
-//                        (String) row[26],               // bookTitle
-//                        (String) row[27],               // comment
-//                        (Integer) row[28],              // rating
-//                        (LocalDateTime) row[29],        // createdAt
-//                        (LocalDateTime) row[30]         // updateAt
-//                );
-//                feedbackResponses.add(feedbackResponse);
-//            }
-//        }
-//
-//        return orderResponse;
+    public OrderResponse getOrderDetailForUser(Integer orderId, String token) {
+        String username = jwtService.extractUsername(token); // Extract username từ token
+
+        // Tìm người dùng dựa trên username (token đã giải mã)
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
+
+        // Lấy userId từ đối tượng UserEntity
+        Integer userId = user.getIdUser();
         Order order = orderRepository.findByIdAndUser_idUser(orderId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 

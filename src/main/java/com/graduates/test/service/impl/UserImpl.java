@@ -1,9 +1,14 @@
 package com.graduates.test.service.impl;
 
+import com.graduates.test.Config.JwtService;
+import com.graduates.test.dto.RefreshTokenDTO;
+import com.graduates.test.dto.TokenDTO;
 import com.graduates.test.dto.UpdateUserRequest;
+import com.graduates.test.dto.UserDto;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.Category;
 import com.graduates.test.model.UserEntity;
+import com.graduates.test.resposity.RoleRespository;
 import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import com.graduates.test.model.Role;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,12 +26,22 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class UserImpl implements UserService {
     @Autowired
     private UserResposity userRepository;
+    @Autowired
+    private RoleRespository roleRespository;
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+
 
 
     @Value("${file.upload-dir}")
@@ -50,7 +68,8 @@ public class UserImpl implements UserService {
 
     @Override
     public List<UserEntity> getUsersByRole(String roleName) {
-            return userRepository. findByRoles_Name(roleName);
+
+        return userRepository. findByRoles_Name(roleName);
         }
 
     public boolean isAdmin(Integer userId) {
@@ -66,34 +85,6 @@ public class UserImpl implements UserService {
         return false;
     }
 
-
-    public String updateUser(Integer userId, UpdateUserRequest updateUserRequest) {
-        Optional<UserEntity> userOpt = userRepository.findById(userId);
-        if (!userOpt.isPresent()) {
-            throw new RuntimeException("User not found with id: " + userId);
-        }
-
-        UserEntity user = userOpt.get();
-
-        // Cập nhật các thông tin
-        if (updateUserRequest.getUsername() != null) {
-            user.setUsername(updateUserRequest.getUsername());
-        }
-        if (updateUserRequest.getEmail() != null) {
-            user.setEmail(updateUserRequest.getEmail());
-        }
-        if (updateUserRequest.getPhone() != null) {
-            user.setPhone(updateUserRequest.getPhone());
-        }
-        if (updateUserRequest.getDob() != null) {
-            user.setDob(updateUserRequest.getDob());
-        }
-
-        userRepository.save(user);
-        return "User updated successfully";
-    }
-
-
     @Override
     public UserEntity getUser(Integer idUser) {
         return userRepository.findById(idUser)
@@ -101,18 +92,21 @@ public class UserImpl implements UserService {
 
     }
     @Override
-    public String updateAccount(int idUser, String fullname,String email, String dob, MultipartFile file) {
-        Optional<UserEntity> existingCategory = userRepository.findById(idUser);
+    public String updateAccount(String token, String fullname,String email, String dob,String phone) throws Exception {
+        String username = jwtService.extractUsername(token);  // Lấy username từ token
+
+        // Tìm userId dựa trên username
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new Exception("Không tìm thấy người dùng với username: " + username));
+        Integer userId = user.getIdUser();  // Lấy userId từ đối tượng UserEntity
+
+        Optional<UserEntity> existingCategory = userRepository.findById(userId);
         if (existingCategory.isPresent()) {
             UserEntity updatedCategory = existingCategory.get();
             updatedCategory.setFullname(fullname);
             updatedCategory.setEmail(email);
             updatedCategory.setDob(dob);
-
-            if (file != null && !file.isEmpty()) {
-                String fileName = saveImage(file);
-                updatedCategory.setImage(fileName);
-            }
+            updatedCategory.setPhone(phone);
 
            userRepository.save(updatedCategory);
             return "Update category success";
@@ -154,6 +148,49 @@ public class UserImpl implements UserService {
             throw new RuntimeException("Failed to store image file", e);
         }
     }
+
+    @Override
+    public RefreshTokenDTO refreshToken(String refreshToken) {
+        String username = jwtService.extractUsername(refreshToken);
+        UserEntity user = userRepository.findAllByUsername(username);
+        if (jwtService.validateToken(refreshToken, new CustomUserDetails(userRepository.findAllByUsername(username)))) {
+            String accessToken = jwtService.generateAccessToken(Objects.requireNonNull(user), JwtService.REFRESH_TOKEN_EXPIRATION);
+            return new RefreshTokenDTO(accessToken);
+        } else {
+            throw new BadCredentialsException("token-is-invalid");
+        }
+    }
+
+    @Override
+    public TokenDTO login(String username, String password) {
+        UserEntity user = userRepository.findAllByUsername(username);
+        CustomUserDetails customerUserDetail = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                username, password, customerUserDetail.getAuthorities()
+        );
+        authenticationManager.authenticate(authenticationToken);
+        String tokenUser = jwtService.generateAccessToken(user, JwtService.ACCESS_TOKEN_EXPIRATION);
+        String refreshToken = jwtService.generateAccessToken(user, JwtService.REFRESH_TOKEN_EXPIRATION);
+        return new TokenDTO(tokenUser, refreshToken);
+    }
+
+    @Override
+    public UserDto getProfileUser(String authorizationHeader) {
+        String token = authorizationHeader.substring(7);
+        String username = jwtService.extractUsername(token);
+        UserEntity entity = userRepository.findAllByUsername(username);
+        return UserDto.builder()
+                .idUser(entity.getIdUser())
+                .username(entity.getUsername())
+                .fullname(entity.getFullname())
+                .email(entity.getEmail())
+                .phone(entity.getPhone())
+                .dob(entity.getDob())
+                .roles(entity.getRoles())
+                .build();
+    }
+
+
 
 }
 

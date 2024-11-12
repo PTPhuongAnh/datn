@@ -220,9 +220,6 @@ public ResponseEntity<?> updateBook(
         Optional<BookRespone> bookResponse = bookService.getBookById(id);
         return bookResponse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-
-
     @GetMapping("/list")
     public ResponseEntity<?> getList(
             @RequestParam(value = "nameBook", required = false) String nameBook,

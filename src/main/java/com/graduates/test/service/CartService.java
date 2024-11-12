@@ -10,18 +10,19 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CartService {
+    void addToCartWithToken(String token, Integer bookId, int quantity) throws Exception;
     void addToCart(Integer userId, Integer bookId, int quantity) throws Exception;
 
-
+    Page<CartResponse> getCartByUserToken(String token, Pageable pageable) throws Exception;
 
     List<Cart> findByUser_idUser(Integer userId);
 
 
 
-    void updateCartQuantity(Integer userId, Integer bookId, String operation) throws Exception;
+    void updateCartQuantity(String token, Integer bookId, String operation) throws Exception;
 
-    void deleteBooksFromCart(Integer userId, List<Integer> idBooks);
+    void deleteBooksFromCart(String token, List<Integer> idBooks) throws Exception;
 
-    Page<CartResponse> getCartByUserId(Integer userId, Pageable pageable) throws Exception;
+ //   Page<CartResponse> getCartByUserId(Integer userId, Pageable pageable) throws Exception;
 }
 

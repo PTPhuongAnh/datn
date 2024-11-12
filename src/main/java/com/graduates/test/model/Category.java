@@ -15,7 +15,7 @@ public class Category {
     private String image;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
-    private String CategoryCode;
+    private String categoryCode;
     private boolean deleted = false;
 
     public Category( String nameCategory,String image) {
@@ -91,5 +91,13 @@ public class Category {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getCategoryCode() {
+        return categoryCode;
+    }
+
+    public void setCategoryCode(String categoryCode) {
+        this.categoryCode = categoryCode;
     }
 }

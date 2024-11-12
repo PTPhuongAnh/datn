@@ -33,58 +33,139 @@ public class CartController {
 
 
 
-@PostMapping("/add")
-public ResponseEntity<?> addToCart(
-        @RequestParam Integer bookId,
-        @RequestParam int quantity,
-        @RequestParam Integer userId) {
+//@PostMapping("/add")
+//public ResponseEntity<?> addToCart(
+//        @RequestParam Integer bookId,
+//        @RequestParam int quantity,
+//        @RequestParam Integer userId) {
+//
+//    try {
+//        // Sử dụng userId được gửi từ FE
+//        cartService.addToCart(userId, bookId, quantity);
+//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
+//    } catch (Exception e) {
+//        String errorMessage = e.getMessage();
+//
+//        if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
+//            return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+//        } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
+//            return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+//        } else {
+//            System.out.println("Unexpected error: " + errorMessage);
+//            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
+//        }
+//    }
+//}
 
-    try {
-        // Sử dụng userId được gửi từ FE
-        cartService.addToCart(userId, bookId, quantity);
-        return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
-    } catch (Exception e) {
-        String errorMessage = e.getMessage();
 
-        if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
-        } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
-        } else {
-            System.out.println("Unexpected error: " + errorMessage);
-            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
-        }
-    }
-}
-    @GetMapping("/list")
-
-    public ResponseEntity<?> getCartByUser(
-            @RequestParam Integer userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) throws Exception {
-
-        // Tạo đối tượng Pageable với trang và kích thước từ tham số yêu cầu
-        Pageable pageable = PageRequest.of(page, size);
-        Page<CartResponse> cartResponses = cartService.getCartByUserId(userId, pageable);
-        // Gọi service để lấy danh sách sách có phân trang
-        List<CartResponse> cartItems = cartResponses.getContent();
-        Map<String, Object> response = new HashMap<>();
-        response.put("cartItems", cartItems);
-        response.put("currentPage", cartResponses.getNumber());
-        response.put("totalItems", cartResponses.getTotalElements());
-        response.put("totalPages", cartResponses.getTotalPages());
-
-        return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
-    }
-    @PutMapping("/update-quantity")
-    public ResponseEntity<?> updateCartQuantity(
+    @PostMapping("/add")
+    public ResponseEntity<?> addToCart(
             @RequestParam Integer bookId,
-            @RequestParam String operation, // 'increase' hoặc 'decrease'
-            @RequestParam Integer userId) {
+            @RequestParam int quantity,
+            @RequestHeader("Authorization") String token) {
 
         try {
+            token = token.replace("Bearer ", "");
+            // Gọi phương thức addToCartWithToken trong service
+            cartService.addToCartWithToken(token, bookId, quantity);
+            return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
+
+        } catch (Exception e) {
+            String errorMessage = e.getMessage();
+
+            if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
+                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+            } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
+                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+            } else {
+                System.out.println("Unexpected error: " + errorMessage);
+                return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
+            }
+        }
+    }
+//    @GetMapping("/list")
+//
+//    public ResponseEntity<?> getCartByUser(
+//            @RequestParam Integer userId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) throws Exception {
+//
+//        // Tạo đối tượng Pageable với trang và kích thước từ tham số yêu cầu
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<CartResponse> cartResponses = cartService.getCartByUserId(userId, pageable);
+//        // Gọi service để lấy danh sách sách có phân trang
+//        List<CartResponse> cartItems = cartResponses.getContent();
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("cartItems", cartItems);
+//        response.put("currentPage", cartResponses.getNumber());
+//        response.put("totalItems", cartResponses.getTotalElements());
+//        response.put("totalPages", cartResponses.getTotalPages());
+//
+//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
+//    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> getCartByUser(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        try {
+            // Loại bỏ tiền tố "Bearer " nếu có trong token
+            token = token.replace("Bearer ", "");
+
+            // Tạo đối tượng Pageable với trang và kích thước từ tham số yêu cầu
+            Pageable pageable = PageRequest.of(page, size);
+
+            // Gọi service để lấy danh sách sách có phân trang dựa trên token
+            Page<CartResponse> cartResponses = cartService.getCartByUserToken(token, pageable);
+
+            // Chuẩn bị response
+            List<CartResponse> cartItems = cartResponses.getContent();
+            Map<String, Object> response = new HashMap<>();
+            response.put("cartItems", cartItems);
+            response.put("currentPage", cartResponses.getNumber());
+            response.put("totalItems", cartResponses.getTotalElements());
+            response.put("totalPages", cartResponses.getTotalPages());
+
+            return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
+
+        } catch (Exception e) {
+            // Trả về thông báo lỗi nếu có ngoại lệ
+            return ResponseHandler.responeBuilder(HttpStatus.BAD_REQUEST, false, e.getMessage());
+        }
+    }
+//    @PutMapping("/update-quantity")
+//    public ResponseEntity<?> updateCartQuantity(
+//            @RequestParam Integer bookId,
+//            @RequestParam String operation, // 'increase' hoặc 'decrease'
+//            @RequestParam Integer userId) {
+//
+//        try {
+//            // Gọi service để cập nhật số lượng sản phẩm trong giỏ hàng
+//            cartService.updateCartQuantity(userId, bookId, operation);
+//            return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Số lượng sản phẩm đã được cập nhật.");
+//        } catch (Exception e) {
+//            String errorMessage = e.getMessage();
+//            if (errorMessage.contains("Không đủ số lượng trong kho")) {
+//                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+//            }
+//            return ResponseHandler.responeBuilder(HttpStatus.OK, false, "Không thể cập nhật số lượng sản phẩm!");
+//        }
+//    }
+
+    @PutMapping("/update-quantity")
+    public ResponseEntity<?> updateCartQuantity(
+            @RequestHeader("Authorization") String token,
+            @RequestParam Integer bookId,
+            @RequestParam String operation) {
+
+        try {
+            // Loại bỏ "Bearer " nếu có trong token
+            token = token.replace("Bearer ", "");
+
             // Gọi service để cập nhật số lượng sản phẩm trong giỏ hàng
-            cartService.updateCartQuantity(userId, bookId, operation);
+            cartService.updateCartQuantity(token, bookId, operation);
             return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Số lượng sản phẩm đã được cập nhật.");
         } catch (Exception e) {
             String errorMessage = e.getMessage();
@@ -96,28 +177,35 @@ public ResponseEntity<?> addToCart(
     }
 
 
-//    @DeleteMapping("/delete")
-//    public ResponseEntity<?> deleteBookFromCart(@RequestParam Integer userId, @RequestParam Integer  idBook) {
-//        try {
-//          cartService.deleteBookFromCart(userId,idBook);
-//            return ResponseHandler.responeBuilder(HttpStatus.OK,true," delete book from cart successfully.");
-//        } catch (IllegalStateException e) {
-//            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
-//        }
+//@DeleteMapping("/delete")
+//public ResponseEntity<?> deleteBooksFromCart(@RequestParam Integer userId, @RequestParam List<Integer> idBook) {
+//    try {
+//        cartService.deleteBooksFromCart(userId, idBook);
+//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Deleted books from cart successfully.");
+//    } catch (IllegalStateException e) {
+//        return ResponseHandler.responeBuilder(HttpStatus.OK, false, e.getMessage());
 //    }
-@DeleteMapping("/delete")
-public ResponseEntity<?> deleteBooksFromCart(@RequestParam Integer userId, @RequestParam List<Integer> idBook) {
+//}
+@DeleteMapping("/delete-books")
+public ResponseEntity<?> deleteBooksFromCart(
+        @RequestHeader("Authorization") String token, // Lấy token từ header
+        @RequestParam List<Integer> idBooks) {
+
     try {
-        cartService.deleteBooksFromCart(userId, idBook);
-        return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Deleted books from cart successfully.");
-    } catch (IllegalStateException e) {
-        return ResponseHandler.responeBuilder(HttpStatus.OK, false, e.getMessage());
+        // Lấy token từ header và loại bỏ tiền tố "Bearer " nếu có
+         token = token.replace("Bearer ", "");
+        cartService.deleteBooksFromCart(token, idBooks); // Gọi service để xóa sách
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Sách đã được xóa khỏi giỏ hàng.");
+
+    } catch (Exception e) {
+        return ResponseHandler.responeBuilder(HttpStatus.BAD_REQUEST, false, e.getMessage());
     }
 }
-
-
-
 }
+
+
+
+
 
 
 

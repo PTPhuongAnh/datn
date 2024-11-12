@@ -1,5 +1,6 @@
 package com.graduates.test.service.impl;
 
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.FeedbackRespone;
 import com.graduates.test.model.*;
 import com.graduates.test.resposity.FeedbackRepository;
@@ -21,16 +22,26 @@ public class FeedbackServiceImpl implements FeedbackService {
     private UserResposity userResposity;
     @Autowired
     private OrderDetailRepository orderDetailRepository;
+    @Autowired
+    private JwtService jwtService;
 
-    public FeedbackServiceImpl(FeedbackRepository feedbackRepository, UserResposity userResposity, OrderDetailRepository orderDetailRepository) {
+    public FeedbackServiceImpl(FeedbackRepository feedbackRepository, UserResposity userResposity, OrderDetailRepository orderDetailRepository, JwtService jwtService) {
         this.feedbackRepository = feedbackRepository;
         this.userResposity = userResposity;
         this.orderDetailRepository = orderDetailRepository;
+        this.jwtService = jwtService;
     }
+
     @Override
-    public String addFeedbacks(Integer userId, Integer orderId, List<FeedbackRespone> feedbackDTOs) {
-        UserEntity user = userResposity.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public String addFeedbacks(String token, Integer orderId, List<FeedbackRespone> feedbackDTOs) throws Exception {
+        String username = jwtService.extractUsername(token);  // Lấy username từ token
+
+        // Tìm userId dựa trên username
+        UserEntity user = userResposity.findByUsername(username)
+                .orElseThrow(() -> new Exception("Không tìm thấy người dùng với username: " + username));
+        Integer userId = user.getIdUser();  // Lấy userId từ đối tượng UserEntity
+//        UserEntity user = userResposity.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
 
         for (FeedbackRespone feedbackDTO : feedbackDTOs) {
             OrderDetail orderDetail = orderDetailRepository.findById(feedbackDTO.getOrderDetailId())
@@ -106,9 +117,15 @@ public class FeedbackServiceImpl implements FeedbackService {
 //    }
 
 
-    public String updateFeedbacks(Integer userId, List<FeedbackRespone> feedbackUpdates) {
-        UserEntity user = userResposity.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public String updateFeedbacks(String token, List<FeedbackRespone> feedbackUpdates) throws Exception {
+        String username = jwtService.extractUsername(token);  // Lấy username từ token
+
+        // Tìm userId dựa trên username
+        UserEntity user = userResposity.findByUsername(username)
+                .orElseThrow(() -> new Exception("Không tìm thấy người dùng với username: " + username));
+        Integer userId = user.getIdUser();  // Lấy userId từ đối tượng UserEntity
+//        UserEntity user = userResposity.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
         for (FeedbackRespone feedbackUpdate : feedbackUpdates) {
             // Tìm Feedback theo feedbackId
             Feedback feedback = feedbackRepository.findById(feedbackUpdate.getIdFeedback())
