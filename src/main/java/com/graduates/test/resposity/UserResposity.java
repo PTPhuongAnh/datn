@@ -38,4 +38,6 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
            "JOIN u.roles r " +
            "WHERE r.name = 'ROLE_USER'")
     long countTotalUser();
+
+    UserEntity findAllByUsername(String username);
 }

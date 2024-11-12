@@ -1,9 +1,6 @@
 package com.graduates.test.controller;
 
-import com.graduates.test.dto.BookRespone;
-import com.graduates.test.dto.LoginDto;
-import com.graduates.test.dto.UpdateUserRequest;
-import com.graduates.test.dto.UserResponseDTO;
+import com.graduates.test.dto.*;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
 import com.graduates.test.response.ResponseHandler;
@@ -276,6 +273,33 @@ public class AuthorController {
             // Xử lý các ngoại lệ khác nếu có
             return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while updating the user");
         }
+    }
+
+    @PostMapping("/login-token")
+    public ResponseEntity<TokenDTO> createToken(
+            @RequestParam("username") String username,
+            @RequestParam("password") String password
+    ) {
+        TokenDTO tokenDTO = userService.login(username, password);
+        return ResponseEntity.ok().body(tokenDTO);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<RefreshTokenDTO> refreshToken(
+            @RequestParam("refreshToken") String refreshToken
+    ) {
+        RefreshTokenDTO refreshTokenDTO = userService.refreshToken(refreshToken);
+        return ResponseEntity.ok().body(refreshTokenDTO);
+
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getProfileUser(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        UserDto refreshTokenDTO = userService.getProfileUser(authorizationHeader);
+        return ResponseEntity.ok().body(refreshTokenDTO);
+
     }
 }
 
