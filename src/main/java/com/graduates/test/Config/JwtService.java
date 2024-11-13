@@ -19,8 +19,10 @@ import java.util.function.Function;
 public class JwtService {
     public static final String SECRET_KEY = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
-    public static final int ACCESS_TOKEN_EXPIRATION = 30 * 60 * 1000;
-    public static final int REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000;
+ //   public static final int ACCESS_TOKEN_EXPIRATION = 30 * 60 * 1000;
+    public static final int ACCESS_TOKEN_EXPIRATION = 10 * 365 * 24 * 60 * 60 * 1000;
+    public static final int REFRESH_TOKEN_EXPIRATION= 10 * 365 * 24 * 60 * 60 * 1000;
+//    public static final int REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000;
     public static final int TOKEN_EXPIRATION_LINK_RESET_PASSWORD = 15 * 60 * 1000;
 
 

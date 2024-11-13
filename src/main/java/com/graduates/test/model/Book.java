@@ -24,37 +24,38 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
    @Column(name = "id_book")
     private Integer idBook;
-    @NotNull(message = "this is required")
-    @NotBlank(message = "this is required")
+//    @NotNull(message = "this is required")
+//    @NotBlank(message = "this is required")
     private String nameBook;
-    @NotNull(message = "this is required")
-    @NotBlank(message = "this is required")
+//    @NotNull(message = "this is required")
+//    @NotBlank(message = "this is required")
     private String author;
-    @NotNull(message = "this is required")
-    @NotBlank(message = "this is required")
+//    @NotNull(message = "this is required")
+//    @NotBlank(message = "this is required")
     private String description_short;
-    @NotNull(message = "this is required")
-    @NotBlank(message = "this is required")
+//    @NotNull(message = "this is required")
+//    @NotBlank(message = "this is required")
     private String description_long;
-    @NotNull(message = "this is required")
-    @NotBlank(message = "this is required")
+//    @NotNull(message = "this is required")
+//    @NotBlank(message = "this is required")
     private String size;
-    @NotNull(message = "this is required")
-    @NotBlank(message = "this is required")
+//    @NotNull(message = "this is required")
+//    @NotBlank(message = "this is required")
     private String year_publisher;
-    @NotNull(message = "this is required")
-    @NotBlank(message = "this is required")
+//    @NotNull(message = "this is required")
+//    @NotBlank(message = "this is required")
     private String page_number;
-    @NotNull(message = "this is required")
-    @NotBlank(message = "this is required")
+//    @NotNull(message = "this is required")
+//    @NotBlank(message = "this is required")
     private String barcode;
-    @NotNull(message = "Price is required")
-    @Positive(message = "Price must be a positive number")
-    @Min(value = 1, message = "Price must be at least 1")
+
+//    @NotNull(message = "Price is required")
+//    @Positive(message = "Price must be a positive number")
+//    @Min(value = 1, message = "Price must be at least 1")
     private Integer quantity;
-    @NotNull(message = "Price is required")
-    @Positive(message = "Price must be a positive number")
-    @Min(value = 1, message = "Price must be at least 1")
+//    @NotNull(message = "Price is required")
+//    @Positive(message = "Price must be a positive number")
+//    @Min(value = 1, message = "Price must be at least 1")
     private Integer price;
 
     private LocalDateTime createAt;
