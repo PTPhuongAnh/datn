@@ -146,25 +146,25 @@ public class OrderController {
     @PutMapping("/update-status")
     public ResponseEntity<?> updateOrderStatus(@RequestParam("orderId") Integer orderId,
                                                @RequestParam("statusId") Integer statusId,
-                                               @RequestHeader("Authorization") String authorizationHeader) {
+                                               @RequestHeader("Authorization") String token) {
         try {
             // Lấy token từ header "Authorization" (cắt bỏ phần "Bearer ")
-            String token = authorizationHeader.substring(7); // "Bearer " có độ dài 7 ký tự
-
+//            String token = authorizationHeader.substring(7); // "Bearer " có độ dài 7 ký tự
+            token = token.replace("Bearer ", "");
             // Lấy username từ token và xác thực quyền admin
-            String username = jwtService.extractUsername(token); // Lấy username từ token
-
-            // Kiểm tra quyền Admin từ username (Lấy userId từ username)
-            UserEntity user = userResposity.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
-
-            Integer userId = user.getIdUser();
-
-            // Kiểm tra xem người dùng có quyền admin không
-            if (!userService.isAdmin(userId)) {
-                return ResponseHandler.responeBuilder(HttpStatus.FORBIDDEN, false,
-                        "You are not authorized to update this order");
-            }
+//            String username = jwtService.extractUsername(token); // Lấy username từ token
+//
+//            // Kiểm tra quyền Admin từ username (Lấy userId từ username)
+//            UserEntity user = userResposity.findByUsername(username)
+//                    .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
+//
+//            Integer userId = user.getIdUser();
+//
+//            // Kiểm tra xem người dùng có quyền admin không
+//            if (!userService.isAdmin(userId)) {
+//                return ResponseHandler.responeBuilder(HttpStatus.FORBIDDEN, false,
+//                        "You are not authorized to update this order");
+//            }
 
             // Cập nhật trạng thái đơn hàng
             boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);
