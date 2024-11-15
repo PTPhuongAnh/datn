@@ -26,10 +26,7 @@ public class MoMoPaymentController {
                                                   @RequestParam String orderInfo,
                                                   @RequestParam String email) {
         try {
-            // Lấy orderId từ orderCode bằng OrderService
-           // Integer orderId = orderService.getOrderIdByOrderCode(orderCode);
 
-            // Gọi PaymentService để thực hiện thanh toán với orderId
             String response = paymentService.initiatePayment(idorder, amount, orderInfo, email);
 
             return ResponseEntity.ok(response);
