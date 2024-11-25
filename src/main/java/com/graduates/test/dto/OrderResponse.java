@@ -30,10 +30,11 @@ public class OrderResponse {
     private LocalDateTime createdAt;
     private List<FeedbackRespone> feedbacks;
     private String StatusPayment;
+    private Double voucher;
     public OrderResponse() {
     }
 
-    public OrderResponse(Integer id, String orderCode, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt, List<FeedbackRespone> feedbacks, String statusPayment) {
+    public OrderResponse(Integer id, String orderCode, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt, List<FeedbackRespone> feedbacks, String statusPayment, Double voucher) {
         this.id = id;
         this.orderCode = orderCode;
         this.bookId = bookId;
@@ -57,6 +58,7 @@ public class OrderResponse {
         this.createdAt = createdAt;
         this.feedbacks = feedbacks;
         StatusPayment = statusPayment;
+        this.voucher = voucher;
     }
 
     public List<BookRespone> getBooks() {
@@ -241,5 +243,13 @@ public class OrderResponse {
 
     public void setStatusPayment(String statusPayment) {
         StatusPayment = statusPayment;
+    }
+
+    public Double getVoucher() {
+        return voucher;
+    }
+
+    public void setVoucher(Double voucher) {
+        this.voucher = voucher;
     }
 }

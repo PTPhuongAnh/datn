@@ -42,6 +42,10 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "cart_id") // Tham chiếu đến Cart
     private Cart cart; // Liên kết tới Cart
+
+    @ManyToOne
+    @JoinColumn(name = "voucher_ids")
+    private Voucher voucher; // Liên kết với Voucher
     private String phone;
     private String receivingName;
     private LocalDateTime createdAt;
@@ -173,13 +177,29 @@ public class Order {
     public Cart getCart() {
         return cart;
     }
+    public void applyVoucher(Voucher voucher) {
+        if (this.totalAmount > 300000) {
+            this.voucher = voucher;
+            // Áp dụng giảm giá từ voucher nếu cần
+            this.totalAmount -= voucher.getDiscountValue(); // Giảm giá nếu có voucher
+        } else {
+            System.out.println("Voucher không áp dụng vì tổng giá trị đơn hàng nhỏ hơn 300 nghìn");
+        }
+    }
 
-    public void initializeFromCart(Cart cart, String shippingAddress) {
+    public void initializeFromCart(Cart cart, String shippingAddress) throws Exception {
         this.user = cart.getUser(); // Lấy người dùng từ giỏ hàng
         this.shippingAddress = shippingAddress;
         this.createdAt = LocalDateTime.now();
         double total = 0.0;
-
+        if (this.voucher != null) {
+            if (this.voucher.getMaxUsage() <= 0) {
+                // Nếu số lượng voucher còn lại <= 0, thông báo không thể sử dụng voucher
+                throw new Exception("Voucher has no remaining uses.");
+            }
+            // Giảm số lượng sử dụng của voucher nếu voucher còn số lượng sử dụng
+            this.voucher.setMaxUsage(this.voucher.getMaxUsage() - 1);
+        }
         for (CartDetail cartDetail : cart.getCartDetails()) {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setBook(cartDetail.getBook());
@@ -229,5 +249,13 @@ public class Order {
 
     public void setOrderCode(String orderCode) {
         this.orderCode = orderCode;
+    }
+
+    public Voucher getVoucher() {
+        return voucher;
+    }
+
+    public void setVoucher(Voucher voucher) {
+        this.voucher = voucher;
     }
 }

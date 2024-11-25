@@ -59,6 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/orders/list/admin").hasRole("ADMIN")
                    //     .requestMatchers("/orders/detail_admin/**").permitAll()
                         .requestMatchers("/feedback/**").permitAll()
+                        .requestMatchers("/feedback/list").hasRole("ADMIN")
+
                         .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
                 );
         return http.build();
@@ -92,38 +94,38 @@ public class SecurityConfig {
      * Sử dụng SecurityFilterChain cấu hình cho Spring Security
      * Bao gồm phân quyền các endpoint
      */
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-//                .authorizeHttpRequests(r -> {
-//                    r.anyRequest().permitAll();
-//                });
-//        return http.build();
-//    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults()) // Kích hoạt CORS
-                .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
+                .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(r -> {
-                    r.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // Cho phép OPTIONS
-                    r.anyRequest().permitAll(); // Cho phép tất cả yêu cầu khác
+                    r.anyRequest().permitAll();
                 });
         return http.build();
     }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Nguồn được phép
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Phương thức được phép
-        configuration.setAllowedHeaders(List.of("*")); // Header được phép
-        configuration.setAllowCredentials(true); // Nếu cần cookie hoặc thông tin xác thực
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Áp dụng cho tất cả endpoint
-        return source;
-    }
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .cors(Customizer.withDefaults()) // Kích hoạt CORS
+//                .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
+//                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+//                .authorizeHttpRequests(r -> {
+//                    r.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // Cho phép OPTIONS
+//                    r.anyRequest().permitAll(); // Cho phép tất cả yêu cầu khác
+//                });
+//        return http.build();
+//    }
+//
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // URL frontend
+//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Phương thức được phép
+//        configuration.setAllowedHeaders(List.of("Content-Type", "Authorization")); // Header được phép
+//        configuration.setAllowCredentials(true); // Cookie hoặc thông tin xác thực
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration); // Áp dụng cho tất cả endpoint
+//        return source;
+//    }
 }

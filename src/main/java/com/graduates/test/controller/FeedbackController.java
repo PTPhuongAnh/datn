@@ -1,6 +1,7 @@
 package com.graduates.test.controller;
 
 import com.graduates.test.dto.FeedbackRespone;
+import com.graduates.test.dto.FeedbackResponse;
 import com.graduates.test.model.Feedback;
 import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.service.FeedbackService;
@@ -16,31 +17,6 @@ import java.util.List;
 public class FeedbackController {
     @Autowired
     private FeedbackService feedbackService;
-
-//    @PostMapping("/create")
-//    public ResponseEntity<?> addFeedback(
-//            @RequestParam Integer userId,
-//            @RequestParam Integer orderDetailId,
-//            @RequestParam Integer bookId,
-//            @RequestParam String comment,
-//            @RequestParam Integer rating) {
-//
-//        String result = feedbackService.addFeedback(userId, orderDetailId,bookId, comment, rating);
-//
-//        // Kiểm tra kết quả trả về từ service và xử lý tương ứng
-//        if (result.equals("User does not own this order detail.")) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
-//        } else if (result.equals("Order status is not 'DELIVERY'. Feedback cannot be added.")) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-//        }
-//
-//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, result);
-//    }
-//    @GetMapping("/list")
-//    public ResponseEntity<?> getFeedbackByBookId(@RequestParam Integer bookId) {
-//        List<FeedbackRespone> feedbacks = feedbackService.getFeedbackResponsesByBookId(bookId);
-//        return ResponseHandler.responeBuilder(HttpStatus.OK,true,feedbacks);
-//    }
      @PostMapping("/create")
      public ResponseEntity<?> addFeedbacks(
              @RequestHeader("Authorization") String token,
@@ -68,5 +44,18 @@ public class FeedbackController {
         } else {
             return ResponseHandler.responeBuilder(HttpStatus.OK,false,result);
         }
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> getAllFeedbacks() {
+        List<FeedbackResponse> feedbackResponses = feedbackService.getAllFeedbacks();
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,feedbackResponses);
+    }
+
+    // Thay đổi trạng thái hiển thị của feedback (Ẩn hoặc Hiện)
+    @PutMapping("/{id}/visibility")
+    public ResponseEntity<?> changeFeedbackVisibility(@PathVariable Integer id, @RequestParam Boolean isVisible) {
+        feedbackService.changeVisibility(id, isVisible);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,"success");
     }
 }

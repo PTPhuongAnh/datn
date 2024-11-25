@@ -19,7 +19,7 @@ public class MoMoPaymentController {
     public MoMoPaymentController(MoMoPaymentService paymentService) {
         this.paymentService = paymentService;
     }
-
+  //  @CrossOrigin(origins = "http://localhost:3000") // Chỉ cho phép từ frontend này
     @PostMapping("/momo")
     public ResponseEntity<String> initiatePayment(@RequestParam Integer idorder,
                                                   @RequestParam String amount,
@@ -28,6 +28,19 @@ public class MoMoPaymentController {
         try {
 
             String response = paymentService.initiatePayment(idorder, amount, orderInfo, email);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Payment initiation failed: " + e.getMessage());
+        }
+    }
+    @PostMapping("/atm")
+    public ResponseEntity<String> PaymentATM(@RequestParam Integer idorder,
+                                                  @RequestParam String amount,
+                                                  @RequestParam String email) {
+        try {
+
+            String response = paymentService.initiateATMRequest(idorder, amount, email);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

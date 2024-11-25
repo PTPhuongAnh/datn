@@ -4,10 +4,7 @@ import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.BookRespone;
 import com.graduates.test.dto.CartResponse;
 import com.graduates.test.dto.OrderResponse;
-import com.graduates.test.model.Book;
-import com.graduates.test.model.Order;
-import com.graduates.test.model.OrderRequest;
-import com.graduates.test.model.UserEntity;
+import com.graduates.test.model.*;
 import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.OrderService;
@@ -41,13 +38,18 @@ public class OrderController {
     private OrderService orderService; // Inject OrderService
     @Autowired
     private UserService userService;
-
+@Autowired
     private JwtService jwtService;
+@Autowired
     private UserResposity userResposity;
-    public OrderController(OrderService orderService, UserService userService) {
+
+    public OrderController(OrderService orderService, UserService userService, JwtService jwtService, UserResposity userResposity) {
         this.orderService = orderService;
         this.userService = userService;
+        this.jwtService = jwtService;
+        this.userResposity = userResposity;
     }
+
     @PostMapping("/create")
 
     public ResponseEntity<?> createOrder(
@@ -58,9 +60,10 @@ public class OrderController {
             @RequestParam("shipmentId") Integer shipmentId ,// ID vận chuyển
             @RequestParam("phone") String phone,
             @RequestParam("receivingName") String receivingName,
-            @RequestParam("note") String note
+            @RequestParam("note") String note,
+            @RequestParam(value = "voucher",required = false) Integer voucherId
 
-           ) {
+            ) {
 
        // Integer userId = userDetails.getUserEntity().getIdUser(); // Lấy ID người dùng từ thông tin xác thực
 
@@ -76,7 +79,8 @@ public class OrderController {
                     shipmentId,
                     phone,
                     receivingName,
-                    note
+                    note,
+                    voucherId
 
 
             );
@@ -153,18 +157,7 @@ public class OrderController {
             token = token.replace("Bearer ", "");
             // Lấy username từ token và xác thực quyền admin
 //            String username = jwtService.extractUsername(token); // Lấy username từ token
-//
-//            // Kiểm tra quyền Admin từ username (Lấy userId từ username)
-//            UserEntity user = userResposity.findByUsername(username)
-//                    .orElseThrow(() -> new RuntimeException("User not found for username: " + username));
-//
-//            Integer userId = user.getIdUser();
-//
-//            // Kiểm tra xem người dùng có quyền admin không
-//            if (!userService.isAdmin(userId)) {
-//                return ResponseHandler.responeBuilder(HttpStatus.FORBIDDEN, false,
-//                        "You are not authorized to update this order");
-//            }
+
 
             // Cập nhật trạng thái đơn hàng
             boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);

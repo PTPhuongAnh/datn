@@ -54,8 +54,10 @@ public class OrderImpl implements OrderService {
     private JwtService jwtService;
     @Autowired
     private  PaymentStatusMRepository paymentStatusMRepository;
+    @Autowired
+    private  VoucherRepository voucherRepository;
 
-    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository, JwtService jwtService, PaymentStatusMRepository paymentStatusMRepository) {
+    public OrderImpl(UserResposity userRepository, OrderRespository orderRepository, CartRepository cartRepository, CartDetailRepository cartDetailRepository, OrderDetailRepository orderDetailRepository, PaymentResponsitory paymentRepository, ShipmentRespository shipmentRepository, StatusRespository statusRespository, BookCategoryResposity bookCategoryResposity, FeedbackRepository feedbackRepository, JwtService jwtService, PaymentStatusMRepository paymentStatusMRepository, VoucherRepository voucherRepository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
@@ -68,10 +70,11 @@ public class OrderImpl implements OrderService {
         this.feedbackRepository = feedbackRepository;
         this.jwtService = jwtService;
         this.paymentStatusMRepository = paymentStatusMRepository;
+        this.voucherRepository = voucherRepository;
     }
 
     @Override
-    public Order createOrder(String token, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note) throws Exception {
+    public Order createOrder(String token, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId, String phone, String receivingName, String note,Integer voucherId) throws Exception {
         String username = jwtService.extractUsername(token); // Lấy username từ token
 
         // Tìm user dựa trên username
@@ -91,6 +94,41 @@ public class OrderImpl implements OrderService {
         Shipment shipment = shipmentRepository.findById(shipmentId)
                 .orElseThrow(() -> new Exception("Shipment not found with ID: " + shipmentId));
 
+        Voucher voucher = null;
+        double finalAmount = cart.getTotalAmount();
+        if (voucherId != null) {
+            voucher = voucherRepository.findById(voucherId)
+                    .orElseThrow(() -> new Exception("Voucher not found"));
+            if (!voucher.getIsActive()) {
+                throw new Exception("Voucher is not active and cannot be used.");
+            }
+            if (voucher.getMaxUsage() <= 0) {
+                throw new Exception("Voucher has no remaining uses.");
+            }
+
+
+            // Kiểm tra nếu tổng giá trị đơn hàng thỏa mãn điều kiện voucher
+            double totalAmount = cart.getTotalAmount();
+            if (totalAmount < 300000) {
+                throw new Exception("Order amount must be above 300,000 to use this voucher.");
+            }
+            double discountValue = voucher.getDiscountValue(); // Phần trăm giảm giá
+            finalAmount -= (finalAmount * (discountValue / 100)); // Áp dụng phần trăm giảm giá vào tổng tiền
+
+            // Đảm bảo số tiền cuối cùng không nhỏ hơn 0
+            if (finalAmount < 0) {
+                finalAmount = 0;
+            }
+
+
+            // Giảm số lượng voucher nếu voucher còn số lượng sử dụng
+            voucher.setMaxUsage(voucher.getId() - 1);
+            voucherRepository.save(voucher); // Lưu lại voucher sau khi giảm số lượng
+        }else {
+            voucher = new Voucher();  // Khởi tạo voucher mặc định nếu không có voucherId
+            voucher.setDiscountValue(0.0);
+        }
+
         // Tạo đơn hàng mới
         Order order = new Order();
         order.setCart(cart);
@@ -99,7 +137,7 @@ public class OrderImpl implements OrderService {
         order.setPayment(payment); // Thiết lập payment
         order.setShipment(shipment); // Thiết lập shipment
         order.setCreatedAt(LocalDateTime.now());
-        order.setTotalAmount(cart.getTotalAmount());
+        order.setTotalAmount(finalAmount);
         order.setPhone(phone);
         order.setReceivingName(receivingName);
         //  order.setOrderStatus();
@@ -110,6 +148,7 @@ public class OrderImpl implements OrderService {
         order.setPaymentStatusM(statusM);
         order.setNote(note);
         order.setDeliveryDate(LocalDateTime.now().plusDays(5));
+        order.setVoucher(voucher);
         if (order.getOrderCode() == null || order.getOrderCode().isEmpty()) {
             // Tạo mã đơn hàng theo UUID hoặc quy tắc khác
             order.setOrderCode(generateUniqueOrderCode());
@@ -141,6 +180,7 @@ public class OrderImpl implements OrderService {
             }
             book.setQuantity(book.getQuantity() - cartDetail.getQuantity());
         }
+
 
         // Lưu đơn hàng vào database
         return orderRepository.save(order);
@@ -182,61 +222,131 @@ public class OrderImpl implements OrderService {
 
 
 
-    private OrderResponse convertToOrderResponse(Order order) {
-        OrderResponse response = new OrderResponse();
-        response.setId(order.getId());
-        response.setShipment(order.getShipment().getShippingMethod());
-        response.setPayment(order.getPayment().getPaymentMethod());
-       response.setCreatedAt(order.getCreatedAt());
-        response.setStatus(order.getOrderStatus().getStatus());
-        response.setPhone(order.getPhone());
-        response.setShippingAdrress(order.getShippingAddress());
-        response.setReceiveName(order.getReceivingName());
-        response.setNote(order.getNote());
-        response.setDeliveryDate(order.getDeliveryDate());
-        response.setOrderCode(order.getOrderCode());
-      //  response.setStatusPayment(order.getPaymentStatusM().getStatusName());
-        List<BookRespone> bookDetails = order.getOrderDetails().stream()
-                .map(orderDetail -> {
-                    BookRespone bookDetail = new BookRespone();
-                    bookDetail.setOrderDetailId(orderDetail.getIdOrderDetail());
-                    bookDetail.setIdBook(orderDetail.getBook().getIdBook());
-                    bookDetail.setNameBook(orderDetail.getBook().getNameBook());
-                    bookDetail.setAuthor(orderDetail.getBook().getAuthor());
-                    bookDetail.setQuantity(orderDetail.getQuantity());
-                    bookDetail.setPrice(orderDetail.getPrice());
-                    bookDetail.setImageUrls(getImageUrlsFromBook(orderDetail.getBook()));
-                    List<Feedback> feedbacks = getFeedbacksForBook(orderDetail.getBook().getIdBook());
+private OrderResponse convertToOrderResponse(Order order) {
+    // Lấy username từ SecurityContextHolder
+    String currentUsername = getCurrentUsernameFromContext();
 
-                    // Chuyển đổi feedback thành FeedbackResponse
-                    List<FeedbackRespone> feedbackResponses = feedbacks.stream()
-                            .map(feedback -> {
-                                FeedbackRespone feedbackResponse = new FeedbackRespone();
-                                feedbackResponse.setUsername(feedback.getUser().getUsername()); // Giả sử có phương thức getUsername() trong UserEntity
-                                feedbackResponse.setComment(feedback.getComment());
-                                feedbackResponse.setRating(feedback.getRating());
-                                return feedbackResponse;
-                            })
-                            .collect(Collectors.toList());
+    OrderResponse response = new OrderResponse();
+    response.setId(order.getId());
+    response.setShipment(order.getShipment().getShippingMethod());
+    response.setPayment(order.getPayment().getPaymentMethod());
+    response.setCreatedAt(order.getCreatedAt());
+    response.setStatus(order.getOrderStatus().getStatus());
+    response.setPhone(order.getPhone());
+    response.setShippingAdrress(order.getShippingAddress());
+    response.setReceiveName(order.getReceivingName());
+    response.setNote(order.getNote());
+    response.setDeliveryDate(order.getDeliveryDate());
+    response.setOrderCode(order.getOrderCode());
+    response.setVoucher(order.getVoucher().getDiscountValue());
 
-                    bookDetail.setFeedbacks(feedbackResponses);
-                    return bookDetail;
-                })
-                .collect(Collectors.toList());
+    List<BookRespone> bookDetails = order.getOrderDetails().stream()
+            .map(orderDetail -> {
+                BookRespone bookDetail = new BookRespone();
+                bookDetail.setOrderDetailId(orderDetail.getIdOrderDetail());
+                bookDetail.setIdBook(orderDetail.getBook().getIdBook());
+                bookDetail.setNameBook(orderDetail.getBook().getNameBook());
+                bookDetail.setAuthor(orderDetail.getBook().getAuthor());
+                bookDetail.setQuantity(orderDetail.getQuantity());
+                bookDetail.setPrice(orderDetail.getPrice());
+                bookDetail.setImageUrls(getImageUrlsFromBook(orderDetail.getBook()));
 
-        response.setBooks(bookDetails);
+                // Lấy feedback của sách, chỉ trả về feedback của người dùng hiện tại
+                List<Feedback> feedbacks = getFeedbacksForBooks(order.getId(),orderDetail.getBook().getIdBook(),currentUsername);
+                List<FeedbackRespone> feedbackResponses = feedbacks.stream()
+                        .map(feedback -> {
+                            FeedbackRespone feedbackResponse = new FeedbackRespone();
+                            feedbackResponse.setUsername(feedback.getUser().getUsername());
+                            feedbackResponse.setComment(feedback.getComment());
+                            feedbackResponse.setRating(feedback.getRating());
+                            return feedbackResponse;
+                        })
+                        .collect(Collectors.toList());
 
-        // Tính tổng tiền của đơn hàng
-        double totalAmount = order.getOrderDetails().stream()
-                .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
-                .sum();
-        response.setTotal(totalAmount);
+                bookDetail.setFeedbacks(feedbackResponses);
+                return bookDetail;
+            })
+            .collect(Collectors.toList());
 
-        return response;
+    response.setBooks(bookDetails);
 
+    // Tính tổng tiền của đơn hàng
+    double totalAmount = order.getOrderDetails().stream()
+            .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
+            .sum();
+    response.setTotal(totalAmount);
+
+    return response;
+}
+
+//    private OrderResponse convertToOrderResponse(Order order) {
+//        // Lấy username từ SecurityContextHolder
+//        String currentUsername = getCurrentUsernameFromContext();
+//
+//        OrderResponse response = new OrderResponse();
+//        response.setId(order.getId());
+//        response.setShipment(order.getShipment().getShippingMethod());
+//        response.setPayment(order.getPayment().getPaymentMethod());
+//        response.setCreatedAt(order.getCreatedAt());
+//        response.setStatus(order.getOrderStatus().getStatus());
+//        response.setPhone(order.getPhone());
+//        response.setShippingAdrress(order.getShippingAddress());
+//        response.setReceiveName(order.getReceivingName());
+//        response.setNote(order.getNote());
+//        response.setDeliveryDate(order.getDeliveryDate());
+//        response.setOrderCode(order.getOrderCode());
+//        response.setVoucher(order.getVoucher().getDiscountValue());
+//
+//        List<BookRespone> bookDetails = order.getOrderDetails().stream()
+//                .map(orderDetail -> {
+//                    BookRespone bookDetail = new BookRespone();
+//                    bookDetail.setOrderDetailId(orderDetail.getIdOrderDetail());
+//                    bookDetail.setIdBook(orderDetail.getBook().getIdBook());
+//                    bookDetail.setNameBook(orderDetail.getBook().getNameBook());
+//                    bookDetail.setAuthor(orderDetail.getBook().getAuthor());
+//                    bookDetail.setQuantity(orderDetail.getQuantity());
+//                    bookDetail.setPrice(orderDetail.getPrice());
+//                    bookDetail.setImageUrls(getImageUrlsFromBook(orderDetail.getBook()));
+//
+//                    // Lấy feedback của sách, chỉ trả về feedback của người dùng hiện tại
+//                    List<Feedback> feedbacks = getFeedbacksForBook(orderDetail.getBook().getIdBook(), currentUsername);
+//                    List<FeedbackRespone> feedbackResponses = feedbacks.stream()
+//                            .map(feedback -> {
+//                                FeedbackRespone feedbackResponse = new FeedbackRespone();
+//                                feedbackResponse.setUsername(feedback.getUser().getUsername());
+//                                feedbackResponse.setComment(feedback.getComment());
+//                                feedbackResponse.setRating(feedback.getRating());
+//                                return feedbackResponse;
+//                            })
+//                            .collect(Collectors.toList());
+//
+//                    bookDetail.setFeedbacks(feedbackResponses);
+//                    return bookDetail;
+//                })
+//                .collect(Collectors.toList());
+//
+//        response.setBooks(bookDetails);
+//
+//        // Tính tổng tiền của đơn hàng
+//        double totalAmount = order.getOrderDetails().stream()
+//                .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
+//                .sum();
+//        response.setTotal(totalAmount);
+//
+//        return response;
+//    }
+
+    private String getCurrentUsernameFromContext() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return authentication.getName();  // Trả về username từ SecurityContext
+        }
+        return null;  // Nếu không có authentication thì trả về null
     }
-    private List<Feedback> getFeedbacksForBook(Integer bookId) {
-        return feedbackRepository.findByOrderDetail_Book_IdBookOrderByCreatedAtDesc(bookId);
+    private List<Feedback> getFeedbacksForBooks(Integer orderId,Integer bookId,String username) {
+      //  return feedbackRepository.findByOrderDetail_Book_IdBookOrderByCreatedAtDesc(bookId);
+       // return feedbackRepository.findByBookIdAndUsername(bookId, username);
+        return feedbackRepository.findByOrderDetail_Order_IdAndOrderDetail_Book_IdBookAndOrderDetail_Order_User_Username( orderId,bookId,username);
     }
 
 
@@ -441,38 +551,6 @@ public Map<String, Object> getAllOrdersWithPagination(Pageable pageable,
         return response;
     }
 
-//    public OrderResponse getOrderWithDetailsAndFeedbacks(Integer orderId) {
-//        Order order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException("Order not found"));
-//
-//        List<OrderDetailResponse> orderDetailResponses = order.getOrderDetails().stream()
-//                .map(orderDetail -> {
-//                    OrderDetailResponse response = new OrderDetailResponse();
-//                    response.setIdOrderDetail(orderDetail.getIdOrderDetail());
-//                    response.set(orderDetail.getProductName());
-//                    response.setQuantity(orderDetail.getQuantity());
-//                    response.set(orderDetail.getPrice());
-//                    return response;
-//                }).collect(Collectors.toList());
-//
-//        List<FeedbackRespone> feedbackResponses = feedbackRepository.findByOrderDetailOrderId(orderId).stream()
-//                .map(feedback -> {
-//                    FeedbackRespone response = new FeedbackRespone();
-//                    response.setIdFeedback(feedback.getIdFeedback());
-//                  //  response.setUserName(feedback.getUser().getUsername());
-//                    response.setComment(feedback.getComment());
-//                    response.setRating(feedback.getRating());
-//                    response.setCreatedAt(feedback.getCreatedAt());
-//                    return response;
-//                }).collect(Collectors.toList());
-//
-//        OrderResponse orderResponse = new OrderResponse();
-//        orderResponse.setIdOrder(order.getIdOrder());
-//        orderResponse.setUserName(order.getUser().getUsername());
-//        orderResponse.setOrderDetails(orderDetailResponses);
-//        orderResponse.setFeedbacks(feedbackResponses);
-//
-//        return orderResponse;
-//    }
 
 
 }

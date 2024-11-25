@@ -2,6 +2,7 @@ package com.graduates.test.service.impl;
 
 import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.FeedbackRespone;
+import com.graduates.test.dto.FeedbackResponse;
 import com.graduates.test.model.*;
 import com.graduates.test.resposity.FeedbackRepository;
 import com.graduates.test.resposity.OrderDetailRepository;
@@ -81,40 +82,6 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 
 
-//    public String addFeedbacks(Integer userId, List<FeedbackRespone> feedbackDTOs) {
-//        UserEntity user = userResposity.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        for (FeedbackRespone feedbackDTO : feedbackDTOs) {
-//            OrderDetail orderDetail = orderDetailRepository.findById(feedbackDTO.getOrderDetailId())
-//                    .orElseThrow(() -> new RuntimeException("Order Detail not found"));
-//
-//            Order order = orderDetail.getOrder();
-//            if (order.getOrderStatus().getIdStatus() != 4) {
-//                return "Order status is not 'DELIVERY'. Feedback cannot be added.";
-//            }
-//
-//            if (!order.getUser().getIdUser().equals(userId)) {
-//                return "User does not own this order detail.";
-//            }
-//
-//            Book book = orderDetail.getBook();
-//            if (book == null || !book.getIdBook().equals(feedbackDTO.getBookId())) {
-//                return "The book does not belong to this order detail.";
-//            }
-//
-//            Feedback feedback = new Feedback();
-//            feedback.setUser(user);
-//            feedback.setOrderDetail(orderDetail);
-//            feedback.setComment(feedbackDTO.getComment());
-//            feedback.setRating(feedbackDTO.getRating());
-//            feedback.setCreatedAt(LocalDateTime.now());
-//
-//            feedbackRepository.save(feedback);
-//        }
-//
-//        return "Feedbacks added successfully";
-//    }
 
 
     public String updateFeedbacks(String token, List<FeedbackRespone> feedbackUpdates) throws Exception {
@@ -146,6 +113,31 @@ public class FeedbackServiceImpl implements FeedbackService {
         }
         return "All feedbacks updated successfully";
     }
+
+    public List<FeedbackResponse> getAllFeedbacks() {
+        List<Feedback> feedbacks = feedbackRepository.findAllByOrderByCreatedAtDesc();
+        return feedbacks.stream()
+                .filter(Feedback::getIsVisible)  // Chỉ trả về những feedback có trạng thái là hiển thị
+                .map(this::convertToFeedbackResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    private FeedbackResponse convertToFeedbackResponse(Feedback feedback) {
+        FeedbackResponse response = new FeedbackResponse();
+        response.setUsername(feedback.getUser().getUsername());
+        response.setBookTitle(feedback.getOrderDetail().getBook().getNameBook());
+        response.setComment(feedback.getComment());
+        response.setRating(feedback.getRating());
+        response.setCreatedAt(feedback.getCreatedAt());
+        return response;
+    }
+
+    // Thay đổi trạng thái hiển thị của feedback
+    public void changeVisibility(Integer id, Boolean isVisible) {
+        feedbackRepository.updateVisibility(id, isVisible);
+    }
+
 
 }
 

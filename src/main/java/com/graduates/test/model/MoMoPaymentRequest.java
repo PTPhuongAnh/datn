@@ -15,6 +15,15 @@ public class MoMoPaymentRequest {
     private String requestId;
     private String extraData;
     private String signature;
+    private String lang;
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
+    }
 
     public String getAccessKey() {
         return accessKey;

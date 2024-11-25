@@ -11,16 +11,17 @@ import java.util.List;
 public interface FeedbackRepository extends JpaRepository<Feedback,Integer> {
 
 
-  List<Feedback> findByOrderDetailBookIdBook(Integer bookId);
 
+  List<Feedback> findByOrderDetail_Order_IdAndOrderDetail_Book_IdBookAndOrderDetail_Order_User_Username(Integer orderId, Integer bookId, String username);
 
   List<Feedback> findByOrderDetail_Book_IdBookOrderByCreatedAtDesc(Integer bookId);
-  //  List<Feedback> findByOrderDetail_Book_IdBook(Integer bookId);
 
-//  List<Feedback> findByOrderDetailBookIdAndIsVisibleTrue(Integer bookId);
-//
-//  // Truy vấn để thay đổi trạng thái hiển thị của bình luận
-//  @Modifying
-//  @Query("UPDATE Feedback f SET f.isVisible = :isVisible WHERE f.idFeedback = :idFeedback")
-//  void updateFeedbackVisibility(@Param("idFeedback") Integer idFeedback, @Param("isVisible") Boolean isVisible);
+    List<Feedback> findAllByOrderByCreatedAtDesc();
+
+
+
+    @Query("UPDATE Feedback f SET f.isVisible = :isVisible WHERE f.id = :id")
+    void updateVisibility(@Param("id") Integer id, @Param("isVisible") Boolean isVisible);
+
+
 }

@@ -58,8 +58,8 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
         request.setOrderInfo(orderInfo);
         request.setRequestId(requestId);
         request.setExtraData(email);
-//        String encodedReturnUrl = URLEncoder.encode(returnUrl);
-//        String encodedNotifyUrl = URLEncoder.encode(notifyUrl);
+        request.setLang("vi");
+
         // Xây dựng rawSignature và đảm bảo không có khoảng trắng không mong muốn
         String rawSignature = "partnerCode=" + request.getPartnerCode() +
                 "&accessKey=" + request.getAccessKey() +
@@ -76,7 +76,7 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
 
         // Tạo chữ ký
       String signature = generateSignature(rawSignature, secretKey);
-      //  String signature= "09e99f6560f499e3badde304b18dedfbe9255235c09c446196f6160d869aa5c7";
+
         request.setSignature(signature);
 
         // Log chữ ký đã tạo
@@ -88,6 +88,54 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
         // Log phản hồi của MoMo
         System.out.println("MoMo API Response: " + response);
 
+        return response;
+    }
+    @Override
+    public String initiateATMRequest(Integer idorder, String amount, String email) throws Exception {
+        // Tạo requestId duy nhất
+      //  String requestId = UUID.randomUUID().toString();
+        Order order =orderService.getOrderById(idorder) ;
+        String orderId = order.getOrderCode();
+        String requestId = orderId;
+
+        // Cấu hình các tham số chính
+        MoMoPaymentRequest request = new MoMoPaymentRequest();
+        request.setPartnerCode(partnerCode); // MOMO_ATM_DEV
+        request.setAccessKey(accessKey);     // SvDmj2cOTYZmQQ3H
+        request.setRequestId(requestId);    // requestId duy nhất
+        request.setAmount(amount);          // Số tiền cần thanh toán
+        request.setOrderId(orderId);        // Mã đơn hàng
+        request.setNotifyUrl(notifyUrl);       // Đường dẫn IPN
+        request.setReturnUrl(returnUrl);  // Đường dẫn Redirect
+        request.setExtraData(email);  // Email khách hàng
+        request.setRequestType("payWithATM"); // Loại thanh toán
+
+
+        // Tạo rawSignature
+        String rawSignature = "accessKey=" + request.getAccessKey() +
+                "&amount=" + request.getAmount() +
+                "&extraData=" +request.getExtraData()+
+                "&ipnUrl=" + request.getNotifyUrl() +
+                "&orderId=" + request.getOrderId() +
+                "&orderInfo=" +"test" +
+                "&partnerClientId=" + request.getExtraData() +
+
+                "&partnerCode=" + request.getPartnerCode() +
+                "&redirectUrl=" + request.getReturnUrl() +
+                "&requestId=" + request.getRequestId() +
+                "&requestType=" + request.getRequestType();
+        System.out.println("Raw Signature: " + rawSignature);
+
+        // Tạo chữ ký
+        String signature = generateSignature(rawSignature, secretKey);
+        request.setSignature(signature);
+        System.out.println(signature);
+
+        // Gửi request qua RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+        String response = restTemplate.postForObject(endpoint, request, String.class);
+
+        System.out.println("MoMo Response: " + response);
         return response;
     }
 

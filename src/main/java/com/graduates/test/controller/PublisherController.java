@@ -134,21 +134,16 @@ public class PublisherController {
             return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
         }}
     private PublisherRespone convertPublisherResponse(Publisher publisher) {
-        //  String baseUrl = "http://localhost:8080/category/image/";
-        //  String imageUrl = baseUrl + encodeURIComponent(category.getImage());
 
         PublisherRespone response = new PublisherRespone();
         response.setIdPublisher(publisher.getIdPublisher());
         response.setNamePublisher(publisher.getNamePublisher());
         response.setAddressPublisher(publisher.getAddressPublisher());
         response.setPhonePublisher(publisher.getPhonePublisher());
-      //  response.setAddressPublisher(distributor.getAddress());
-        //   response.setImageUrl(imageUrl);
         response.setPublisherCode(publisher.getPublisherCode());
         response.setEmailPublisher(publisher.getEmailPublisher());
         response.setCreateAt(publisher.getCreateAt());
         response.setUpdateAt(publisher.getUpdateAt());
-    //    response.setDeleted(publisher.isDeleted());
         return response;
     }
 

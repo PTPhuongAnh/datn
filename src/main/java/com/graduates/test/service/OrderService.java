@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface OrderService {
-   Order createOrder(String token, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone,String receivingName,String note) throws Exception;
+   Order createOrder(String token, String shippingAddress, List<Integer> selectedCartDetailIds, Integer paymentId, Integer shipmentId,String phone,String receivingName,String note,Integer voucherId) throws Exception;
 
 
    void cancelOrder(String token, Integer orderId) throws Exception;
