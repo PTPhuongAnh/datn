@@ -17,6 +17,15 @@ public class VoucherRespone {
     private LocalDateTime updateAt;
     private String created_by;
     private String updated_by;
+    private Double discount;
+
+    public Double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(Double discount) {
+        this.discount = discount;
+    }
 
     public String getCreated_by() {
         return created_by;

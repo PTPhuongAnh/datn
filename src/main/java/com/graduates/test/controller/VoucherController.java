@@ -47,7 +47,7 @@ public class VoucherController {
                     .collect(Collectors.toList());
 
             Map<String, Object> response = new HashMap<>();
-            response.put("categories", publisherRespones);
+            response.put("voucher", publisherRespones);
             response.put("currentPage", publishersPage.getNumber());
             response.put("totalItems", publishersPage.getTotalElements());
             response.put("totalPages", publishersPage.getTotalPages());
@@ -66,6 +66,7 @@ public class VoucherController {
         response.setUpdateAt(publisher.getUpdateAt());
         response.setCreated_by(publisher.getCreatedBy());
         response.setUpdated_by(publisher.getUpdatedBy());
+        response.setDiscount(publisher.getDiscountValue());
         return response;
     }
 
@@ -118,7 +119,7 @@ public class VoucherController {
     public ResponseEntity<?> updateVoucher(
             @PathVariable(value = "id", required = false) Integer idVoucher,
             @RequestParam(value = "maxUsage",required = false) Integer maxUsage,
-            @RequestParam(value = "minOrderValue",required = false) Double minO,
+            @RequestParam(value = "ate",required = false) Double minO,
             @RequestParam(value = "startDate",required = false)LocalDateTime start,
             @RequestParam(value = "endDate",required = false) LocalDateTime end,
             @RequestHeader("Authorization") String token
