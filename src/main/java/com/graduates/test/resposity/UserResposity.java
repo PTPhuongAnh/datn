@@ -1,5 +1,6 @@
 package com.graduates.test.resposity;
 
+import com.graduates.test.dto.UserResponseDTO;
 import com.graduates.test.model.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +33,7 @@ public interface UserResposity extends JpaRepository<UserEntity,Integer> {
                                 @Param("city") String city,
                                Pageable pageable);
 
-    List<UserEntity> findByRoles_Name(String roleName);
+    List<UserResponseDTO> findByRoles_Name(String roleName);
    // @Query("SELECT COUNT(o) FROM user_roles o where role_id=1 ")
    @Query("SELECT COUNT(u) FROM UserEntity u " +
            "JOIN u.roles r " +

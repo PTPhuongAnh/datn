@@ -22,6 +22,11 @@ private String addressPublisher;
 private LocalDateTime createAt;
 private LocalDateTime updateAt;
     private boolean deleted=false;
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
 
 
     public Publisher(Integer idPublisher, String namePublisher, String addressPublisher, String phonePublisher, String emailPublisher, String publisherCode) {
@@ -121,5 +126,21 @@ private LocalDateTime updateAt;
 
     public void setPublisherCode(String publisherCode) {
         this.publisherCode = publisherCode;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

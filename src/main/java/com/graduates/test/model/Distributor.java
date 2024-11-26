@@ -21,6 +21,11 @@ public class Distributor {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     private boolean deleted=false;
+    @Column(name = "created_bys")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
 
     @PrePersist
     protected void onCreate() {
@@ -120,5 +125,21 @@ public class Distributor {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

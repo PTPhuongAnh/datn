@@ -1,10 +1,7 @@
 package com.graduates.test.service.impl;
 
 import com.graduates.test.Config.JwtService;
-import com.graduates.test.dto.RefreshTokenDTO;
-import com.graduates.test.dto.TokenDTO;
-import com.graduates.test.dto.UpdateUserRequest;
-import com.graduates.test.dto.UserDto;
+import com.graduates.test.dto.*;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.Category;
 import com.graduates.test.model.UserEntity;
@@ -49,7 +46,6 @@ public class UserImpl implements UserService {
 
 
     public List<String> getRolesByUserId(Integer userId) {
-        // Tìm người dùng theo userId
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
@@ -67,7 +63,7 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public List<UserEntity> getUsersByRole(String roleName) {
+    public List<UserResponseDTO> getUsersByRole(String roleName) {
 
         return userRepository. findByRoles_Name(roleName);
         }

@@ -75,6 +75,11 @@ public class Book {
     private Set<CartDetail> cartDetails = new HashSet<>();
 
     private boolean isDeleted=false;
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
     public Book(Integer bookId) {
     }
 
@@ -268,5 +273,21 @@ public class Book {
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

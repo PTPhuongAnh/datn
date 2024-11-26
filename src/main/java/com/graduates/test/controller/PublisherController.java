@@ -1,5 +1,6 @@
 package com.graduates.test.controller;
 
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.DistributorRespone;
 import com.graduates.test.dto.PublisherRespone;
 import com.graduates.test.exception.ResourceNotFoundException;
@@ -27,30 +28,38 @@ import java.util.stream.Collectors;
 public class PublisherController {
     private PublisherService publisherService;
     @Autowired
-    public PublisherController(PublisherService publisherService) {
-        this.publisherService = publisherService;
-    }
+    private JwtService jwtService;
 
+    public PublisherController(PublisherService publisherService, JwtService jwtService) {
+        this.publisherService = publisherService;
+        this.jwtService = jwtService;
+    }
 
     @PostMapping("/create")
     public ResponseEntity<?> createPublisherDetails(
             @RequestParam(value = "namePublisher", required = true) String namePublisher,
             @RequestParam(value = "addressPublisher", required = true) String addressPublisher,
             @RequestParam(value = "phonePublisher", required = true) String phonePublisher,
-            @RequestParam(value = "emailPublisher", required = true) String emailPublisher
-         //   @RequestParam(value = "publisherCode", required = false) String publisherCode
+            @RequestParam(value = "emailPublisher", required = true) String emailPublisher,
+            @RequestHeader("Authorization") String token
+
 
 
     ) {
 
         try {
+            token = token.replace("Bearer ", "");
+            String username = jwtService.extractUsername(token);
+            System.out.println("username "+ username);
             // Tạo đối tượng Publisher
             Publisher publisher = new Publisher();
             publisher.setNamePublisher(namePublisher);
             publisher.setAddressPublisher(addressPublisher);
             publisher.setEmailPublisher(emailPublisher);
             publisher.setPhonePublisher(phonePublisher);
-         //   publisher.setPublisherCode(publisherCode);
+            publisher.setCreatedBy(username);
+            publisher.setUpdatedBy(username);
+
             // Tạo nhà xuất bản mới
             String result = publisherService.createPublisher(publisher);
 
@@ -69,10 +78,15 @@ public class PublisherController {
             @RequestParam(value = "namePublisher", required = true) String namePublisher,
             @RequestParam(value = "addressPublisher", required = true) String addressPublisher,
             @RequestParam(value = "phonePublisher", required = true) String phonePublisher,
-            @RequestParam(value = "emailPublisher", required = true) String emailPublisher
+            @RequestParam(value = "emailPublisher", required = true) String emailPublisher,
+            @RequestHeader("Authorization") String token
+
     ) {
 
         try {
+            token = token.replace("Bearer ", "");
+            String username = jwtService.extractUsername(token);
+            System.out.println("username "+ username);
             // Tìm kiếm và kiểm tra nhà xuất bản hiện tại
             Publisher existingPublisher = publisherService.findById(idPublisher);
             if (existingPublisher == null) {
@@ -85,6 +99,7 @@ public class PublisherController {
             if (addressPublisher != null) existingPublisher.setAddressPublisher(addressPublisher);
             if(phonePublisher!=null) existingPublisher.setPhonePublisher(phonePublisher);
             if(emailPublisher!=null) existingPublisher.setEmailPublisher(emailPublisher);
+            existingPublisher.setUpdatedBy(username);
             // Gọi service để cập nhật nhà xuất bản
             String result = publisherService.updatePublisher(existingPublisher);
 
@@ -144,6 +159,8 @@ public class PublisherController {
         response.setEmailPublisher(publisher.getEmailPublisher());
         response.setCreateAt(publisher.getCreateAt());
         response.setUpdateAt(publisher.getUpdateAt());
+        response.setCreatedBy(publisher.getCreatedBy());
+        response.setUpdateBy(publisher.getUpdatedBy());
         return response;
     }
 

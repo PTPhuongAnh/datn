@@ -1,5 +1,6 @@
 package com.graduates.test.controller;
 
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.BookRespone;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.*;
@@ -31,9 +32,12 @@ public class BookController {
 
     @Autowired
     private BookService bookService;
+    @Autowired
+    private JwtService jwtService;
 
-    public BookController(BookService bookService) {
+    public BookController(BookService bookService, JwtService jwtService) {
         this.bookService = bookService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping("/image/{fileName}")
@@ -75,7 +79,11 @@ public class BookController {
             @RequestParam(value = "idDistributor",required = false) Integer idDistributor,
             @RequestParam(value="quantity", required = false) Integer quantity,
             @RequestParam(value = "price", required = false) Integer price,
-            @RequestParam(value = "images", required = true) List<MultipartFile> images) {
+            @RequestParam(value = "images", required = true) List<MultipartFile> images,
+            @RequestHeader("Authorization") String token) {
+        token = token.replace("Bearer ", "");
+        String username = jwtService.extractUsername(token);
+        System.out.println("username "+ username);
 
   //      bookService.validateBookInputs(nameBook, author, description, idCategory, idPublisher, quantity, price, images);
 
@@ -95,6 +103,8 @@ public class BookController {
         book.setDistributor(new Distributor(idDistributor));
         book.setQuantity(quantity);
         book.setPrice(price);
+        book.setCreatedBy(username);
+        book.setUpdatedBy(username);
         try {
             // Gọi service để lưu sách cùng với các ảnh//dòng này đang trả dữ liệu về
 
@@ -134,10 +144,14 @@ public ResponseEntity<?> updateBook(
         @RequestParam(value = "idDistributor") Integer idDistributor,
         @RequestParam(value = "quantity") Integer quantity,
         @RequestParam(value = "price") Integer price,
-        @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+        @RequestParam(value = "images", required = false) List<MultipartFile> images,
+        @RequestHeader("Authorization") String token) {
 
     // Gọi service để cập nhật sách và ảnh
     try {
+        token = token.replace("Bearer ", "");
+        String username = jwtService.extractUsername(token);
+        System.out.println("username "+ username);
         // Có thể thêm kiểm tra đầu vào ở đây
         // bookService.validateBookInputs(nameBook, author, description_short, idCategory, idPublisher, quantity, price, images);
 

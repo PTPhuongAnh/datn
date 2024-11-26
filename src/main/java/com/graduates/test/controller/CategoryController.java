@@ -1,5 +1,6 @@
 package com.graduates.test.controller;
 
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.exception.ResourceNotFoundException;
 import com.graduates.test.model.Category;
 import com.graduates.test.dto.CategoryRespone;
@@ -32,6 +33,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/category")
 public class CategoryController {
     private CategoryService categoryService;
+    @Autowired
+    private JwtService jwtService;
 
     @Autowired
     public CategoryController(CategoryService categoryService) {
@@ -66,7 +69,8 @@ public class CategoryController {
     @PostMapping("/create")
     public ResponseEntity<?> createCategoryDetails(
             @RequestParam(value = "nameCategory", required = true) String nameCategory,
-            @RequestParam(value = "image", required = true) MultipartFile file
+            @RequestParam(value = "image", required = true) MultipartFile file,
+            @RequestHeader("Authorization") String token
     ) {
 
         try {
@@ -87,6 +91,9 @@ public class CategoryController {
             Category category = new Category();
             category.setNameCategory(nameCategory);
             category.setImage(imagePath);
+            token = token.replace("Bearer ", "");
+            String username = jwtService.extractUsername(token);
+            System.out.println("username "+ username);
 
             // Tạo danh mục mới
             String result = categoryService.createCategory(category);

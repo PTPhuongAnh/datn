@@ -136,42 +136,49 @@ public class AuthorController {
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
     }
 
-//    @PostMapping("/login1")
-//    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
-//        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
-//                loginDto.getPassword()));
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//        return new ResponseEntity<>("User sigin success", HttpStatus.OK);
-//
-//
-//    }
-//
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(
-//            @RequestParam("username") String username,
-//            @RequestParam("password") String password) {
-//        try {
-//            Authentication authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(username, password));
-//
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//            // Ép kiểu thành CustomUserDetails
-//            CustomUserDetails loggedInUser = (CustomUserDetails) authentication.getPrincipal();
-//
-//            // Trả về thông tin người dùng và vai trò của họ
-//            UserEntity userEntity = loggedInUser.getUserEntity();
-//
-//            // Chuyển đổi sang DTO
-//            UserResponseDTO responseDTO = convertToDTO(userEntity);
-//
-//            return ResponseHandler.responeBuilder(HttpStatus.OK, true, responseDTO);
-//        } catch (BadCredentialsException e) {
-//            return ResponseHandler.responeBuilder(HttpStatus.OK, false, null);
-//        } catch (Exception e) {
-//            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, null);
-//        }
-//    }
+    @PostMapping("employee/register")
+
+    public ResponseEntity<?> register2(
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam("email") String email,
+            @RequestParam("fullname") String fullname,
+            @RequestParam("dob") String dob,
+            @RequestParam("phone") String phone,
+            @RequestParam("street") String street,
+            @RequestParam("city") String city
+    ) {
+        if (userResposity.existsByUsername(username)) {
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false, "Username already exists");
+        }
+        // Tạo UserEntity
+        UserEntity user = new UserEntity();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        Role roles = roleRespository.findByName("ROLE_EMPLOYEE").get();
+        user.setRoles(Collections.singletonList(roles));
+        user.setEmail(email);
+        user.setFullname(fullname);
+        user.setDob(dob);
+        user.setPhone(phone);
+
+        // Tạo Address và gán vào user
+        Address address = new Address();
+        address.setStreet(street);
+        address.setCity(city);
+
+        user.setAddress(address);
+
+        // Lưu vào database qua JPA repository
+        userResposity.save(user);
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cartRepository.save(cart);
+
+        // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
+    }
+
 
     private UserResponseDTO convertToDTO(UserEntity userEntity) {
         UserResponseDTO response = new UserResponseDTO();
@@ -192,10 +199,10 @@ public class AuthorController {
         }
 
         // Lấy danh sách vai trò của người dùng
-        List<String> roles = userEntity.getRoles().stream()
-                .map(Role::getName)
-                .collect(Collectors.toList());
-        response.setRoles(roles);
+//        List<String> roles = userEntity.getRoles().stream()
+//                .map(Role::getName)
+//                .collect(Collectors.toList());
+      //  response.setRoles(roles);
 
         return response;
     }
@@ -240,7 +247,13 @@ public class AuthorController {
 
     @GetMapping("/list/user")
     public ResponseEntity<?> getUsersByRole() {
-        List<UserEntity> users = userService.getUsersByRole("ROLE_USER");
+        List<UserResponseDTO> users = userService.getUsersByRole("ROLE_USER");
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
+
+    }
+    @GetMapping("/list/employee")
+    public ResponseEntity<?> getUsersByRole1() {
+        List<UserResponseDTO> users = userService.getUsersByRole("ROLE_EMPLOYEE");
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
 
     }
@@ -288,7 +301,7 @@ public class AuthorController {
     ) {
         RefreshTokenDTO refreshTokenDTO = userService.refreshToken(refreshToken);
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,refreshTokenDTO);
-                //ResponseEntity.ok().body(refreshTokenDTO);
+
 
     }
 
@@ -298,7 +311,7 @@ public class AuthorController {
     ) {
         UserDto refreshTokenDTO = userService.getProfileUser(authorizationHeader);
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,refreshTokenDTO);
-                //ResponseEntity.ok().body(refreshTokenDTO);
+
 
     }
 }

@@ -51,7 +51,6 @@ public class VoucherController {
             response.put("currentPage", publishersPage.getNumber());
             response.put("totalItems", publishersPage.getTotalElements());
             response.put("totalPages", publishersPage.getTotalPages());
-            //   response.put("currentPage", categoryPage.getNumber());
 
             return ResponseHandler.responeBuilder( HttpStatus.OK, true, response);
         }}

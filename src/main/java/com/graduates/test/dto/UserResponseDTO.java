@@ -12,7 +12,7 @@ public class UserResponseDTO {
     private String dob;
     private String phone;
     private String address; // Thêm trường địa chỉ
-    private List<String> roles;
+
 
     public Integer getIdUser() {
         return idUser;
@@ -70,11 +70,5 @@ public class UserResponseDTO {
         this.address = address;
     }
 
-    public List<String> getRoles() {
-        return roles;
-    }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
 }

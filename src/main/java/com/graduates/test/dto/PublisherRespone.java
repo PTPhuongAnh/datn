@@ -16,6 +16,8 @@ private String publisherCode;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
   //  private boolean deleted=false;
+  private String createdBy;
+  private String updateBy;
     @PrePersist
     protected void onCreate() {
         this.createAt = LocalDateTime.now();
@@ -92,5 +94,21 @@ private String publisherCode;
 
     public void setPublisherCode(String publisherCode) {
         this.publisherCode = publisherCode;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(String updateBy) {
+        this.updateBy = updateBy;
     }
 }

@@ -1,5 +1,6 @@
 package com.graduates.test.controller;
 
+import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.CategoryRespone;
 import com.graduates.test.dto.DistributorRespone;
 import com.graduates.test.exception.ResourceNotFoundException;
@@ -27,9 +28,11 @@ public class DistributorController {
 
     private DistributorService distributorService;
     @Autowired
+    private JwtService jwtService;
 
-    public DistributorController(DistributorService distributorService) {
+    public DistributorController(DistributorService distributorService, JwtService jwtService) {
         this.distributorService = distributorService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/create")
@@ -37,17 +40,23 @@ public class DistributorController {
             @RequestParam(value = "nameDistributor", required = true) String nameDistributor,
             @RequestParam(value = "address", required = true) String address,
             @RequestParam(value = "phone", required = true) String phone,
-            @RequestParam(value = "email", required = true) String email
+            @RequestParam(value = "email", required = true) String email,
+            @RequestHeader("Authorization") String token
 
     ) {
 
         try {
+            token = token.replace("Bearer ", "");
+            String username = jwtService.extractUsername(token);
+            System.out.println("username "+ username);
             // Tạo đối tượng Publisher
-      Distributor  distributor = new Distributor();
+            Distributor  distributor = new Distributor();
             distributor.setNameDistributor(nameDistributor);
             distributor.setAddress(address);
             distributor.setPhone(phone);
             distributor.setEmail(email);
+            distributor.setCreatedBy(username);
+            distributor.setUpdatedBy(username);
             // Tạo nhà xuất bản mới
             String result = distributorService.createDistributor(distributor);
 

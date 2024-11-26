@@ -49,6 +49,8 @@ public class BookRespone {
     private List<String> imageUrls;
 
     private List<FeedbackRespone> feedbacks;
+    private String createdBy;
+    private String updateBy;
 
     public BookRespone() {
     }
@@ -275,6 +277,22 @@ public class BookRespone {
 
     public void setFeedbacks(List<FeedbackRespone> feedbacks) {
         this.feedbacks = feedbacks;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(String updateBy) {
+        this.updateBy = updateBy;
     }
 }
 

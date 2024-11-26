@@ -21,8 +21,5 @@ private Integer idRoles;
 
     private String name;
 
-//    @ManyToMany(mappedBy = "roles")
-//    private List<UserEntity> users = new ArrayList<>();
 
-    // Getters and setters
 }
