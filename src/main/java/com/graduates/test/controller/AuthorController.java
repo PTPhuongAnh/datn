@@ -87,7 +87,6 @@ public class AuthorController {
         // Lưu vào database qua JPA repository
         //  userResposity.save(user);
 
-        // return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, null);
     }
 
