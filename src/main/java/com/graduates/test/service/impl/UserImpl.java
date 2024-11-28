@@ -3,7 +3,6 @@ package com.graduates.test.service.impl;
 import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.*;
 import com.graduates.test.exception.ResourceNotFoundException;
-import com.graduates.test.model.Category;
 import com.graduates.test.model.UserEntity;
 import com.graduates.test.resposity.RoleRespository;
 import com.graduates.test.resposity.UserResposity;
@@ -60,6 +59,11 @@ public class UserImpl implements UserService {
     public Page<UserEntity> searchUser(String username, String email, String fullname, String dob, String phone, String street, String city, int page, int sizes) {
         Pageable pageable = PageRequest.of(page, sizes);
         return userRepository.searchUser(username, email, fullname, dob, phone, street,city,pageable);
+    }
+    @Override
+    public Page<UserEntity> searchEmployee(String username, String email, String fullname, String dob, String phone, String street, String city, int page, int sizes) {
+        Pageable pageable = PageRequest.of(page, sizes);
+        return userRepository.searchEmployee(username, email, fullname, dob, phone, street,city,pageable);
     }
 
     @Override

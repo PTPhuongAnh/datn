@@ -22,6 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -40,30 +42,63 @@ public class SecurityConfig {
         this.customerUserDetailsService = customerUserDetailsService;
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT filter trước filter của Username/Password
-                .authorizeRequests(requests -> requests
-                        .requestMatchers("/user/auth/**").permitAll() // Cho phép truy cập không cần xác thực
-                        .requestMatchers("/category/**").permitAll()
-                    //    .requestMatchers("/category/list/**").permitAll()
-                        .requestMatchers("/cart/**").permitAll()
-                        .requestMatchers("/book/**").permitAll()
-                        .requestMatchers("/book/list/**").permitAll()
-                        .requestMatchers("/publisher/**").permitAll()
-                        .requestMatchers("/distributor/**").permitAll()
-                        .requestMatchers("/orders/**").permitAll()
-                    //    .requestMatchers("/orders/update-status/**").permitAll()
-                        .requestMatchers("/orders/list/admin").hasRole("ADMIN")
-                   //     .requestMatchers("/orders/detail_admin/**").permitAll()
-                        .requestMatchers("/feedback/**").permitAll()
-                        .requestMatchers("/feedback/list").hasRole("ADMIN")
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF
+//                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT filter trước filter của Username/Password
+//                .authorizeRequests(requests -> requests
+//                        .requestMatchers("/user/auth/**").permitAll() // Cho phép truy cập không cần xác thực
+//                        .requestMatchers("/category/**").permitAll()
+//                    //    .requestMatchers("/category/list/**").permitAll()
+//                        .requestMatchers("/cart/**").permitAll()
+//                        .requestMatchers("/book/**").permitAll()
+//                        .requestMatchers("/book/list/**").permitAll()
+//                        .requestMatchers("/publisher/**").permitAll()
+//                        .requestMatchers("/distributor/**").permitAll()
+//                        .requestMatchers("/orders/**").permitAll()
+//                    //    .requestMatchers("/orders/update-status/**").permitAll()
+//                        .requestMatchers("/orders/list/admin").hasRole("ADMIN")
+//                   //     .requestMatchers("/orders/detail_admin/**").permitAll()
+//                        .requestMatchers("/feedback/**").permitAll()
+//                        .requestMatchers("/feedback/list").hasRole("ADMIN")
+//
+//                        .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
+//                );
+//        return http.build();
+//    }
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+            .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Cấu hình CORS
+            .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT filter trước filter của Username/Password
+            .authorizeRequests(requests -> requests
+                    .requestMatchers("/user/auth/**").permitAll()
+                    .requestMatchers("/category/**").permitAll()
+                    .requestMatchers("/cart/**").permitAll()
+                    .requestMatchers("/book/**").permitAll()
+                    .requestMatchers("/publisher/**").permitAll()
+                    .requestMatchers("/distributor/**").permitAll()
+                    .requestMatchers("/orders/**").permitAll()
+                    .requestMatchers("/orders/list/admin").hasRole("ADMIN")
+                    .requestMatchers("/feedback/**").permitAll()
+                    .requestMatchers("/feedback/list").hasRole("ADMIN")
+                    .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
+            );
+    return http.build();
+}
 
-                        .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
-                );
-        return http.build();
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // Cho phép domain frontend
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*")); // Hoặc có thể chỉ định các header cụ thể
+        configuration.setAllowCredentials(true); // Cho phép gửi cookie hoặc header authorization
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

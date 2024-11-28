@@ -238,6 +238,37 @@ public class AuthorController {
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
     }
 
+    @GetMapping("employee/list")
+    public ResponseEntity<?> getListEmployee(
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "fullname", required = false) String fullname,
+            @RequestParam(value = "dob", required = false) String dob,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "street", required = false) String street,
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "sizes", defaultValue = "10") int sizes) {
+
+        // Giả sử bạn có một phương thức trong userService để lấy danh sách người dùng theo các tham số lọc
+        Page<UserEntity> userPage = userService.searchEmployee(username, email, fullname, dob, phone, street, city, page, sizes);
+
+        // Chuyển đổi danh sách người dùng thành DTO
+        List<UserResponseDTO> userDTOs = userPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        // Tạo phản hồi với thông tin phân trang
+        Map<String, Object> response = new HashMap<>();
+        response.put("users", userDTOs);
+        response.put("currentPage", userPage.getNumber());
+        response.put("totalUser", userPage.getTotalElements());
+        response.put("totalPages", userPage.getTotalPages());
+
+        //   return ResponseEntity.ok(response);
+        return ResponseHandler.responeBuilder(HttpStatus.OK, true, response);
+    }
+
     @GetMapping("/roles")
     public ResponseEntity<?> getUserRoles(@RequestParam Integer userId) {
         List<String> roles = userService.getRolesByUserId(userId);
@@ -245,18 +276,18 @@ public class AuthorController {
     }
 
 
-    @GetMapping("/list/user")
-    public ResponseEntity<?> getUsersByRole() {
-        List<UserResponseDTO> users = userService.getUsersByRole("ROLE_USER");
-        return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
-
-    }
-    @GetMapping("/list/employee")
-    public ResponseEntity<?> getUsersByRole1() {
-        List<UserResponseDTO> users = userService.getUsersByRole("ROLE_EMPLOYEE");
-        return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
-
-    }
+//    @GetMapping("/list/user")
+//    public ResponseEntity<?> getUsersByRole() {
+//        List<UserResponseDTO> users = userService.getUsersByRole("ROLE_USER");
+//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
+//
+//    }
+//    @GetMapping("/list/employee")
+//    public ResponseEntity<?> getUsersByRole1() {
+//        List<UserResponseDTO> users = userService.getUsersByRole("ROLE_EMPLOYEE");
+//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
+//
+//    }
 
     @PutMapping("/update_info")
     public ResponseEntity<?> updateCategoryDetails(

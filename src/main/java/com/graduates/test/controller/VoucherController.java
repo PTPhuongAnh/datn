@@ -36,7 +36,7 @@ public class VoucherController {
             @RequestParam(value = "code", required = false) String code,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-
+        System.out.println("Voucher API called with params - Code: " + code + ", Page: " + page + ", Size: " + size);
         Page<Voucher> publishersPage = voucherService.getList(code,page, size);
 
         if (publishersPage.isEmpty()) {
