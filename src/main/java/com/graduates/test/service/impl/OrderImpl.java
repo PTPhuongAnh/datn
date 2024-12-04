@@ -132,7 +132,6 @@ public class OrderImpl implements OrderService {
         // Tạo đơn hàng mới
         Order order = new Order();
         order.setCart(cart);
-        //   order.setUser(cart.getUser()); // Lấy thông tin người dùng từ giỏ hàng
         order.setShippingAddress(shippingAddress);
         order.setPayment(payment); // Thiết lập payment
         order.setShipment(shipment); // Thiết lập shipment
@@ -148,7 +147,11 @@ public class OrderImpl implements OrderService {
         order.setPaymentStatusM(statusM);
         order.setNote(note);
         order.setDeliveryDate(LocalDateTime.now().plusDays(5));
-        order.setVoucher(voucher);
+        if (voucherId != null) {
+             voucher = voucherRepository.findById(voucherId)
+                    .orElseThrow(() -> new IllegalArgumentException("Voucher không tồn tại!"));
+            order.setVoucher(voucher);
+        }
         if (order.getOrderCode() == null || order.getOrderCode().isEmpty()) {
             // Tạo mã đơn hàng theo UUID hoặc quy tắc khác
             order.setOrderCode(generateUniqueOrderCode());
@@ -238,7 +241,11 @@ private OrderResponse convertToOrderResponse(Order order) {
     response.setNote(order.getNote());
     response.setDeliveryDate(order.getDeliveryDate());
     response.setOrderCode(order.getOrderCode());
-    response.setVoucher(order.getVoucher().getDiscountValue());
+    if(order.getVoucher() !=null) {
+        response.setVoucher(order.getVoucher().getDiscountValue());
+    }else{
+        response.setVoucher(0.0);
+    }
 
     List<BookRespone> bookDetails = order.getOrderDetails().stream()
             .map(orderDetail -> {

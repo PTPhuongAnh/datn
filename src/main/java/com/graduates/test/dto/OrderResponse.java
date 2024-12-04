@@ -1,6 +1,7 @@
 package com.graduates.test.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.graduates.test.model.Order;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class OrderResponse {
     public OrderResponse() {
     }
 
-    public OrderResponse(Integer id, String orderCode, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt, List<FeedbackRespone> feedbacks, String statusPayment, Double voucher) {
+    public OrderResponse(Integer id, String orderCode, Integer bookId, String title, String author, String description, int quantity, double price, List<String> imageUrls, double total, String shipment, String payment, String phone, String shippingAdrress, String receiveName, LocalDateTime date, String status, String note, LocalDateTime deliveryDate, List<BookRespone> books, LocalDateTime createdAt, List<FeedbackRespone> feedbacks, String statusPayment, Order order) {
         this.id = id;
         this.orderCode = orderCode;
         this.bookId = bookId;
@@ -58,8 +59,49 @@ public class OrderResponse {
         this.createdAt = createdAt;
         this.feedbacks = feedbacks;
         StatusPayment = statusPayment;
-        this.voucher = voucher;
+     //   this.voucher = voucher;
+        if (order.getVoucher() != null) {
+            //   this.voucherCode = order.getVoucher().getVoucherCode();
+            this.voucher = order.getVoucher().getDiscountValue();
+        } else {
+            //    this.voucherCode = null;
+            this.voucher = 0.0;
+        }
     }
+
+//    public OrderResponse(Order order) {
+//        this.id = order.getId();
+//        this.orderCode = order.getOrderCode();
+//        this.bookId = order.getBook;
+//        this.title = title;
+//        this.author = author;
+//        this.description = description;
+//        this.quantity = quantity;
+//        this.price = price;
+//        this.imageUrls = imageUrls;
+//        this.total = total;
+//        this.shipment = shipment;
+//        this.payment = payment;
+//        this.phone = phone;
+//        this.shippingAdrress = shippingAdrress;
+//        this.receiveName = receiveName;
+//        this.date = date;
+//        this.status = status;
+//        this.note = note;
+//        this.deliveryDate = deliveryDate;
+//        this.books = books;
+//        this.createdAt = createdAt;
+//        this.feedbacks = feedbacks;
+//
+//
+//        if (order.getVoucher() != null) {
+//         //   this.voucherCode = order.getVoucher().getVoucherCode();
+//            this.voucher = order.getVoucher().getDiscountValue();
+//        } else {
+//        //    this.voucherCode = null;
+//            this.voucher = 0.0;
+//        }
+//    }
 
     public List<BookRespone> getBooks() {
         return books;
