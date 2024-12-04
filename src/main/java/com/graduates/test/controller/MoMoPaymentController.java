@@ -1,5 +1,7 @@
 package com.graduates.test.controller;
 
+import com.graduates.test.dto.MoMoPaymentResponse;
+import com.graduates.test.response.ResponseHandler;
 import com.graduates.test.service.MoMoPaymentService;
 import com.graduates.test.service.OrderService;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -30,21 +32,23 @@ public class MoMoPaymentController {
             String response = paymentService.initiatePayment(idorder, amount, orderInfo, email);
 
             return ResponseEntity.ok(response);
+                    //ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Payment initiation failed: " + e.getMessage());
         }
     }
-    @PostMapping("/atm")
-    public ResponseEntity<String> PaymentATM(@RequestParam Integer idorder,
-                                                  @RequestParam String amount,
-                                                  @RequestParam String email) {
-        try {
-
-            String response = paymentService.initiateATMRequest(idorder, amount, email);
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Payment initiation failed: " + e.getMessage());
+    @PostMapping("/notify-payment")
+    public ResponseEntity<String> handlePaymentNotification(@RequestBody MoMoPaymentResponse response) {
+        // Kiểm tra trạng thái thanh toán
+        if (response.getErrorCode() == 0) {
+            // Thanh toán thành công
+            String orderId = response.getOrderId();
+            String transactionId = response.getTransactionId();
+            // Xử lý dữ liệu thanh toán (cập nhật trạng thái đơn hàng, ghi nhận thanh toán, v.v.)
+            return ResponseEntity.ok("Payment Success");
+        } else {
+            // Thanh toán thất bại
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment Failed");
         }
     }
 

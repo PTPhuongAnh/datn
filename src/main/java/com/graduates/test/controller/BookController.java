@@ -250,7 +250,7 @@ public ResponseEntity<?> updateBook(
             @RequestParam(value = "quantity" ,required = false)Integer quantity,
             @RequestParam(value = "price",required = false) Integer price,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "sizes", defaultValue = "10") int sizes) {
+            @RequestParam(value = "sizes", defaultValue = "12") int sizes) {
 
         Page<Book> bookPage = bookService.getList( nameBook,  author,  description_short,  description_long,  size,  year_publisher,  page_number,  barcode,  quantity, price,  category,  publisher,  distributor,  page, sizes);
 

@@ -37,13 +37,15 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
     @Value("${momo.endpoint}")
     private String endpoint;
     private final RestTemplate restTemplate;
+
     public MoMoPaymentServiceImpl(OrderService orderService, RestTemplate restTemplate) {
         this.orderService = orderService;
         this.restTemplate = restTemplate;
     }
+
     @Override
-    public String initiatePayment(Integer idorder,String amount, String orderInfo, String email) throws Exception {
-        Order order =orderService.getOrderById(idorder) ;
+    public String initiatePayment(Integer idorder, String amount, String orderInfo, String email) throws Exception {
+        Order order = orderService.getOrderById(idorder);
         String orderId = order.getOrderCode();
         String requestId = orderId;
 
@@ -58,7 +60,7 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
         request.setOrderInfo(orderInfo);
         request.setRequestId(requestId);
         request.setExtraData(email);
-        request.setLang("vi");
+        //   request.setLang("vi");
 
         // Xây dựng rawSignature và đảm bảo không có khoảng trắng không mong muốn
         String rawSignature = "partnerCode=" + request.getPartnerCode() +
@@ -67,21 +69,21 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
                 "&amount=" + request.getAmount() +
                 "&orderId=" + request.getOrderId() +
                 "&orderInfo=" + request.getOrderInfo() +
-                "&returnUrl=" + notifyUrl+
-                "&notifyUrl=" + returnUrl+
+                "&returnUrl=" + notifyUrl +
+                "&notifyUrl=" + returnUrl +
                 "&extraData=" + request.getExtraData();
 
         // Log rawSignature để kiểm tra
         System.out.println("Raw Signature: " + rawSignature);
 
         // Tạo chữ ký
-      String signature = generateSignature(rawSignature, secretKey);
+        String signature = generateSignature(rawSignature, secretKey);
 
         request.setSignature(signature);
 
         // Log chữ ký đã tạo
         System.out.println("Generated Signature: " + signature);
-
+        System.out.println("MoMo API Response: ");
         // Gửi yêu cầu đến MoMo API
         String response = restTemplate.postForObject(endpoint, request, String.class);
 
@@ -90,63 +92,31 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
 
         return response;
     }
-    @Override
-    public String initiateATMRequest(Integer idorder, String amount, String email) throws Exception {
-        // Tạo requestId duy nhất
-      //  String requestId = UUID.randomUUID().toString();
-        Order order =orderService.getOrderById(idorder) ;
-        String orderId = order.getOrderCode();
-        String requestId = orderId;
 
-        // Cấu hình các tham số chính
-        MoMoPaymentRequest request = new MoMoPaymentRequest();
-        request.setPartnerCode(partnerCode); // MOMO_ATM_DEV
-        request.setAccessKey(accessKey);     // SvDmj2cOTYZmQQ3H
-        request.setRequestId(requestId);    // requestId duy nhất
-        request.setAmount(amount);          // Số tiền cần thanh toán
-        request.setOrderId(orderId);        // Mã đơn hàng
-        request.setNotifyUrl(notifyUrl);       // Đường dẫn IPN
-        request.setReturnUrl(returnUrl);  // Đường dẫn Redirect
-        request.setExtraData(email);  // Email khách hàng
-        request.setRequestType("payWithATM"); // Loại thanh toán
-
-
-        // Tạo rawSignature
-        String rawSignature = "accessKey=" + request.getAccessKey() +
-                "&amount=" + request.getAmount() +
-                "&extraData=" +request.getExtraData()+
-                "&ipnUrl=" + request.getNotifyUrl() +
-                "&orderId=" + request.getOrderId() +
-                "&orderInfo=" +"test" +
-                "&partnerClientId=" + request.getExtraData() +
-
-                "&partnerCode=" + request.getPartnerCode() +
-                "&redirectUrl=" + request.getReturnUrl() +
-                "&requestId=" + request.getRequestId() +
-                "&requestType=" + request.getRequestType();
-        System.out.println("Raw Signature: " + rawSignature);
-
-        // Tạo chữ ký
-        String signature = generateSignature(rawSignature, secretKey);
-        request.setSignature(signature);
-        System.out.println(signature);
-
-        // Gửi request qua RestTemplate
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.postForObject(endpoint, request, String.class);
-
-        System.out.println("MoMo Response: " + response);
-        return response;
-    }
 
     /**
      * Tạo chữ ký HMAC-SHA256 cho yêu cầu
+     *
      * @param data Dữ liệu cần ký
-     * @param key Khóa bí mật
+     * @param key  Khóa bí mật
      * @return Chữ ký đã được mã hóa Base64
      * @throws Exception Nếu có lỗi khi tạo chữ ký
      */
     private String generateSignature(String data, String key) throws Exception {
+
+//        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+//
+//        // Khởi tạo SecretKeySpec với khóa bí mật
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+//
+//        // Thiết lập HMAC với khóa bí mật
+//        sha256_HMAC.init(secretKeySpec);
+//
+//        // Tạo chữ ký từ dữ liệu
+//        byte[] hmacData = sha256_HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8));
+//
+//        // Chuyển đổi byte[] thành Base64
+//        return Base64.getEncoder().encodeToString(hmacData);
 
         Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
 
@@ -168,4 +138,5 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
         // Trả về chữ ký dưới dạng hex
         return hexString.toString();
     }
-}
+    }
+

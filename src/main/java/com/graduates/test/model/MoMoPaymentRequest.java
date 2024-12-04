@@ -66,10 +66,6 @@ public class MoMoPaymentRequest {
     }
 
 
-
-
-
-
     public String getAmount() {
         return amount;
     }

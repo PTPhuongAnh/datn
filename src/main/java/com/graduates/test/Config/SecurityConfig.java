@@ -84,6 +84,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                     .requestMatchers("/orders/list/admin").hasRole("ADMIN")
                     .requestMatchers("/feedback/**").permitAll()
                     .requestMatchers("/feedback/list").hasRole("ADMIN")
+                    .requestMatchers("//api/payment").permitAll()
                     .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
             );
     return http.build();
