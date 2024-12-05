@@ -109,8 +109,8 @@ public class OrderImpl implements OrderService {
 
             // Kiểm tra nếu tổng giá trị đơn hàng thỏa mãn điều kiện voucher
             double totalAmount = cart.getTotalAmount();
-            if (totalAmount < 300000) {
-                throw new Exception("Order amount must be above 300,000 to use this voucher.");
+            if (totalAmount < voucher.getMinOrderValue()) {
+                throw new Exception("Order amount must be above  to use this voucher.");
             }
             double discountValue = voucher.getDiscountValue(); // Phần trăm giảm giá
             finalAmount -= (finalAmount * (discountValue / 100)); // Áp dụng phần trăm giảm giá vào tổng tiền
