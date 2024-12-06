@@ -27,6 +27,29 @@ public class Feedback {
     private LocalDateTime createdAt;
     private  LocalDateTime updateAt;
     private Boolean isVisible;
+
+    @Column(name = "created_bys")  // Cột trong bảng lưu trữ username của người tạo voucher
+    private String createdBy;
+
+    @Column(name = "updated_by")  // Cột trong bảng lưu trữ username của người tạo voucher
+    private String updatedBy;
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
     public Integer getIdFeedback() {
         return idFeedback;
     }

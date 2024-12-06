@@ -78,7 +78,7 @@ public class VoucherController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createVoucher(
-            @RequestParam("code") String code,
+            @RequestParam("code") String code, // ten
             @RequestParam("discountValue") Double discountValue,
             @RequestParam("maxUsage") Integer maxUsage,
             @RequestParam("minOrderValue") Double minO,

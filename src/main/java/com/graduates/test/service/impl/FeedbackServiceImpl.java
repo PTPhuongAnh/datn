@@ -73,6 +73,8 @@ public class FeedbackServiceImpl implements FeedbackService {
             feedback.setComment(feedbackDTO.getComment());
             feedback.setRating(feedbackDTO.getRating());
             feedback.setCreatedAt(LocalDateTime.now());
+            feedback.setCreatedBy(username);
+            feedback.setUpdatedBy(username);
 
             feedbackRepository.save(feedback);
         }
@@ -107,6 +109,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             feedback.setComment(feedbackUpdate.getComment());
             feedback.setRating(feedbackUpdate.getRating());
             feedback.setUpdateAt(LocalDateTime.now());
+            feedback.setUpdatedBy(username);
 
             // Lưu thay đổi
             feedbackRepository.save(feedback);
@@ -115,16 +118,26 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     public List<FeedbackResponse> getAllFeedbacks() {
-        List<Feedback> feedbacks = feedbackRepository.findAllByOrderByCreatedAtDesc();
-        return feedbacks.stream()
-                .filter(Feedback::getIsVisible)  // Chỉ trả về những feedback có trạng thái là hiển thị
-                .map(this::convertToFeedbackResponse)
-                .collect(Collectors.toList());
+//        List<Feedback> feedbacks = feedbackRepository.findAllByOrderByCreatedAtDesc();
+//        return feedbacks.stream()
+//                .filter(Feedback::getIsVisible)  // Chỉ trả về những feedback có trạng thái là hiển thị
+//                .map(this::convertToFeedbackResponse)
+//                .collect(Collectors.toList());
+      //  return feedbackRepository.findAll();
+    //    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        return feedbackRepository.findAll()  // Lấy toàn bộ danh sách Feedback
+                .stream()  // Chuyển đổi thành stream
+                .map(this::convertToFeedbackResponse)  // Chuyển từng Feedback thành FeedbackResponse
+                .collect(Collectors.toList());  // Thu thập vào một danh sách
     }
+
+
 
 
     private FeedbackResponse convertToFeedbackResponse(Feedback feedback) {
         FeedbackResponse response = new FeedbackResponse();
+        response.setId(feedback.getIdFeedback());
         response.setUsername(feedback.getUser().getUsername());
         response.setBookTitle(feedback.getOrderDetail().getBook().getNameBook());
         response.setComment(feedback.getComment());
