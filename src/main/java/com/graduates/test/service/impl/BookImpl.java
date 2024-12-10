@@ -126,6 +126,11 @@ public class BookImpl implements BookService {
                     feedbackResponse.setUsername(feedback.getUser().getUsername()); // Giả sử có phương thức getUsername() trong UserEntity
                     feedbackResponse.setComment(feedback.getComment());
                     feedbackResponse.setRating(feedback.getRating());
+                    if(feedback.getVisible()==null) {
+                        feedbackResponse.setVisible(true);
+                    }else if(feedback.getIsVisible()==true){
+                        feedbackResponse.setVisible(feedback.getVisible());
+                    }
                     return feedbackResponse;
                 })
                 .collect(Collectors.toList());

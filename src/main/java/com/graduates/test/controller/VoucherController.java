@@ -157,4 +157,18 @@ public class VoucherController {
         voucherService.deleteVoucher(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @PostMapping("/disable/{voucherId}")
+    public ResponseEntity<?> updateVoucherStatus(@PathVariable Integer voucherId) {
+        try {
+            voucherService.updateVoucherStatus(voucherId);  // Cập nhật trạng thái của voucher
+//            return isActive ? "Voucher enabled successfully." : "Voucher disabled successfully.";
+
+                return ResponseHandler.responeBuilder(HttpStatus.OK,true,"Thay đổi trạng thái thành công");
+
+        } catch (Exception e) {
+            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR,false,e.getMessage());
+        }
+    }
 }

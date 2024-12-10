@@ -35,11 +35,17 @@ public class UserEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart; // Mối quan hệ với Cart
 
-
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders = new ArrayList<>();  // Quan hệ 1-nhiều với Order
+    private Boolean isDisable;
 
+    public Boolean getDisable() {
+        return isDisable;
+    }
+
+    public void setDisable(Boolean disable) {
+        isDisable = disable;
+    }
 
     public LocalDateTime getCreateAt() {
         return createAt;

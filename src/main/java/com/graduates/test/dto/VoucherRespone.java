@@ -19,6 +19,16 @@ public class VoucherRespone {
     private String updated_by;
     private Double discount;
 
+    private boolean disable;
+
+    public boolean isDisable() {
+        return disable;
+    }
+
+    public void setDisable(boolean disable) {
+        this.disable = disable;
+    }
+
     public Double getDiscount() {
         return discount;
     }

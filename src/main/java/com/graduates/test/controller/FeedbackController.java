@@ -53,9 +53,16 @@ public class FeedbackController {
     }
 
     // Thay đổi trạng thái hiển thị của feedback (Ẩn hoặc Hiện)
-    @PutMapping("/{id}/visibility")
-    public ResponseEntity<?> changeFeedbackVisibility(@PathVariable Integer id, @RequestParam Boolean isVisible) {
-        feedbackService.changeVisibility(id, isVisible);
-        return ResponseHandler.responeBuilder(HttpStatus.OK,true,"success");
+//    @PutMapping("/{id}/visibility")
+//    public ResponseEntity<?> changeFeedbackVisibility(@PathVariable Integer id, @RequestParam Boolean isVisible) {
+//        feedbackService.changeVisibility(id, isVisible);
+//        return ResponseHandler.responeBuilder(HttpStatus.OK,true,"success");
+//    }
+
+
+    @PostMapping("disable/{id}")
+    public ResponseEntity<?> toggleFeedbackVisibility(@PathVariable Integer id) {
+        Feedback updatedFeedback = feedbackService.toggleVisibility(id);
+        return ResponseHandler.responeBuilder(HttpStatus.OK,true,updatedFeedback) ;
     }
 }

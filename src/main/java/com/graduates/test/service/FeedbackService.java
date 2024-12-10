@@ -13,5 +13,7 @@ public interface FeedbackService {
 
     List<FeedbackResponse> getAllFeedbacks();
 
-    void changeVisibility(Integer id, Boolean isVisible);
+//    void changeVisibility(Integer id, Boolean isVisible);
+
+    Feedback toggleVisibility(Integer id);
 }

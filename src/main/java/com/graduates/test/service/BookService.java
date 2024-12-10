@@ -16,9 +16,7 @@ public interface BookService {
     //BookRespone updateBook(Integer idBook, BookUpdate book);
 
     void deleteBook(Integer idBook);
-
     List<BookRespone> getAllBooks();
-
     Optional<BookRespone> getBookById(int idBook);
 
     String getBookUploadDir();

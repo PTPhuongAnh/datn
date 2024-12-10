@@ -16,11 +16,12 @@ public class FeedbackRespone {
     private Integer rating;
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
+    private Boolean isVisible;
 
     public FeedbackRespone() {
     }
 
-    public FeedbackRespone(Integer idFeedback, Integer userId, String username, Integer orderDetailId, Integer bookId, String bookTitle, String comment, Integer rating, LocalDateTime createdAt, LocalDateTime updateAt) {
+    public FeedbackRespone(Integer idFeedback, Integer userId, String username, Integer orderDetailId, Integer bookId, String bookTitle, String comment, Integer rating, LocalDateTime createdAt, LocalDateTime updateAt, Boolean isVisible) {
         this.idFeedback = idFeedback;
         this.userId = userId;
         this.username = username;
@@ -31,12 +32,21 @@ public class FeedbackRespone {
         this.rating = rating;
         this.createdAt = createdAt;
         this.updateAt = updateAt;
+        this.isVisible = isVisible;
     }
 
     public FeedbackRespone(Integer idFeedback, String comment, Integer rating) {
         this.idFeedback = idFeedback;
         this.comment = comment;
         this.rating = rating;
+    }
+
+    public Boolean getVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(Boolean visible) {
+        isVisible = visible;
     }
 
     // Getters and Setters

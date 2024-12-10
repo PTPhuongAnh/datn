@@ -45,6 +45,8 @@ public class Voucher {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 
+    private boolean disable;
+
 
 
     @Column(name = "created_bys")  // Cột trong bảng lưu trữ username của người tạo voucher
@@ -103,6 +105,7 @@ public class Voucher {
     public Integer getId() {
         return id;
     }
+
 
     public void setId(Integer id) {
         this.id = id;
@@ -186,5 +189,13 @@ public class Voucher {
 
     public void setOrders(List<Order> orders) {
         this.orders = orders;
+    }
+
+    public boolean isDisable() {
+        return disable;
+    }
+
+    public void setDisable(boolean disable) {
+        this.disable = disable;
     }
 }

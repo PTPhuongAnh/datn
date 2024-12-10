@@ -23,4 +23,6 @@ public interface VoucherService {
     Voucher findById(Integer idVoucher);
 
     Page<Voucher> getList(String code, int page, int size);
+
+    void updateVoucherStatus(Integer voucherId);
 }

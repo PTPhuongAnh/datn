@@ -12,7 +12,15 @@ public class UserResponseDTO {
     private String dob;
     private String phone;
     private String address; // Thêm trường địa chỉ
+    private boolean disable;
 
+    public boolean isDisable() {
+        return disable;
+    }
+
+    public void setDisable(boolean disable) {
+        this.disable = disable;
+    }
 
     public Integer getIdUser() {
         return idUser;

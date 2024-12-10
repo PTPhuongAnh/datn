@@ -160,10 +160,23 @@ public class UserImpl implements UserService {
             throw new BadCredentialsException("token-is-invalid");
         }
     }
-
+    public void disableAccount(Integer userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+//if(user.getDisable()==true) {
+//    user.setDisable(false);  // Đặt trạng thái tài khoản là không hoạt động
+//}else{
+//    user.setDisable(true);
+//}
+        user.setDisable(!user.getDisable());
+        userRepository.save(user);  // Lưu lại vào cơ sở dữ liệu
+    }
     @Override
     public TokenDTO login(String username, String password) {
         UserEntity user = userRepository.findAllByUsername(username);
+        if ( user.getDisable()==false) {
+            throw new RuntimeException("Account is disabled ");
+        }
         CustomUserDetails customerUserDetail = new CustomUserDetails(user);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 username, password, customerUserDetail.getAuthorities()

@@ -8,6 +8,7 @@ import com.graduates.test.resposity.FeedbackRepository;
 import com.graduates.test.resposity.OrderDetailRepository;
 import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.FeedbackService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -134,6 +135,15 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 
 
+    public Feedback toggleVisibility(Integer idFeedback) {
+        Feedback feedback = feedbackRepository.findById(idFeedback)
+                .orElseThrow(() -> new EntityNotFoundException("Feedback not found"));
+        feedback.setIsVisible(!feedback.getIsVisible());
+        return feedbackRepository.save(feedback);
+    }
+
+
+
 
     private FeedbackResponse convertToFeedbackResponse(Feedback feedback) {
         FeedbackResponse response = new FeedbackResponse();
@@ -143,13 +153,25 @@ public class FeedbackServiceImpl implements FeedbackService {
         response.setComment(feedback.getComment());
         response.setRating(feedback.getRating());
         response.setCreatedAt(feedback.getCreatedAt());
+        response.setVisible(feedback.getVisible());
         return response;
     }
 
     // Thay đổi trạng thái hiển thị của feedback
-    public void changeVisibility(Integer id, Boolean isVisible) {
-        feedbackRepository.updateVisibility(id, isVisible);
-    }
+//    public void changeVisibility(Integer id) {
+//      //  feedbackRepository.updateVisibility(id, isVisible);
+//
+//          Feedback user = feedbackRepository.findById(userId)
+//                    .orElseThrow(() -> new RuntimeException("User not found"));
+////if(user.getDisable()==true) {
+////    user.setDisable(false);  // Đặt trạng thái tài khoản là không hoạt động
+////}else{
+////    user.setDisable(true);
+////}
+//            user.setDisable(!user.getDisable());
+//            userRepository.save(user);  // Lưu lại vào cơ sở dữ liệu
+//        }
+//    }
 
 
 }

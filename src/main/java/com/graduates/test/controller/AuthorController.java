@@ -70,6 +70,7 @@ public class AuthorController {
         user.setFullname(fullname);
         user.setDob(dob);
         user.setPhone(phone);
+        user.setDisable(true);
 
         // Tạo Address và gán vào user
         Address address = new Address();
@@ -160,6 +161,7 @@ public class AuthorController {
         user.setFullname(fullname);
         user.setDob(dob);
         user.setPhone(phone);
+        user.setDisable(true);
 
         // Tạo Address và gán vào user
         Address address = new Address();
@@ -195,6 +197,11 @@ public class AuthorController {
             );
         } else {
             response.setAddress(null); // Nếu không có địa chỉ
+        }
+        if(userEntity.getDisable()==null){
+            response.setDisable(true);
+        }else {
+            response.setDisable(userEntity.getDisable());
         }
 
         // Lấy danh sách vai trò của người dùng
@@ -343,6 +350,18 @@ public class AuthorController {
         return ResponseHandler.responeBuilder(HttpStatus.OK,true,refreshTokenDTO);
 
 
+    }
+
+
+    @PostMapping("/disable/{userId}")
+    public ResponseEntity<?> disableUserAccount(@PathVariable Integer userId) {
+        try {
+            userService.disableAccount(userId);  // Gọi service để vô hiệu hóa tài khoản
+           // return "User account disabled successfully.";
+            return ResponseHandler.responeBuilder(HttpStatus.OK,true,"User account disabled successfully.");
+        } catch (Exception e) {
+            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR,false,e.getMessage());
+        }
     }
 }
 

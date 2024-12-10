@@ -28,4 +28,6 @@ public interface UserService {
     RefreshTokenDTO refreshToken(String refreshToken);
 
     TokenDTO login(String username, String password);
+
+    void disableAccount(Integer userId);
 }
