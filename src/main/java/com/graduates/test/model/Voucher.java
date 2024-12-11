@@ -22,8 +22,8 @@ public class Voucher {
     @Column(nullable = false)
     private Double discountValue; // Giá trị giảm giá
 
-    @Column(nullable = false)
-    private Boolean isActive = true; // Trạng thái ẩn/hiện (mặc định là kích hoạt)
+//    @Column(nullable = false)
+//    private Boolean isActive = true; // Trạng thái ẩn/hiện (mặc định là kích hoạt)
 
     @Column(nullable = false)
     private Double minOrderValue; // Giá trị tối thiểu của đơn hàng để áp dụng voucher
@@ -45,7 +45,7 @@ public class Voucher {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 
-    private boolean disable;
+    private boolean disable=false;
 
 
 
@@ -111,13 +111,13 @@ public class Voucher {
         this.id = id;
     }
 
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
+//    public Boolean getActive() {
+//        return isActive;
+//    }
+//
+//    public void setActive(Boolean active) {
+//        isActive = active;
+//    }
 
     public String getCode() {
         return code;
@@ -135,13 +135,13 @@ public class Voucher {
         this.discountValue = discountValue;
     }
 
-    public Boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
+//    public Boolean getIsActive() {
+//        return isActive;
+//    }
+//
+//    public void setIsActive(Boolean isActive) {
+//        this.isActive = isActive;
+//    }
 
     public Double getMinOrderValue() {
         return minOrderValue;
@@ -190,6 +190,11 @@ public class Voucher {
     public void setOrders(List<Order> orders) {
         this.orders = orders;
     }
+
+//    public boolean isDisable() {
+//        return disable;
+//    }
+//
 
     public boolean isDisable() {
         return disable;

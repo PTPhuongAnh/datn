@@ -76,6 +76,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             feedback.setCreatedAt(LocalDateTime.now());
             feedback.setCreatedBy(username);
             feedback.setUpdatedBy(username);
+            feedback.setIsVisible(false);
 
             feedbackRepository.save(feedback);
         }
@@ -153,7 +154,11 @@ public class FeedbackServiceImpl implements FeedbackService {
         response.setComment(feedback.getComment());
         response.setRating(feedback.getRating());
         response.setCreatedAt(feedback.getCreatedAt());
-        response.setVisible(feedback.getVisible());
+        if(feedback.getVisible()==null){
+            response.setVisible(false);
+        }else {
+            response.setVisible(feedback.getVisible());
+        }
         return response;
     }
 

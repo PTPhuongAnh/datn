@@ -70,7 +70,7 @@ public class AuthorController {
         user.setFullname(fullname);
         user.setDob(dob);
         user.setPhone(phone);
-        user.setDisable(true);
+        user.setDisable(false);
 
         // Tạo Address và gán vào user
         Address address = new Address();
@@ -116,6 +116,7 @@ public class AuthorController {
         user.setFullname(fullname);
         user.setDob(dob);
         user.setPhone(phone);
+        user.setDisable(false);
 
         // Tạo Address và gán vào user
         Address address = new Address();
@@ -161,7 +162,7 @@ public class AuthorController {
         user.setFullname(fullname);
         user.setDob(dob);
         user.setPhone(phone);
-        user.setDisable(true);
+        user.setDisable(false);
 
         // Tạo Address và gán vào user
         Address address = new Address();
@@ -199,7 +200,7 @@ public class AuthorController {
             response.setAddress(null); // Nếu không có địa chỉ
         }
         if(userEntity.getDisable()==null){
-            response.setDisable(true);
+            response.setDisable(false);
         }else {
             response.setDisable(userEntity.getDisable());
         }

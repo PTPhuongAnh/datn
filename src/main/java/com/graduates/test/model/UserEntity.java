@@ -37,7 +37,8 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders = new ArrayList<>();  // Quan hệ 1-nhiều với Order
-    private Boolean isDisable;
+    @Column(nullable = false)
+    private Boolean isDisable=false;
 
     public Boolean getDisable() {
         return isDisable;

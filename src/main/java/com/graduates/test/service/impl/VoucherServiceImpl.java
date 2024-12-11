@@ -82,7 +82,8 @@ public class VoucherServiceImpl implements VoucherService {
     public void updateVoucherStatus(Integer voucherId) {
         Voucher voucher = voucherRepository.findById(voucherId)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
-        voucher.setActive(!voucher.getActive());  // Đặt trạng thái voucher thành true (hiện) hoặc false (ẩn)
+       voucher.setDisable(!voucher.isDisable());  // Đặt trạng thái voucher thành true (hiện) hoặc false (ẩn)
+      //  if(voucher.getActive())
         voucherRepository.save(voucher);
     }
 }

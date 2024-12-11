@@ -1,5 +1,6 @@
 package com.graduates.test.dto;
 
+import com.graduates.test.model.Address;
 import com.graduates.test.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

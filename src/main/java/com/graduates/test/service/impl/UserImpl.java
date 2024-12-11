@@ -3,6 +3,7 @@ package com.graduates.test.service.impl;
 import com.graduates.test.Config.JwtService;
 import com.graduates.test.dto.*;
 import com.graduates.test.exception.ResourceNotFoundException;
+import com.graduates.test.model.Address;
 import com.graduates.test.model.UserEntity;
 import com.graduates.test.resposity.RoleRespository;
 import com.graduates.test.resposity.UserResposity;
@@ -200,6 +201,7 @@ public class UserImpl implements UserService {
                 .phone(entity.getPhone())
                 .dob(entity.getDob())
                 .roles(entity.getRoles())
+                .address(entity.getAddress().getStreet()+","+entity.getAddress().getCity())
                 .build();
     }
 

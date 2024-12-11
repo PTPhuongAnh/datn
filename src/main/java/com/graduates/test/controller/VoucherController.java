@@ -66,6 +66,7 @@ public class VoucherController {
         response.setCreated_by(publisher.getCreatedBy());
         response.setUpdated_by(publisher.getUpdatedBy());
         response.setDiscount(publisher.getDiscountValue());
+        response.setDisable(publisher.isDisable());
         return response;
     }
 
@@ -101,6 +102,7 @@ public class VoucherController {
             publisher.setEndDate(end);
             publisher.setCreatedBy(username);
             publisher.setUpdatedBy(username);
+            publisher.setDisable(false);
             // Tạo nhà xuất bản mới
             String result = voucherService.createVoucher(publisher);
 

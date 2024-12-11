@@ -99,7 +99,7 @@ public class OrderImpl implements OrderService {
         if (voucherId != null) {
             voucher = voucherRepository.findById(voucherId)
                     .orElseThrow(() -> new Exception("Voucher not found"));
-            if (!voucher.getIsActive()) {
+            if (!voucher.isDisable()) {
                 throw new Exception("Voucher is not active and cannot be used.");
             }
             if (voucher.getMaxUsage() <= 0) {

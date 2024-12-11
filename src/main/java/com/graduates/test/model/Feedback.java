@@ -26,7 +26,7 @@ public class Feedback {
     private Integer rating;
     private LocalDateTime createdAt;
     private  LocalDateTime updateAt;
-    private Boolean isVisible;
+    private Boolean isVisible=false;
 
     @Column(name = "created_bys")  // Cột trong bảng lưu trữ username của người tạo voucher
     private String createdBy;

@@ -133,7 +133,6 @@ public class CategoryController {
     }
     @PutMapping("/{idCategory}")
     public ResponseEntity<?> updateCategoryDetails(
-
             @PathVariable("idCategory") Integer idCategory,
             @RequestParam(value = "nameCategory", required = false) String nameCategory,
             @RequestPart(value = "image", required = false) MultipartFile file
