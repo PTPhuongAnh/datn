@@ -175,7 +175,7 @@ public class UserImpl implements UserService {
     @Override
     public TokenDTO login(String username, String password) {
         UserEntity user = userRepository.findAllByUsername(username);
-        if ( user.getDisable()==false) {
+        if ( user.getDisable()==true) {
             throw new RuntimeException("Account is disabled ");
         }
         CustomUserDetails customerUserDetail = new CustomUserDetails(user);
