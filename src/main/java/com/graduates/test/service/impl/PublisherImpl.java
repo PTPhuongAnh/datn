@@ -85,7 +85,6 @@ public class PublisherImpl implements PublisherService {
 
     public Page<Publisher> getList(String namePublisher, String addressPublisher, int page, int sizes) {
         Pageable pageable = PageRequest.of(page, sizes);
-//        return categoryResposity.searchCategory(nameCategory,pageable);
         if (namePublisher != null && !namePublisher.isEmpty()||addressPublisher!=null&&addressPublisher.isEmpty()) {
             return publisherResposity.findByNamePublisherContainingOrAddressPublisherContaining(namePublisher,addressPublisher, pageable);
         } else {

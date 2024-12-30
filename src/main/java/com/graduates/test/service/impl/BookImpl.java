@@ -182,7 +182,7 @@ private void updateBookImages(Book book, List<MultipartFile> newImages) throws I
     public BookRespone updateBook(Integer idBook, String nameBook, String author, String description_short,
                                   String description_long, String size, String year_publisher, String page_number,
                                   String barcode, Integer categoryId,
-                                  Integer publisherId, Integer distributorId,Integer quantity, Integer price, List<MultipartFile> images)
+                                  Integer publisherId, Integer distributorId,Integer quantity, Integer price)
             throws ResourceNotFoundException, IOException {
         // Tìm sách theo ID
         Book book = bookCategoryResposity.findById(idBook)
@@ -222,11 +222,11 @@ private void updateBookImages(Book book, List<MultipartFile> newImages) throws I
         if (price != null) book.setPrice(price);
 
         // Cập nhật ảnh sách nếu có
-        if (images != null && !images.isEmpty()) {
-            updateBookImages(book, images);
-        } else {
-            throw new IOException("At least one image is required");
-        }
+//        if (images != null && !images.isEmpty()) {
+//            updateBookImages(book, images);
+//        } else {
+//            throw new IOException("At least one image is required");
+//        }
 
         // Lưu sách đã cập nhật vào cơ sở dữ liệu
         Book updatedBook = bookCategoryResposity.save(book);

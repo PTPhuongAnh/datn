@@ -23,7 +23,7 @@ public interface BookService {
 
     Page<Book> getList(String nameBook, String author, String description_short, String description_long, String size, String year_publisher, String page_number, String barcode, Integer quantity, Integer price, String category, String publisher, String distributor, int page, int sizes);
 
-    BookRespone updateBook(Integer idBook, String nameBook, String author, String descriptionShort, String descriptionLong, String size, String yearPublisher, String pageNumber, String barcode, Integer idCategory, Integer idPublisher, Integer idDistributor, Integer quantity, Integer price, List<MultipartFile> images) throws IOException;
+    BookRespone updateBook(Integer idBook, String nameBook, String author, String descriptionShort, String descriptionLong, String size, String yearPublisher, String pageNumber, String barcode, Integer idCategory, Integer idPublisher, Integer idDistributor, Integer quantity, Integer price) throws IOException;
 
     List<Map<String, Object>> getBooksSortedBySales();
 

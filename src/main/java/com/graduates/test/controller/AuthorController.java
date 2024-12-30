@@ -283,18 +283,6 @@ public class AuthorController {
     }
 
 
-//    @GetMapping("/list/user")
-//    public ResponseEntity<?> getUsersByRole() {
-//        List<UserResponseDTO> users = userService.getUsersByRole("ROLE_USER");
-//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
-//
-//    }
-//    @GetMapping("/list/employee")
-//    public ResponseEntity<?> getUsersByRole1() {
-//        List<UserResponseDTO> users = userService.getUsersByRole("ROLE_EMPLOYEE");
-//        return ResponseHandler.responeBuilder(HttpStatus.OK, true, users);
-//
-//    }
 
     @PutMapping("/update_info")
     public ResponseEntity<?> updateCategoryDetails(

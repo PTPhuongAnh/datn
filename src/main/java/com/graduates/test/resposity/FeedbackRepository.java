@@ -1,6 +1,8 @@
 package com.graduates.test.resposity;
 
 import com.graduates.test.model.Feedback;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +26,5 @@ public interface FeedbackRepository extends JpaRepository<Feedback,Integer> {
     void updateVisibility(@Param("id") Integer id, @Param("isVisible") Boolean isVisible);
 
 
+    Page<Feedback> findByUserUsernameContaining(String account, Pageable pageable);
 }

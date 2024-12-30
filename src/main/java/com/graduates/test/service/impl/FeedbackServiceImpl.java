@@ -10,6 +10,9 @@ import com.graduates.test.resposity.UserResposity;
 import com.graduates.test.service.FeedbackService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -143,7 +146,16 @@ public class FeedbackServiceImpl implements FeedbackService {
         return feedbackRepository.save(feedback);
     }
 
+    @Override
+    public Page<Feedback> getList(String name, String account, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (account!= null && !account.isEmpty()) {
+            return feedbackRepository.findByUserUsernameContaining(account, pageable);
+        } else {
+            return feedbackRepository.findAll(pageable);
+        }
 
+    }
 
 
     private FeedbackResponse convertToFeedbackResponse(Feedback feedback) {
@@ -162,21 +174,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         return response;
     }
 
-    // Thay đổi trạng thái hiển thị của feedback
-//    public void changeVisibility(Integer id) {
-//      //  feedbackRepository.updateVisibility(id, isVisible);
-//
-//          Feedback user = feedbackRepository.findById(userId)
-//                    .orElseThrow(() -> new RuntimeException("User not found"));
-////if(user.getDisable()==true) {
-////    user.setDisable(false);  // Đặt trạng thái tài khoản là không hoạt động
-////}else{
-////    user.setDisable(true);
-////}
-//            user.setDisable(!user.getDisable());
-//            userRepository.save(user);  // Lưu lại vào cơ sở dữ liệu
-//        }
-//    }
+
 
 
 }
