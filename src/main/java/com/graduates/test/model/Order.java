@@ -55,7 +55,7 @@ public class Order {
     private  String orderCode;
 
     @ManyToOne
-    @JoinColumn(name = "payment_status_id")
+    @JoinColumn(name = "id_payment_status")
     private PaymentStatusM paymentStatusM;
 
     public PaymentStatusM getPaymentStatusM() {

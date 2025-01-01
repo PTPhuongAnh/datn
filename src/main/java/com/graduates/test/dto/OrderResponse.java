@@ -58,7 +58,7 @@ public class OrderResponse {
         this.books = books;
         this.createdAt = createdAt;
         this.feedbacks = feedbacks;
-        StatusPayment = statusPayment;
+        this.StatusPayment = statusPayment;
      //   this.voucher = voucher;
         if (order.getVoucher() != null) {
             //   this.voucherCode = order.getVoucher().getVoucherCode();

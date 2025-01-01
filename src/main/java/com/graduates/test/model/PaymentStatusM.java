@@ -8,6 +8,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 public class PaymentStatusM {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
     @Column(name = "status_name", unique = true, nullable = false)

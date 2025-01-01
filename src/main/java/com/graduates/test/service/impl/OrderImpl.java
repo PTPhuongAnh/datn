@@ -241,6 +241,11 @@ private OrderResponse convertToOrderResponse(Order order) {
     response.setNote(order.getNote());
     response.setDeliveryDate(order.getDeliveryDate());
     response.setOrderCode(order.getOrderCode());
+    if(order.getPaymentStatusM().getStatusName() == null){
+        response.setStatusPayment("UNPAID");
+    }else{
+        response.setStatusPayment(order.getPaymentStatusM().getStatusName());
+    }
     if(order.getVoucher() !=null) {
         response.setVoucher(order.getVoucher().getDiscountValue());
     }else{

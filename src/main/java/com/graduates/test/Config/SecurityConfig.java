@@ -42,31 +42,7 @@ public class SecurityConfig {
         this.customerUserDetailsService = customerUserDetailsService;
     }
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF
-//                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT filter trước filter của Username/Password
-//                .authorizeRequests(requests -> requests
-//                        .requestMatchers("/user/auth/**").permitAll() // Cho phép truy cập không cần xác thực
-//                        .requestMatchers("/category/**").permitAll()
-//                    //    .requestMatchers("/category/list/**").permitAll()
-//                        .requestMatchers("/cart/**").permitAll()
-//                        .requestMatchers("/book/**").permitAll()
-//                        .requestMatchers("/book/list/**").permitAll()
-//                        .requestMatchers("/publisher/**").permitAll()
-//                        .requestMatchers("/distributor/**").permitAll()
-//                        .requestMatchers("/orders/**").permitAll()
-//                    //    .requestMatchers("/orders/update-status/**").permitAll()
-//                        .requestMatchers("/orders/list/admin").hasRole("ADMIN")
-//                   //     .requestMatchers("/orders/detail_admin/**").permitAll()
-//                        .requestMatchers("/feedback/**").permitAll()
-//                        .requestMatchers("/feedback/list").hasRole("ADMIN")
-//
-//                        .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
-//                );
-//        return http.build();
-//    }
+
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
@@ -74,6 +50,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Cấu hình CORS
             .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class) // Thêm JWT filter trước filter của Username/Password
             .authorizeRequests(requests -> requests
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/user/auth/**").permitAll()
                     .requestMatchers("/category/**").permitAll()
                     .requestMatchers("/cart/**").permitAll()
@@ -84,7 +61,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                     .requestMatchers("/orders/list/admin").hasRole("ADMIN")
                     .requestMatchers("/feedback/**").permitAll()
                     .requestMatchers("/feedback/list").hasRole("ADMIN")
-                    .requestMatchers("//api/payment").permitAll()
+                    .requestMatchers("/api/payment").permitAll()
+                    .requestMatchers("/vouchers/**").permitAll()
+
                     .anyRequest().authenticated() // Mọi yêu cầu khác cần phải xác thực
             );
     return http.build();
@@ -95,7 +74,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // Cho phép domain frontend
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*")); // Hoặc có thể chỉ định các header cụ thể
+       configuration.setAllowedHeaders(Arrays.asList("*")); // Hoặc có thể chỉ định các header cụ thể
+       // configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
         configuration.setAllowCredentials(true); // Cho phép gửi cookie hoặc header authorization
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -130,16 +110,20 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
      * Sử dụng SecurityFilterChain cấu hình cho Spring Security
      * Bao gồm phân quyền các endpoint
      */
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(r -> {
-                    r.anyRequest().permitAll();
-                });
-        return http.build();
-    }
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+//                .authorizeHttpRequests(r -> {
+//                    r.anyRequest().permitAll();
+//                });
+//        return http.build();
+//    }
+
+
+
+
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        http

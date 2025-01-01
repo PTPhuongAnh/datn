@@ -186,15 +186,15 @@ public class CartController {
 //        return ResponseHandler.responeBuilder(HttpStatus.OK, false, e.getMessage());
 //    }
 //}
-@DeleteMapping("/delete-books")
+@DeleteMapping("/delete")
 public ResponseEntity<?> deleteBooksFromCart(
         @RequestHeader("Authorization") String token, // Lấy token từ header
-        @RequestParam List<Integer> idBooks) {
+        @RequestParam List<Integer> idBook) {
 
     try {
         // Lấy token từ header và loại bỏ tiền tố "Bearer " nếu có
          token = token.replace("Bearer ", "");
-        cartService.deleteBooksFromCart(token, idBooks); // Gọi service để xóa sách
+        cartService.deleteBooksFromCart(token, idBook); // Gọi service để xóa sách
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Sách đã được xóa khỏi giỏ hàng.");
 
     } catch (Exception e) {
