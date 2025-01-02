@@ -66,9 +66,9 @@ public class PublisherController {
             // Trả về phản hồi thành công với thông điệp từ service
             return ResponseHandler.responeBuilder(HttpStatus.OK, true, result);
 
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             // Xử lý các lỗi không dự đoán trước
-            return ResponseHandler.responeBuilder( HttpStatus.INTERNAL_SERVER_ERROR, false, "An error occurred while creating the publisher");
+            return ResponseHandler.responeBuilder1( HttpStatus.OK, false, e.getMessage());
         }
     }
 
@@ -118,7 +118,7 @@ public class PublisherController {
             publisherService.markPublisherAsDeleted(idPublisher);
             return ResponseHandler.responeBuilder(HttpStatus.OK,true,"publisher deleted successfully.");
         } catch (IllegalStateException e) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
+            return ResponseHandler.responeBuilder1(HttpStatus.OK,false,e.getMessage());
         }
     }
 

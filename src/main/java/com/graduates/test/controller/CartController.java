@@ -74,9 +74,9 @@ public class CartController {
             String errorMessage = e.getMessage();
 
             if (errorMessage.contains("Số lượng muốn thêm vượt quá số lượng còn lại trong sách!")) {
-                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+                return ResponseHandler.responeBuilder1(HttpStatus.OK, false, errorMessage);
             } else if (errorMessage.contains("Sản phẩm hiện không còn hàng.")) {
-                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+                return ResponseHandler.responeBuilder1(HttpStatus.OK, false, errorMessage);
             } else {
                 System.out.println("Unexpected error: " + errorMessage);
                 return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, "Đã xảy ra lỗi không mong muốn!");
@@ -132,7 +132,7 @@ public class CartController {
 
         } catch (Exception e) {
             // Trả về thông báo lỗi nếu có ngoại lệ
-            return ResponseHandler.responeBuilder(HttpStatus.BAD_REQUEST, false, e.getMessage());
+            return ResponseHandler.responeBuilder1(HttpStatus.OK, false, e.getMessage());
         }
     }
 //    @PutMapping("/update-quantity")
@@ -170,9 +170,9 @@ public class CartController {
         } catch (Exception e) {
             String errorMessage = e.getMessage();
             if (errorMessage.contains("Không đủ số lượng trong kho")) {
-                return ResponseHandler.responeBuilder(HttpStatus.OK, false, errorMessage);
+                return ResponseHandler.responeBuilder1(HttpStatus.OK, false, errorMessage);
             }
-            return ResponseHandler.responeBuilder(HttpStatus.OK, false, "Không thể cập nhật số lượng sản phẩm!");
+            return ResponseHandler.responeBuilder1(HttpStatus.OK, false, "Không thể cập nhật số lượng sản phẩm!");
         }
     }
 
@@ -198,7 +198,7 @@ public ResponseEntity<?> deleteBooksFromCart(
         return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Sách đã được xóa khỏi giỏ hàng.");
 
     } catch (Exception e) {
-        return ResponseHandler.responeBuilder(HttpStatus.BAD_REQUEST, false, e.getMessage());
+        return ResponseHandler.responeBuilder1(HttpStatus.OK, false, e.getMessage());
     }
 }
 }

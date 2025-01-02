@@ -162,11 +162,17 @@ public class OrderController {
             // Cập nhật trạng thái đơn hàng
             boolean isUpdated = orderService.updateOrderStatus(orderId, statusId);
 
+//            if (isUpdated) {
+//                return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Order status updated successfully");
+//            } else {
+//                return ResponseHandler.responeBuilder(HttpStatus.BAD_REQUEST, false,
+//                        "Cannot update status because the order is completed or does not exist.");
+//            }
             if (isUpdated) {
                 return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Order status updated successfully");
             } else {
-                return ResponseHandler.responeBuilder(HttpStatus.BAD_REQUEST, false,
-                        "Cannot update status because the order is completed or does not exist.");
+                return ResponseHandler.responeBuilder1(HttpStatus.OK, false,
+                        "Không thể thay đổi trạng thái đơn hàng vì đơn hàng đã hoàn thành hoặc hủy");
             }
         } catch (Exception e) {
             return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, e.getMessage());

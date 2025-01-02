@@ -118,7 +118,7 @@ public class BookController {
 
             );
         } catch (IOException e) {
-            return ResponseHandler.responeBuilder(
+            return ResponseHandler.responeBuilder1(
                     HttpStatus.OK,
                     false,
                     null
@@ -278,7 +278,7 @@ public ResponseEntity<?> updateBook(
             bookService.deleteBook(idBook);
             return ResponseHandler.responeBuilder(HttpStatus.OK,true,"book deleted successfully.");
         } catch (IllegalStateException e) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
+            return ResponseHandler.responeBuilder1(HttpStatus.OK,false,e.getMessage());
         }
     }
     @GetMapping("/books-sales")

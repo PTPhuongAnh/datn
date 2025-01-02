@@ -163,7 +163,7 @@ public class CategoryController {
 
         } catch (ResourceNotFoundException e) {
             // Xử lý trường hợp danh mục không tồn tại
-            return ResponseHandler.responeBuilder(HttpStatus.NOT_FOUND, false, e.getMessage());
+            return ResponseHandler.responeBuilder1(HttpStatus.OK, false, e.getMessage());
 
         } catch (Exception e) {
             // Xử lý các ngoại lệ khác nếu có
@@ -244,7 +244,7 @@ public class CategoryController {
             categoryService.markCategoryAsDeleted(idCategory);
             return ResponseHandler.responeBuilder( HttpStatus.OK, true, null);
         } catch (IllegalStateException e) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
+            return ResponseHandler.responeBuilder1(HttpStatus.OK,false,e.getMessage());
         }
     }
 }

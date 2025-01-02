@@ -108,7 +108,7 @@ public class DistributorController {
             distributorService.markDistributorAsDeleted(idDistributor);
             return ResponseHandler.responeBuilder(HttpStatus.OK,true,"publisher deleted successfully.");
         } catch (IllegalStateException e) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
+            return ResponseHandler.responeBuilder1(HttpStatus.OK,false,e.getMessage());
         }
     }
 

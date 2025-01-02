@@ -33,7 +33,7 @@ public class FeedbackController {
              String response = feedbackService.addFeedbacks(token, orderId, feedbackDTOs);
              return ResponseHandler.responeBuilder(HttpStatus.OK,true,response);
          } catch (Exception e) {
-             return ResponseHandler.responeBuilder(HttpStatus.OK,false,e.getMessage());
+             return ResponseHandler.responeBuilder1(HttpStatus.OK,false,e.getMessage());
          }
      }
 
@@ -46,9 +46,9 @@ public class FeedbackController {
         token = token.replace("Bearer ", "");
         String result = feedbackService.updateFeedbacks(token, feedbackUpdates);
         if (result.equals("All feedbacks updated successfully")) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,true,result);
+            return ResponseHandler.responeBuilder1(HttpStatus.OK,true,result);
         } else {
-            return ResponseHandler.responeBuilder(HttpStatus.OK,false,result);
+            return ResponseHandler.responeBuilder1(HttpStatus.OK,false,result);
         }
     }
 
