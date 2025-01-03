@@ -243,12 +243,9 @@ private OrderResponse convertToOrderResponse(Order order) {
     response.setNote(order.getNote());
     response.setDeliveryDate(order.getDeliveryDate());
     response.setOrderCode(order.getOrderCode());
-//    if(order.getPaymentStatusM().getStatusName() == null){
-//        response.setStatusPayment("UNPAID");
-//    }else{
-     //   response.setStatusPayment(order.getPaymentStatusM().getStatusName());
-
-    if (order.getOrderStatus().getIdStatus().equals(4) ) {
+    if(order.getPaymentStatusM().getStatusName() == null){
+        response.setStatusPayment("UNPAID");
+    } else if (order.getOrderStatus().getIdStatus().equals(4) ) {
         response.setStatusPayment("PAID");
     } else {
         response.setStatusPayment(order.getPaymentStatusM().getStatusName());
