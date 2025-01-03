@@ -165,11 +165,11 @@ public class OrderController {
             if (isUpdated) {
                 return ResponseHandler.responeBuilder(HttpStatus.OK, true, "Order status updated successfully");
             } else {
-                return ResponseHandler.responeBuilder(HttpStatus.BAD_REQUEST, false,
+                return ResponseHandler.responeBuilder(HttpStatus.OK, false,
                         "Cannot update status because the order is completed or does not exist.");
             }
         } catch (Exception e) {
-            return ResponseHandler.responeBuilder(HttpStatus.INTERNAL_SERVER_ERROR, false, e.getMessage());
+            return ResponseHandler.responeBuilder(HttpStatus.OK, false, e.getMessage());
         }
     }
 

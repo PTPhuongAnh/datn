@@ -6,9 +6,10 @@ import com.graduates.test.resposity.OrderRespository;
 import com.graduates.test.resposity.PaymentStatusMRepository;
 import com.graduates.test.service.PaymentStatusMService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+@Service
 public class PaymentStatusMImpl implements PaymentStatusMService {
     @Autowired
     private OrderRespository orderRepository;
@@ -33,10 +34,16 @@ public class PaymentStatusMImpl implements PaymentStatusMService {
         }
 
         // Cập nhật trạng thái thanh toán cho đơn hàng
+      //  order.setPaymentStatusM(statusPayment);
+        System.out.println("Payment status before update: " + order.getPaymentStatusM().getStatusName());
         order.setPaymentStatusM(statusPayment);
+        System.out.println("Payment status after update: " + order.getPaymentStatusM().getStatusName());
 
         // Lưu lại đơn hàng sau khi cập nhật
+//        orderRepository.save(order);
+        System.out.println("Order before update: " + order);  // In ra thông tin order trước khi cập nhật
         orderRepository.save(order);
+        System.out.println("Order after update: " + order);
 
         // Optional: In ra thông báo
         System.out.println("Updated payment status for order " + orderCode + " to " + statusName);

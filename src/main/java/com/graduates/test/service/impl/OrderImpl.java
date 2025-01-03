@@ -492,6 +492,11 @@ public Map<String, Object> getAllOrdersWithPagination(Pageable pageable,
             if (order.getOrderStatus().getIdStatus().equals(4)) {
                 return false; // Không cho phép chuyển trạng thái nếu đã là "completed"
             }
+            if(order.getPayment().getIdPayment().equals(2) || order.getPayment().getIdPayment().equals(3)){
+                if (order.getPaymentStatusM().equals(1)) { // UNPAID
+                    throw new IllegalStateException("Cannot transition to UNPAID if payment is already PAID.");
+                }
+            }
             // Cập nhật trạng thái mới
             order.setOrderStatus(status);
 
