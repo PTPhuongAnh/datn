@@ -168,7 +168,8 @@ public class CartServiceImpl implements CartService {
                 cartDetail.getQuantity(),
                 cartDetail.getPrice(),
                 imageUrls,
-                book.getPrice() * cartDetail.getQuantity()
+                book.getPrice() * cartDetail.getQuantity(),
+                book.getQuantity()
 
 
         );
@@ -237,12 +238,14 @@ public class CartServiceImpl implements CartService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new Exception("Không tìm thấy sách với ID: " + bookId));
 
-        CartDetail cartDetail = cartDetailRepository.findByCartAndBook(cart, book)
+        CartDetail cartDetail = cartDetailRepository.findByCartAndBookAndIsPurchasedFalse(cart, book)
                 .orElseThrow(() -> new Exception("Không tìm thấy sản phẩm trong giỏ hàng với ID sách: " + bookId));
+
 
         if (operation.equals("increase")) {
             if (book.getQuantity() <= cartDetail.getQuantity()) {
-                throw new Exception("Không đủ số lượng trong kho cho sách: " + book.getNameBook());
+              //  throw new Exception("Không đủ số lượng trong kho cho sách: " + book.getNameBook());
+                throw new Exception("Không tăng thêm số lượng vì khong đủ số lượng trong kho cho sách " );
             }
             cartDetail.setQuantity(cartDetail.getQuantity() + 1);
         } else if (operation.equals("decrease")) {

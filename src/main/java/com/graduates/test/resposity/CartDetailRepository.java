@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CartDetailRepository extends JpaRepository<CartDetail,Integer> {
-    Optional<CartDetail> findByCartAndBook(Cart cart, Book book);
+   // Optional<CartDetail> findByCartAndBook(Cart cart, Book book);
     Optional<CartDetail> findByBook_IdBook(Integer idBook);
 
     Optional<CartDetail> findByIdAndCart_IdCart(Integer detailId, Integer idCart);
@@ -24,4 +24,5 @@ public interface CartDetailRepository extends JpaRepository<CartDetail,Integer> 
    List<CartDetail> findAllByBook_IdBookAndCart_IdCart(Integer idBook, Integer idCart);
 
 
+    Optional<CartDetail> findByCartAndBookAndIsPurchasedFalse(Cart cart, Book book);
 }

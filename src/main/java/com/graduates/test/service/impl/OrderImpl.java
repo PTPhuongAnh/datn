@@ -122,7 +122,7 @@ public class OrderImpl implements OrderService {
 
 
             // Giảm số lượng voucher nếu voucher còn số lượng sử dụng
-            voucher.setMaxUsage(voucher.getId() - 1);
+            voucher.setMaxUsage(voucher.getMaxUsage() - 1);
             voucherRepository.save(voucher); // Lưu lại voucher sau khi giảm số lượng
         }else {
             voucher = new Voucher();  // Khởi tạo voucher mặc định nếu không có voucherId
@@ -178,10 +178,12 @@ public class OrderImpl implements OrderService {
             order.addOrderDetail(orderDetail); // Thêm chi tiết đơn hàng vào đơn hàng
             Book book = cartDetail.getBook();
             cartDetail.setPurchased(true);
+        //    cartDetailRepository.delete(cartDetail);
             if (book.getQuantity() < cartDetail.getQuantity()) {
                 throw new Exception("Not enough stock for book: " + book.getNameBook());
             }
             book.setQuantity(book.getQuantity() - cartDetail.getQuantity());
+
         }
 
 
@@ -241,11 +243,17 @@ private OrderResponse convertToOrderResponse(Order order) {
     response.setNote(order.getNote());
     response.setDeliveryDate(order.getDeliveryDate());
     response.setOrderCode(order.getOrderCode());
-    if(order.getPaymentStatusM().getStatusName() == null){
-        response.setStatusPayment("UNPAID");
-    }else{
+//    if(order.getPaymentStatusM().getStatusName() == null){
+//        response.setStatusPayment("UNPAID");
+//    }else{
+     //   response.setStatusPayment(order.getPaymentStatusM().getStatusName());
+
+    if (order.getOrderStatus().getIdStatus().equals(4) ) {
+        response.setStatusPayment("PAID");
+    } else {
         response.setStatusPayment(order.getPaymentStatusM().getStatusName());
     }
+  //  }
     if(order.getVoucher() !=null) {
         response.setVoucher(order.getVoucher().getDiscountValue());
     }else{

@@ -58,7 +58,7 @@ public class AuthorController {
             @RequestParam("city") String city
     ) {
         if (userResposity.existsByUsername(username)) {
-            return ResponseHandler.responeBuilder(HttpStatus.OK, false, "Username already exists");
+            return ResponseHandler.responeBuilder1(HttpStatus.OK, false, "Username already exists");
         }
         // Tạo UserEntity
         UserEntity user = new UserEntity();

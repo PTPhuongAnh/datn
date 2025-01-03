@@ -19,14 +19,22 @@ public class CartResponse {
     private Integer price; // Giá sách
     private List<String> imageUrls; // Danh sách URL ảnh của sách
     private double total;
+    private int cl;
 
+    public Integer getIdCartDetail() {
+        return idCartDetail;
+    }
+
+    public void setIdCartDetail(Integer idCartDetail) {
+        this.idCartDetail = idCartDetail;
+    }
 
     // Constructor
 
     public CartResponse() {
     }
 
-    public CartResponse(Integer idCartDetail, Integer bookId, String title, String author, String description, int quantity, Integer price, List<String> imageUrls, Integer total) {
+    public CartResponse(Integer idCartDetail, Integer bookId, String title, String author, String description, int quantity, Integer price, List<String> imageUrls, double total, int cl) {
         this.idCartDetail = idCartDetail;
         this.bookId = bookId;
         this.title = title;
@@ -36,6 +44,15 @@ public class CartResponse {
         this.price = price;
         this.imageUrls = imageUrls;
         this.total = total;
+        this.cl = cl;
+    }
+
+    public int getCl() {
+        return cl;
+    }
+
+    public void setCl(int cl) {
+        this.cl = cl;
     }
 
     public Integer getIdCart() {
