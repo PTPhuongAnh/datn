@@ -72,5 +72,5 @@ public interface OrderRespository extends JpaRepository<Order,Integer> {
                                              @Param("endDate") LocalDateTime endDate,
                                              Pageable pageable);
 
-    Optional<Order> findByOrderCode(String orderCode);
+    Order findByOrderCode(String orderCode);
 }

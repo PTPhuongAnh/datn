@@ -299,6 +299,62 @@ private OrderResponse convertToOrderResponse(Order order) {
     return response;
 }
 
+//    private OrderResponse convertToOrderResponse(Order order) {
+//        // Lấy username từ SecurityContextHolder
+//        String currentUsername = getCurrentUsernameFromContext();
+//
+//        OrderResponse response = new OrderResponse();
+//        response.setId(order.getId());
+//        response.setShipment(order.getShipment().getShippingMethod());
+//        response.setPayment(order.getPayment().getPaymentMethod());
+//        response.setCreatedAt(order.getCreatedAt());
+//        response.setStatus(order.getOrderStatus().getStatus());
+//        response.setPhone(order.getPhone());
+//        response.setShippingAdrress(order.getShippingAddress());
+//        response.setReceiveName(order.getReceivingName());
+//        response.setNote(order.getNote());
+//        response.setDeliveryDate(order.getDeliveryDate());
+//        response.setOrderCode(order.getOrderCode());
+//        response.setVoucher(order.getVoucher().getDiscountValue());
+//
+//        List<BookRespone> bookDetails = order.getOrderDetails().stream()
+//                .map(orderDetail -> {
+//                    BookRespone bookDetail = new BookRespone();
+//                    bookDetail.setOrderDetailId(orderDetail.getIdOrderDetail());
+//                    bookDetail.setIdBook(orderDetail.getBook().getIdBook());
+//                    bookDetail.setNameBook(orderDetail.getBook().getNameBook());
+//                    bookDetail.setAuthor(orderDetail.getBook().getAuthor());
+//                    bookDetail.setQuantity(orderDetail.getQuantity());
+//                    bookDetail.setPrice(orderDetail.getPrice());
+//                    bookDetail.setImageUrls(getImageUrlsFromBook(orderDetail.getBook()));
+//
+//                    // Lấy feedback của sách, chỉ trả về feedback của người dùng hiện tại
+//                    List<Feedback> feedbacks = getFeedbacksForBook(orderDetail.getBook().getIdBook(), currentUsername);
+//                    List<FeedbackRespone> feedbackResponses = feedbacks.stream()
+//                            .map(feedback -> {
+//                                FeedbackRespone feedbackResponse = new FeedbackRespone();
+//                                feedbackResponse.setUsername(feedback.getUser().getUsername());
+//                                feedbackResponse.setComment(feedback.getComment());
+//                                feedbackResponse.setRating(feedback.getRating());
+//                                return feedbackResponse;
+//                            })
+//                            .collect(Collectors.toList());
+//
+//                    bookDetail.setFeedbacks(feedbackResponses);
+//                    return bookDetail;
+//                })
+//                .collect(Collectors.toList());
+//
+//        response.setBooks(bookDetails);
+//
+//        // Tính tổng tiền của đơn hàng
+//        double totalAmount = order.getOrderDetails().stream()
+//                .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
+//                .sum();
+//        response.setTotal(totalAmount);
+//
+//        return response;
+//    }
 
     private String getCurrentUsernameFromContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -446,6 +502,11 @@ public Map<String, Object> getAllOrdersWithPagination(Pageable pageable,
             }
             if (order.getOrderStatus().getIdStatus().equals(5)) {
                 return false; // Không cho phép chuyển trạng thái nếu đã là "completed"
+            }
+            if(order.getPayment().getIdPayment().equals(2) || order.getPayment().getIdPayment().equals(3)){
+                if (order.getPaymentStatusM().equals(1)) { // UNPAID
+                    throw new IllegalStateException("Cannot transition to UNPAID if payment is already PAID.");
+                }
             }
             // Cập nhật trạng thái mới
             order.setOrderStatus(status);
